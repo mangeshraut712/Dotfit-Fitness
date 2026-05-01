@@ -18,11 +18,6 @@ function Router() {
 }
 
 function App() {
-  useEffect(() => {
-    // Force dark mode for that premium gym vibe
-    document.documentElement.classList.add("dark");
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

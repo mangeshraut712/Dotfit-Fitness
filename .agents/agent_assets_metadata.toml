@@ -48,3 +48,33 @@ id = "5zd6UGz2P94VVe69390B9"
 uri = "file://artifacts/dotfit/public/trainer-2.png"
 type = "image"
 title = "Expert female trainer"
+
+[[generated]]
+id = "1nMgGmccQWlqY-_U7VHhv"
+uri = "file://artifacts/dotfit/public/trainer-ganesh.png"
+type = "image"
+title = "Male Indian gym trainer 1"
+
+[[generated]]
+id = "SYEcmd7X_A16-0hkVaHat"
+uri = "file://artifacts/dotfit/public/trainer-rupali.png"
+type = "image"
+title = "Female Indian gym trainer"
+
+[[generated]]
+id = "XFJPkf3_cI0hJLTFrWhtD"
+uri = "file://artifacts/dotfit/public/trainer-poonam.png"
+type = "image"
+title = "Male Indian yoga trainer"
+
+[[generated]]
+id = "4vlmCBE0zMfXIsf6x-lxw"
+uri = "file://artifacts/dotfit/public/trainer-sikandar.png"
+type = "image"
+title = "Male Indian zumba trainer"
+
+[[generated]]
+id = "J756H43_UQMJ_Qn2s_-fm"
+uri = "file://artifacts/dotfit/public/transformation-1.png"
+type = "image"
+title = "Gym transformation before after"
