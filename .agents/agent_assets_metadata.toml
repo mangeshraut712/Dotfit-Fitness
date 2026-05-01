@@ -1,0 +1,50 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "51txJcgHXkwghLjdnupH9"
+uri = "file://artifacts/dotfit/public/hero.png"
+type = "image"
+title = "Cinematic gym hero image"
+
+[[generated]]
+id = "Q20AQbFYhcaJ0K7IPhjg1"
+uri = "file://artifacts/dotfit/public/class-zumba.png"
+type = "image"
+title = "Zumba class group"
+
+[[generated]]
+id = "krQJdRI_OwdOraqPe7eE8"
+uri = "file://artifacts/dotfit/public/class-kickboxing.png"
+type = "image"
+title = "Kickboxing training"
+
+[[generated]]
+id = "4vV-azsq4udM2g8dJzgSC"
+uri = "file://artifacts/dotfit/public/class-yoga.png"
+type = "image"
+title = "Yoga and Pilates"
+
+[[generated]]
+id = "xOQYqpGnhtSaQGscYu1b_"
+uri = "file://artifacts/dotfit/public/facility-equipment.png"
+type = "image"
+title = "Gym equipment area"
+
+[[generated]]
+id = "EfxMP0K4Yty1IANSnDlL-"
+uri = "file://artifacts/dotfit/public/facility-sauna.png"
+type = "image"
+title = "Sauna and Steam room"
+
+[[generated]]
+id = "Dw6EqET4Ii_yfYEAXCkS3"
+uri = "file://artifacts/dotfit/public/trainer-1.png"
+type = "image"
+title = "Expert personal trainer"
+
+[[generated]]
+id = "5zd6UGz2P94VVe69390B9"
+uri = "file://artifacts/dotfit/public/trainer-2.png"
+type = "image"
+title = "Expert female trainer"

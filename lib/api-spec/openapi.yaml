@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: contacts
+    description: Contact/lead form submissions
 paths:
   /healthz:
     get:
@@ -24,6 +26,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /contacts:
+    post:
+      operationId: createContact
+      tags: [contacts]
+      summary: Submit a contact/lead form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContactBody"
+      responses:
+        "201":
+          description: Contact submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: listContacts
+      tags: [contacts]
+      summary: List all contact submissions
+      responses:
+        "200":
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +72,52 @@ components:
           type: string
       required:
         - status
-
+    CreateContactBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        plan:
+          type: string
+        message:
+          type: ["string", "null"]
+      required:
+        - name
+        - phone
+        - email
+        - plan
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        plan:
+          type: string
+        message:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - phone
+        - email
+        - plan
+        - createdAt
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

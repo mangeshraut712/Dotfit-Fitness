@@ -8,3 +8,27 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface CreateContactBody {
+  name: string;
+  phone: string;
+  email: string;
+  plan: string;
+  /** @nullable */
+  message?: string | null;
+}
+
+export interface Contact {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  plan: string;
+  /** @nullable */
+  message?: string | null;
+  createdAt: string;
+}
+
+export interface ErrorResponse {
+  error: string;
+}

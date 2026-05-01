@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Dotfit Fitness"
+version = "1.0.0"
+id = "artifacts/dotfit"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18513
+
+[services.development]
+run = "pnpm --filter @workspace/dotfit run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/dotfit", "run", "build" ]
+publicDir = "artifacts/dotfit/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18513"
+BASE_PATH = "/"
