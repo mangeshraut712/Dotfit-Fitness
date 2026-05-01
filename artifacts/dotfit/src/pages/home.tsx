@@ -102,9 +102,8 @@ export default function Home() {
         }`}
       >
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("hero")}>
-            <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center font-display font-bold text-white text-xl">D</div>
-            <span className="font-display font-bold text-xl tracking-wider">DOTFIT</span>
+          <div className="flex items-center cursor-pointer" onClick={() => scrollTo("hero")}>
+            <img src="/logo-text.png" alt="Dotfit Fitness" className="h-12 w-auto object-contain" />
           </div>
           
           <div className="hidden md:flex items-center gap-8">
@@ -180,16 +179,20 @@ export default function Home() {
               <span className="text-xs font-medium tracking-wider uppercase text-white/80">K11 Certified Facility</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[0.9] tracking-tighter mb-6 uppercase">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-[0.9] tracking-tighter mb-4 uppercase">
               Raw Power.<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-rose-400">
                 Precision.
               </span><br />
               Results.
             </h1>
+
+            <p className="text-xl md:text-2xl font-display font-semibold text-white/90 mb-4 tracking-wide">
+              Stay Fit With Dotfit
+            </p>
             
             <p className="text-lg md:text-xl text-white/70 mb-10 max-w-xl font-light leading-relaxed">
-              Not a wellness retreat. A professional sports facility where every machine is primed and every member walks out stronger. Join 50,000+ happy members in Baner.
+              Baner's most trusted gym since 2012. A K11-certified professional facility dedicated to helping you achieve your fitness goals, build discipline, and transform your body. Join 50,000+ happy members.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -599,9 +602,8 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center font-display font-bold text-white text-xl">D</div>
-                <span className="font-display font-bold text-2xl tracking-wider">DOTFIT</span>
+              <div className="flex items-center mb-6">
+                <img src="/logo-text.png" alt="Dotfit Fitness" className="h-12 w-auto object-contain" />
               </div>
               <p className="text-white/50 max-w-md mb-8">
                 Raw power meets precision training. A K11 certified facility designed for serious transformations.
