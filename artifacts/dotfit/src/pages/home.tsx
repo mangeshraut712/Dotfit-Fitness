@@ -4,88 +4,55 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  MapPin,
-  Phone,
-  Mail,
-  Instagram,
-  Facebook,
-  Clock,
-  Check,
-  Menu,
-  X,
-  ArrowRight,
-  Star,
-  MessageCircle,
-  Linkedin,
-  Map,
-  ChevronDown,
-  Shield,
-  Users,
-  Trophy,
-  Activity,
-  Zap,
-  HeartPulse,
-  Timer,
-  Dumbbell,
+  MapPin, Phone, Mail, Instagram, Facebook, Clock, Check, Menu, X,
+  ArrowRight, Star, MessageCircle, Linkedin, ChevronDown, Shield,
+  Users, Trophy, Activity, Zap, HeartPulse, Timer, Dumbbell,
+  ExternalLink, Flame, Wind, Brain, Apple, Weight, CalendarCheck,
+  ChevronRight,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
+/* ─── FAQ accordion ─────────────────────────────────────────────────────── */
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className="bg-white border border-black/10 overflow-hidden">
+    <div className="border border-gray-200 overflow-hidden rounded-sm bg-white">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left font-display font-bold uppercase tracking-wider text-black hover:text-primary transition-colors"
+        className="w-full flex items-center justify-between px-6 py-5 text-left font-display font-bold uppercase tracking-wider text-gray-900 hover:text-primary transition-colors"
       >
         <span>{question}</span>
-        <ChevronDown
-          className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-black/40"}`}
-        />
+        <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-gray-400"}`} />
       </button>
-      <div
-        ref={contentRef}
-        style={{
-          maxHeight: open ? `${contentRef.current?.scrollHeight ?? 200}px` : "0px",
-          transition: "max-height 0.35s ease",
-          overflow: "hidden",
-        }}
-      >
-        <div className="px-6 pb-5 text-black/70 font-medium text-base border-t border-black/5 pt-4">
-          {answer}
-        </div>
+      <div ref={ref} style={{ maxHeight: open ? `${ref.current?.scrollHeight ?? 300}px` : "0px", transition: "max-height 0.35s ease", overflow: "hidden" }}>
+        <div className="px-6 pb-5 text-gray-600 font-medium text-sm leading-relaxed border-t border-gray-100 pt-4">{answer}</div>
       </div>
     </div>
   );
 }
 
+/* ─── Staff card ─────────────────────────────────────────────────────────── */
+function StaffCard({ name, role, img }: { name: string; role: string; img: string }) {
+  return (
+    <div className="group text-center">
+      <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-gray-100 border-2 border-gray-100 group-hover:border-primary transition-colors duration-300">
+        <img src={img} alt={name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+      <h4 className="text-base font-display font-black uppercase tracking-wider text-gray-900">{name}</h4>
+      <p className="text-primary text-xs uppercase tracking-widest font-bold mt-0.5">{role}</p>
+    </div>
+  );
+}
+
+/* ─── Schema ─────────────────────────────────────────────────────────────── */
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   phone: z.string().min(10, "Please enter a valid phone number"),
@@ -94,17 +61,27 @@ const formSchema = z.object({
   message: z.string().optional(),
 });
 
+/* ─── SCHEDULE data ──────────────────────────────────────────────────────── */
+const schedule = [
+  { time: "6:00 – 7:00 AM", mon: "Strength", tue: "Power Yoga", wed: "Kickboxing", thu: "Zumba", fri: "Circuit", sat: "Open Gym" },
+  { time: "7:00 – 9:00 AM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
+  { time: "12:00 – 5:00 PM", mon: "Happy Hours", tue: "Happy Hours", wed: "Happy Hours", thu: "Happy Hours", fri: "Happy Hours", sat: "Happy Hours" },
+  { time: "6:00 – 7:00 PM", mon: "Zumba", tue: "Kickboxing", wed: "Yoga", thu: "Bollywood", fri: "Strength", sat: "Open Gym" },
+  { time: "7:00 – 9:00 PM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
+];
+
+/* ══════════════════════════════════════════════════════════════════════════ */
 export default function Home() {
   const { toast } = useToast();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroY = useTransform(scrollY, [0, 600], [0, 160]);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const fn = () => setIsScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -120,17 +97,11 @@ export default function Home() {
         body: JSON.stringify(values),
       });
       if (res.ok) {
-        toast({ title: "Request Submitted!", description: "Our team will contact you shortly." });
+        toast({ title: "Request Submitted! ✅", description: "Our team will call you back shortly." });
         form.reset();
-      } else {
-        throw new Error("Failed to submit");
-      }
+      } else throw new Error();
     } catch {
-      toast({
-        title: "Submission failed",
-        description: "Please try again or call +91 95272 37213 directly.",
-        variant: "destructive",
-      });
+      toast({ title: "Submission failed", description: "Please call +91 95272 37213 directly.", variant: "destructive" });
     }
   }
 
@@ -139,372 +110,307 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const schedule = [
-    { time: "6:00 – 7:00 AM", mon: "Strength", tue: "Yoga", wed: "Kickboxing", thu: "Zumba", fri: "Circuit", sat: "Open Gym" },
-    { time: "7:00 – 9:00 AM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
-    { time: "12:00 – 5:00 PM", mon: "★ Happy Hours", tue: "★ Happy Hours", wed: "★ Happy Hours", thu: "★ Happy Hours", fri: "★ Happy Hours", sat: "★ Happy Hours" },
-    { time: "6:00 – 7:00 PM", mon: "Zumba", tue: "Kickboxing", wed: "Power Yoga", thu: "Bollywood", fri: "Strength", sat: "Open Gym" },
-    { time: "7:00 – 9:00 PM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
-  ];
-
+  /* ─── RENDER ─────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-white text-black overflow-x-hidden selection:bg-primary selection:text-white font-sans">
+    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden selection:bg-primary selection:text-white">
 
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/10 py-3 shadow-lg" : "bg-transparent py-6"}`}>
+      {/* ── Promo announcement bar ─────────────────────────────────────── */}
+      <div className="bg-primary text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative">
+        🔥 Happy Hours Offer: Annual Membership from just ₹8,500 &nbsp;|&nbsp; 12 PM – 5 PM &nbsp;
+        <button onClick={() => scrollTo("contact")} className="underline underline-offset-2 hover:no-underline">Book Free Trial →</button>
+      </div>
+
+      {/* ── Navigation ────────────────────────────────────────────────── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/98 backdrop-blur-md border-b border-gray-100 py-3 shadow-sm" : "bg-transparent py-5"}`} style={{ top: isScrolled ? "0" : "32px" }}>
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          <div className="flex items-center cursor-pointer" onClick={() => scrollTo("hero")}>
-            <img src="/logo-text.png" alt="Dotfit Fitness" className="h-11 w-auto object-contain drop-shadow-md" />
+          <div className="cursor-pointer" onClick={() => scrollTo("hero")}>
+            <img src="/logo-text.png" alt="Dotfit Fitness" className={`h-10 w-auto object-contain transition-all ${isScrolled ? "brightness-100" : "brightness-0 invert"}`} />
           </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            {["Classes", "Pricing", "Facilities", "Team", "FAQ", "Location"].map((item) => (
-              <button
-                key={item}
-                onClick={() => scrollTo(item.toLowerCase())}
-                className={`text-xs font-bold transition-colors uppercase tracking-widest ${isScrolled ? "text-white/80 hover:text-primary" : "text-white/90 hover:text-primary drop-shadow-sm"}`}
-              >
+          <div className="hidden md:flex items-center gap-7">
+            {["Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location"].map((item) => (
+              <button key={item} onClick={() => scrollTo(item.toLowerCase())}
+                className={`text-xs font-bold transition-colors uppercase tracking-widest ${isScrolled ? "text-gray-700 hover:text-primary" : "text-white/90 hover:text-primary"}`}>
                 {item}
               </button>
             ))}
-            <Button
-              onClick={() => scrollTo("contact")}
-              className="bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-bold text-xs shadow-lg shadow-primary/20 h-10 px-6"
-            >
+            <Button onClick={() => scrollTo("contact")} className="bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-bold text-xs h-9 px-5 shadow-md shadow-primary/20">
               Free Trial
             </Button>
           </div>
-
-          <button className="md:hidden text-white drop-shadow-md" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          <button className={`md:hidden ${isScrolled ? "text-gray-900" : "text-white"}`} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* ── Mobile menu ───────────────────────────────────────────────── */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-[#0A0A0A]/98 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden"
-          >
-            {["Classes", "Pricing", "Facilities", "Team", "FAQ", "Location", "Contact"].map((item) => (
-              <button
-                key={item}
-                onClick={() => scrollTo(item.toLowerCase())}
-                className="text-2xl font-display font-black text-white hover:text-primary transition-colors uppercase tracking-widest"
-              >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-7 md:hidden">
+            <img src="/logo-text.png" alt="Dotfit" className="h-12 mb-4" />
+            {["Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location", "Contact"].map((item) => (
+              <button key={item} onClick={() => scrollTo(item.toLowerCase())}
+                className="text-2xl font-display font-black text-gray-900 hover:text-primary transition-colors uppercase tracking-widest">
                 {item}
               </button>
             ))}
-            <div className="flex gap-6 mt-4">
-              <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-primary"><Instagram className="w-6 h-6" /></a>
-              <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-primary"><MessageCircle className="w-6 h-6" /></a>
-              <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-primary"><Facebook className="w-6 h-6" /></a>
+            <div className="flex gap-5 mt-4">
+              {[
+                { href: "https://www.instagram.com/dotfitfitness/", icon: <Instagram className="w-6 h-6" /> },
+                { href: "https://wa.me/919527237213", icon: <MessageCircle className="w-6 h-6" /> },
+                { href: "https://www.facebook.com/DotfitFitness/", icon: <Facebook className="w-6 h-6" /> },
+              ].map((s, i) => <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary">{s.icon}</a>)}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating WhatsApp */}
-      <a
-        href="https://wa.me/919527237213"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform"
-      >
-        <MessageCircle className="w-8 h-8" />
+      {/* ── Floating buttons ──────────────────────────────────────────── */}
+      <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
+        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform">
+        <MessageCircle className="w-7 h-7" />
+      </a>
+      <a href="tel:+919527237213"
+        className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform">
+        <Phone className="w-6 h-6" />
       </a>
 
-      {/* ═══════════════════════════════ HERO ═══════════════════════════════ */}
-      <section id="hero" className="relative min-h-[100dvh] flex items-center pt-20 overflow-hidden bg-[#0A0A0A]">
-        <motion.div className="absolute inset-0 z-0" style={{ y }}>
-          <img
-            src="/hero.png"
-            alt="Dotfit Premium Gym Interior"
-            className="w-full h-full object-cover object-center opacity-55"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
-          <div className="absolute inset-0 bg-black/20" />
+      {/* ════════════════════════════ HERO ══════════════════════════════ */}
+      <section id="hero" className="relative min-h-[100dvh] flex items-center pt-20 overflow-hidden bg-gray-950">
+        <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
+          <img src="/hero.png" alt="Dotfit Fitness Gym Floor" className="w-full h-full object-cover opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/60 to-transparent" />
         </motion.div>
-
         <div className="container relative z-10 mx-auto px-4 md:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="max-w-4xl"
-          >
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-white/5 border border-primary/40 backdrop-blur-sm shadow-[0_0_20px_rgba(125,181,32,0.2)]"
-            >
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 border border-primary/40 bg-primary/10 backdrop-blur-sm">
               <Shield className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold tracking-widest uppercase text-white">K11 Certified Facility · Est. 2012</span>
-            </motion.div>
-
-            <h1 className="text-6xl md:text-8xl lg:text-[110px] font-display font-black leading-[0.88] tracking-tighter mb-6 uppercase text-white">
-              Raw Power.
-              <br />
-              <span className="text-primary">Precision.</span>
-              <br />
+              <span className="text-xs font-black tracking-widest uppercase text-white">K11 Certified · Est. 2012 · Baner, Pune</span>
+            </div>
+            <h1 className="text-6xl md:text-8xl lg:text-[108px] font-display font-black leading-[0.88] tracking-tighter mb-5 uppercase text-white">
+              Raw Power.<br />
+              <span className="text-primary">Precision.</span><br />
               Results.
             </h1>
-
-            <p className="text-xl md:text-2xl font-display font-bold text-white/90 mb-3 tracking-wide uppercase">
+            <p className="text-xl md:text-2xl font-display font-black text-white/90 mb-3 tracking-wide uppercase">
               Baner's Most Trusted Gym Since 2012
             </p>
-            <p className="text-lg text-white/65 mb-10 max-w-xl font-medium leading-relaxed">
-              Join a community of 50,000+ members who chose excellence. Professional coaching, cutting-edge equipment, and real results.
+            <p className="text-base text-white/60 mb-10 max-w-xl font-medium leading-relaxed">
+              Join 50,000+ members who chose excellence. Expert coaches, premium equipment, and real transformations — 5th floor, fully air-conditioned.
             </p>
-
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                onClick={() => scrollTo("contact")}
-                size="lg"
-                className="h-14 px-10 bg-primary hover:bg-primary/90 text-white rounded-none text-sm uppercase tracking-widest font-black group shadow-xl shadow-primary/25"
-              >
-                Book Free Trial
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button onClick={() => scrollTo("contact")} size="lg"
+                className="h-14 px-10 bg-primary hover:bg-primary/90 text-white rounded-none text-sm uppercase tracking-widest font-black group shadow-xl shadow-primary/30">
+                Book Free Trial <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button
-                onClick={() => scrollTo("pricing")}
-                size="lg"
-                variant="outline"
-                className="h-14 px-10 border-white/25 bg-white/5 hover:bg-white/10 hover:border-primary/50 hover:text-primary text-white rounded-none text-sm uppercase tracking-widest font-bold backdrop-blur-sm"
-              >
+              <Button onClick={() => scrollTo("pricing")} size="lg" variant="outline"
+                className="h-14 px-10 border-white/20 bg-white/5 hover:bg-white/10 hover:border-primary/40 text-white rounded-none text-sm uppercase tracking-widest font-bold">
                 View Plans
               </Button>
+              <a href="tel:+919527237213"
+                className="h-14 px-8 border border-white/20 bg-transparent hover:bg-white/5 text-white rounded-none text-sm uppercase tracking-widest font-bold flex items-center gap-2 justify-center transition-colors">
+                <Phone className="w-4 h-4 text-primary" /> +91 95272 37213
+              </a>
             </div>
           </motion.div>
         </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 cursor-pointer"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.8 }}
-          onClick={() => scrollTo("stats")}
-        >
-          <span className="text-white/40 text-xs uppercase tracking-widest font-bold">Scroll</span>
-          <ChevronDown className="w-5 h-5 text-white/40" />
+        <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 cursor-pointer"
+          animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 2 }} onClick={() => scrollTo("trust")}>
+          <span className="text-white/30 text-xs uppercase tracking-widest font-bold">Scroll</span>
+          <ChevronDown className="w-5 h-5 text-white/30" />
         </motion.div>
       </section>
 
-      {/* ══════════════════════════════ STATS ══════════════════════════════ */}
-      <section id="stats" className="py-20 relative z-20 bg-white border-b border-black/5">
+      {/* ════════════════════════ TRUST STRIP ═══════════════════════════ */}
+      <div id="trust" className="bg-white border-b border-gray-100 py-5">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
             {[
-              { label: "Happy Members", value: "50,000+", icon: <Users className="w-7 h-7 text-primary mb-3 mx-auto" /> },
-              { label: "Verified Rating", value: "4.2 / 5", icon: <Star className="w-7 h-7 text-primary mb-3 mx-auto" /> },
-              { label: "Trainer Ratio", value: "1 : 4", icon: <Activity className="w-7 h-7 text-primary mb-3 mx-auto" /> },
-              { label: "Years of Excellence", value: "13+", icon: <Trophy className="w-7 h-7 text-primary mb-3 mx-auto" /> },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center p-8 bg-black/[0.03] border border-black/5 hover:border-primary/20 transition-colors"
-              >
-                {stat.icon}
-                <div className="text-4xl md:text-5xl font-display font-black text-black mb-2 tracking-tight">{stat.value}</div>
-                <div className="text-xs text-black/50 uppercase tracking-widest font-bold">{stat.label}</div>
+              { icon: <Star className="w-5 h-5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
+              { icon: <Shield className="w-5 h-5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
+              { icon: <Users className="w-5 h-5 text-primary" />, label: "50,000+ Happy Members", sub: "Since 2012" },
+              { icon: <Check className="w-5 h-5 text-green-600" />, label: "JustDial Verified", sub: "Trusted Business" },
+              { icon: <Trophy className="w-5 h-5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
+            ].map((t, i) => (
+              <div key={i} className="flex items-center gap-3">
+                {t.icon}
+                <div>
+                  <div className="text-sm font-black text-gray-900 leading-none">{t.label}</div>
+                  <div className="text-xs text-gray-400 font-medium mt-0.5">{t.sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════ STATS ═════════════════════════════════ */}
+      <section className="py-20 bg-[#f8fbf3]">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Happy Members", value: "50,000+", icon: <Users className="w-7 h-7 text-primary mx-auto mb-3" /> },
+              { label: "Google Rating", value: "4.2 / 5", icon: <Star className="w-7 h-7 text-amber-400 mx-auto mb-3" /> },
+              { label: "Trainer Ratio", value: "1 : 4", icon: <Activity className="w-7 h-7 text-primary mx-auto mb-3" /> },
+              { label: "Years Running", value: "13+", icon: <Trophy className="w-7 h-7 text-primary mx-auto mb-3" /> },
+            ].map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="text-center p-8 bg-white border-2 border-gray-100 hover:border-primary/30 transition-colors">
+                {s.icon}
+                <div className="text-4xl md:text-5xl font-display font-black text-gray-900 mb-1 tracking-tight">{s.value}</div>
+                <div className="text-xs text-gray-400 uppercase tracking-widest font-bold">{s.label}</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════ WHY DOTFIT (NEW) ═════════════════════════ */}
-      <section className="py-32 bg-[#0A0A0A] text-white">
+      {/* ════════════════════ WHY DOTFIT ════════════════════════════════ */}
+      <section className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4">
-              Why <span className="text-primary">Dotfit?</span>
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Why Choose Us</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              Not Just a Gym.<br /><span className="text-primary">A Lifestyle.</span>
             </h2>
-            <p className="text-white/50 text-lg max-w-2xl mx-auto font-medium">
-              Not just another gym. A complete fitness ecosystem built around your results.
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">
+              Dotfit Fitness is Baner's most complete fitness ecosystem — built around your results, not just your membership fee.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              {
-                icon: <Shield className="w-8 h-8 text-primary" />,
-                title: "K11 Certified Facility",
-                desc: "Internationally recognized fitness certification ensuring world-class standards in training and safety.",
-              },
-              {
-                icon: <Users className="w-8 h-8 text-primary" />,
-                title: "1:4 Trainer Ratio",
-                desc: "Unparalleled personal attention. Every 4 members get one dedicated certified trainer — not the industry-standard 1:30.",
-              },
-              {
-                icon: <Timer className="w-8 h-8 text-primary" />,
-                title: "Happy Hours Deal",
-                desc: "Train 12 PM – 5 PM and unlock heavily discounted memberships without compromising on facilities or coaching quality.",
-              },
-              {
-                icon: <Zap className="w-8 h-8 text-primary" />,
-                title: "5th Floor Premium Space",
-                desc: "Fully air-conditioned, spacious 5th-floor facility with state-of-the-art equipment, sauna, steam room, and locker rooms.",
-              },
-              {
-                icon: <HeartPulse className="w-8 h-8 text-primary" />,
-                title: "Personalized Nutrition",
-                desc: "Certified nutritionists create meal plans tailored to your specific goals — whether it's fat loss, muscle gain, or wellness.",
-              },
-              {
-                icon: <Dumbbell className="w-8 h-8 text-primary" />,
-                title: "Diverse Group Classes",
-                desc: "From high-energy Zumba and Kickboxing to calming Power Yoga and Bollywood dance — 8+ class types every week.",
-              },
+              { icon: <Shield className="w-8 h-8 text-primary" />, title: "K11 Certified Facility", desc: "Internationally recognized certification ensuring world-class training standards, safety protocols, and equipment quality." },
+              { icon: <Users className="w-8 h-8 text-primary" />, title: "1:4 Trainer Ratio", desc: "Every 4 members get one dedicated certified trainer — not the industry-standard 1:30. Your form, your progress, always monitored." },
+              { icon: <Timer className="w-8 h-8 text-primary" />, title: "Happy Hours 12–5 PM", desc: "Train between 12 PM and 5 PM and unlock massively discounted memberships. Annual plan starts at just ₹8,500." },
+              { icon: <Wind className="w-8 h-8 text-primary" />, title: "Fully Air-Conditioned", desc: "5th floor, 100% air-conditioned facility with premium lighting, ventilation, sauna, steam room, and spacious locker rooms." },
+              { icon: <Apple className="w-8 h-8 text-primary" />, title: "Nutrition Counseling", desc: "Certified nutritionists craft personalized meal plans for fat loss, muscle gain, or sports performance — included with membership." },
+              { icon: <CalendarCheck className="w-8 h-8 text-primary" />, title: "8+ Group Classes/Week", desc: "Zumba, Bollywood Beats, Kickboxing, Power Yoga, Pilates, Circuit Training, Dance Aerobics, and Bokwa — every week." },
+              { icon: <HeartPulse className="w-8 h-8 text-primary" />, title: "Fitness Assessments", desc: "Comprehensive body composition analysis, BMI tracking, and progress reports — so you always know where you stand." },
+              { icon: <Flame className="w-8 h-8 text-primary" />, title: "Sauna & Steam Room", desc: "Post-workout recovery zone with professional-grade sauna and steam room. Reduce soreness, improve circulation, relax." },
+              { icon: <Brain className="w-8 h-8 text-primary" />, title: "Personal Training", desc: "1-on-1 customized training programs by certified personal trainers for maximum results in minimum time." },
             ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="bg-[#0A0A0A] p-10 group hover:bg-white/[0.03] transition-colors"
-              >
-                <div className="mb-5">{item.icon}</div>
-                <h3 className="text-xl font-display font-black uppercase tracking-wider text-white mb-3 group-hover:text-primary transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-white/55 font-medium leading-relaxed text-sm">{item.desc}</p>
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
+                className="p-8 border-2 border-gray-100 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all group bg-white">
+                <div className="w-14 h-14 bg-[#f8fbf3] border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary group-hover:border-primary transition-all">
+                  <div className="group-hover:[&>*]:text-white transition-all">{item.icon}</div>
+                </div>
+                <h3 className="text-lg font-display font-black uppercase tracking-wider text-gray-900 mb-3 group-hover:text-primary transition-colors">{item.title}</h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════ FACILITIES ════════════════════════════════ */}
-      <section id="facilities" className="py-32 bg-white">
+      {/* ════════════════════ FACILITIES ════════════════════════════════ */}
+      <section id="facilities" className="py-32 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4 text-black">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">5th Floor, Baner</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               World-Class <span className="text-primary">Facilities</span>
             </h2>
-            <p className="text-black/55 text-lg max-w-2xl mx-auto font-medium">
-              Everything you need to reach your peak potential — in our premium air-conditioned 5th floor facility.
-            </p>
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">Premium, air-conditioned fitness infrastructure — everything in one location.</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-black">
+            <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-gray-900">
               <img src="/facility-equipment.png" alt="Power Station" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-8 left-8">
+                <div className="inline-block px-3 py-1 bg-primary text-white text-xs font-black uppercase tracking-widest mb-3">Premium Equipment</div>
                 <h3 className="text-3xl font-display font-black uppercase tracking-wider text-white mb-2">Power Station</h3>
-                <p className="text-white/75 font-medium">Cutting-edge weightlifting & functional area</p>
+                <p className="text-white/75 font-medium text-sm">Cutting-edge weightlifting & functional training area</p>
               </div>
             </div>
-
-            <div className="relative aspect-[16/9] overflow-hidden group bg-black">
-              <img src="/facility-sauna.png" alt="Sauna" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-              <div className="absolute bottom-8 left-8">
-                <h3 className="text-3xl font-display font-black uppercase tracking-wider text-white mb-2">Recovery Zone</h3>
-                <p className="text-white/75 font-medium">Sauna, Steam Room & Massage Therapy</p>
+            <div className="relative aspect-[16/9] overflow-hidden group bg-gray-900">
+              <img src="/facility-sauna.png" alt="Recovery Zone" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute bottom-6 left-6">
+                <h3 className="text-2xl font-display font-black uppercase tracking-wider text-white mb-1">Recovery Zone</h3>
+                <p className="text-white/70 font-medium text-sm">Sauna, Steam Room & Massage Therapy</p>
               </div>
             </div>
-
-            <div className="bg-black text-white p-10 flex flex-col justify-center">
-              <h3 className="text-xl font-display font-black uppercase tracking-wider mb-6 text-primary">Also Featuring</h3>
-              <ul className="space-y-4">
-                {["Premium Cardio Zone with Treadmills & Cycles", "Air-Conditioned 5th Floor Facility", "Personal Training & Nutrition Counseling", "Comprehensive Fitness Assessments", "Dedicated Locker Rooms & Showers"].map((item) => (
-                  <li key={item} className="flex items-start gap-4 text-white/85 font-medium text-sm">
-                    <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                    {item}
-                  </li>
+            <div className="bg-white border-2 border-gray-100 p-10 flex flex-col justify-center">
+              <h3 className="text-xl font-display font-black uppercase tracking-wider mb-6 text-primary">Complete Amenities</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  "Premium Cardio Zone", "Olympic Weightlifting Area", "Functional Training Area",
+                  "Sauna & Steam Room", "Dedicated Locker Rooms", "Personal Training Studio",
+                  "Zumba & Dance Floor", "Air-Conditioned 5th Floor", "Nutrition Counseling Room",
+                  "Group Class Area", "Free Parking", "CCTV Security",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-gray-700 font-medium text-sm">
+                    <Check className="w-4 h-4 text-primary shrink-0" /> {item}
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════ CLASSES & SCHEDULE ════════════════════════════ */}
-      <section id="classes" className="py-32 bg-[#0A0A0A] text-white">
+      {/* ════════════════════ CLASSES & SCHEDULE ════════════════════════ */}
+      <section id="classes" className="py-32 bg-gray-950 text-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col lg:flex-row gap-16">
-
-            {/* Left col */}
             <div className="lg:w-1/3">
-              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-6">
+              <span className="text-primary font-black text-xs uppercase tracking-widest">Group Training</span>
+              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-6">
                 Group <span className="text-primary">Discipline</span>
               </h2>
-              <p className="text-white/65 text-lg mb-8 font-medium leading-relaxed">
-                From high-intensity kickboxing to restorative yoga — our diverse classes keep you engaged and progressing every day.
+              <p className="text-white/60 text-base mb-8 font-medium leading-relaxed">
+                8+ diverse weekly classes led by certified instructors. From high-energy Zumba to calming Yoga — there's something for every goal.
               </p>
-
-              <div className="space-y-4 mb-8">
-                <div className="bg-white/5 p-5 border-l-4 border-primary">
-                  <h4 className="font-display font-bold uppercase tracking-widest text-primary mb-1 text-xs">Morning Batch</h4>
-                  <p className="text-2xl font-black tracking-tight">6:00 AM – 9:00 AM</p>
-                </div>
-                <div className="bg-white/5 p-5 border-l-4 border-white/20">
-                  <h4 className="font-display font-bold uppercase tracking-widest text-white/50 mb-1 text-xs">Happy Hours</h4>
-                  <p className="text-2xl font-black tracking-tight">12:00 PM – 5:00 PM</p>
-                  <p className="text-xs text-primary font-bold uppercase tracking-widest mt-1">Discounted Membership</p>
-                </div>
-                <div className="bg-white/5 p-5 border-l-4 border-primary">
-                  <h4 className="font-display font-bold uppercase tracking-widest text-primary mb-1 text-xs">Evening Batch</h4>
-                  <p className="text-2xl font-black tracking-tight">6:00 PM – 9:00 PM</p>
-                </div>
+              <div className="space-y-3 mb-8">
+                {[
+                  { label: "Morning Batch", time: "6:00 AM – 9:00 AM", color: "border-primary" },
+                  { label: "Happy Hours", time: "12:00 PM – 5:00 PM", color: "border-primary/40", note: "Discounted Membership" },
+                  { label: "Evening Batch", time: "6:00 PM – 9:00 PM", color: "border-primary" },
+                ].map((b) => (
+                  <div key={b.label} className={`bg-white/5 p-5 border-l-4 ${b.color}`}>
+                    <div className="text-primary font-black uppercase tracking-widest text-xs mb-1">{b.label}</div>
+                    <div className="text-xl font-black tracking-tight">{b.time}</div>
+                    {b.note && <div className="text-primary/70 text-xs font-bold uppercase tracking-wider mt-1">{b.note}</div>}
+                  </div>
+                ))}
               </div>
-
               <div className="flex flex-wrap gap-2">
-                {["Dance Aerobics", "Bokwa", "Strengthening", "Pilates", "Circuit Training"].map((tag) => (
-                  <span key={tag} className="px-3 py-1.5 border border-white/15 bg-transparent uppercase tracking-wider text-xs font-bold text-white/60">
-                    {tag}
-                  </span>
+                {["Dance Aerobics", "Bokwa", "Strengthening", "Pilates", "Circuit Training"].map((t) => (
+                  <span key={t} className="px-3 py-1.5 border border-white/15 text-white/50 uppercase tracking-wider text-xs font-bold">{t}</span>
                 ))}
               </div>
             </div>
-
-            {/* Right col */}
             <div className="lg:w-2/3 flex flex-col gap-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
                 {[
-                  { title: "Zumba & Bollywood", img: "/class-zumba.png" },
+                  { title: "Zumba & Bollywood Beats", img: "/class-zumba.png" },
                   { title: "Kickboxing & Boxing", img: "/class-kickboxing.png" },
                   { title: "Power Yoga & Pilates", img: "/class-yoga.png" },
                   { title: "Circuit & Body Building", img: "/facility-equipment.png" },
                 ].map((cls, i) => (
-                  <motion.div
-                    key={cls.title}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="group relative aspect-video overflow-hidden bg-black border border-white/10"
-                  >
-                    <img src={cls.img} alt={cls.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-85" />
+                  <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                    className="group relative aspect-video overflow-hidden bg-gray-900 border border-white/10">
+                    <img src={cls.img} alt={cls.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-80" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-                    <div className="absolute bottom-0 left-0 p-5 w-full">
-                      <h3 className="text-lg font-display font-black uppercase tracking-widest mb-2">{cls.title}</h3>
-                      <div className="w-8 h-1 bg-primary transform origin-left transition-transform group-hover:scale-x-150" />
+                    <div className="absolute bottom-0 left-0 p-4 w-full">
+                      <h3 className="text-sm font-display font-black uppercase tracking-widest mb-2">{cls.title}</h3>
+                      <div className="w-8 h-0.5 bg-primary transform origin-left transition-transform group-hover:scale-x-150" />
                     </div>
                   </motion.div>
                 ))}
               </div>
-
-              {/* Weekly Schedule Table */}
+              {/* Schedule table */}
               <div className="overflow-x-auto">
-                <h3 className="text-lg font-display font-black uppercase tracking-widest text-primary mb-4">Weekly Class Schedule</h3>
-                <table className="w-full text-xs border-collapse">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-display font-black uppercase tracking-widest text-primary">Weekly Schedule</h3>
+                  <span className="text-white/30 text-xs font-medium">Sunday: Closed</span>
+                </div>
+                <table className="w-full text-xs border-collapse min-w-[500px]">
                   <thead>
                     <tr>
-                      <th className="bg-primary text-white px-3 py-2.5 text-left font-black uppercase tracking-widest text-xs whitespace-nowrap">Time</th>
+                      <th className="bg-primary text-white px-3 py-2.5 text-left font-black uppercase tracking-wider text-xs whitespace-nowrap">Time Slot</th>
                       {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
                         <th key={d} className="bg-white/10 text-white px-3 py-2.5 font-black uppercase tracking-wider text-center">{d}</th>
                       ))}
@@ -513,363 +419,389 @@ export default function Home() {
                   <tbody>
                     {schedule.map((row, i) => (
                       <tr key={i} className={i % 2 === 0 ? "bg-white/[0.03]" : ""}>
-                        <td className="px-3 py-2.5 text-white/60 font-bold whitespace-nowrap border-b border-white/5">{row.time}</td>
+                        <td className="px-3 py-2.5 text-white/50 font-bold whitespace-nowrap border-b border-white/5">{row.time}</td>
                         {[row.mon, row.tue, row.wed, row.thu, row.fri, row.sat].map((cell, j) => (
-                          <td
-                            key={j}
-                            className={`px-3 py-2.5 text-center font-medium border-b border-white/5 ${cell.startsWith("★") ? "text-primary font-black bg-primary/10" : "text-white/70"}`}
-                          >
-                            {cell.replace("★ ", "")}
+                          <td key={j} className={`px-3 py-2.5 text-center font-medium border-b border-white/5 ${cell.includes("Happy") ? "text-primary font-black bg-primary/10" : "text-white/60"}`}>
+                            {cell}
                           </td>
                         ))}
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <p className="text-white/30 text-xs mt-2 font-medium">* Sunday: Closed &nbsp;|&nbsp; Schedule subject to change. Please confirm at the front desk.</p>
+                <p className="text-white/25 text-xs mt-2">* Schedule subject to change. Confirm at front desk or WhatsApp +91 95272 37213</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════ PRICING ══════════════════════════════════ */}
-      <section id="pricing" className="py-32 bg-black/[0.03]">
+      {/* ════════════════════ PRICING ═══════════════════════════════════ */}
+      <section id="pricing" className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4 text-black">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">No Hidden Fees</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               Transparent <span className="text-primary">Pricing</span>
             </h2>
-            <p className="text-black/55 text-lg font-medium">
-              Premium access without hidden fees. Train between 12 PM – 5 PM for exclusive Happy Hour discounts.
-            </p>
+            <p className="text-gray-500 text-lg font-medium">Train 12 PM – 5 PM (Happy Hours) for massively discounted rates.</p>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
             {[
               { duration: "1 Month", regular: 3000, happy: 2000 },
               { duration: "3 Months", regular: 5500, happy: 4000 },
               { duration: "6 Months", regular: 7500, happy: 6000 },
               { duration: "1 Year", regular: 15000, happy: 8500, popular: true },
             ].map((plan, i) => (
-              <motion.div
-                key={plan.duration}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`relative p-8 bg-white flex flex-col transition-shadow hover:shadow-xl ${plan.popular ? "border-2 border-primary shadow-xl shadow-primary/10 scale-[1.03] z-10" : "border border-black/10"}`}
-              >
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className={`relative p-8 bg-white flex flex-col transition-all hover:shadow-xl ${plan.popular ? "border-2 border-primary shadow-xl shadow-primary/10 scale-[1.02] z-10" : "border-2 border-gray-100 hover:border-primary/30"}`}>
                 {plan.popular && (
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-primary text-white text-xs font-black uppercase tracking-widest shadow-lg">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-primary text-white text-xs font-black uppercase tracking-widest shadow-lg">
                     Best Value
                   </div>
                 )}
-                <h3 className="text-2xl font-display font-black uppercase tracking-wider mb-6 text-center text-black">{plan.duration}</h3>
-
+                <h3 className="text-2xl font-display font-black uppercase tracking-wider mb-6 text-center text-gray-900">{plan.duration}</h3>
                 <div className="space-y-4 mb-8 flex-grow">
-                  <div className="text-center">
-                    <div className="text-xs text-black/40 uppercase tracking-widest font-bold mb-1">Regular</div>
-                    <div className="text-4xl font-display font-black text-black">₹{plan.regular.toLocaleString()}</div>
+                  <div className="text-center pb-4 border-b border-gray-100">
+                    <div className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-1">Regular Hours</div>
+                    <div className="text-4xl font-display font-black text-gray-900">₹{plan.regular.toLocaleString()}</div>
                   </div>
-                  <div className="p-4 border border-primary/25 bg-primary/5 text-center mt-4">
-                    <div className="text-xs text-primary uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1">
-                      <Clock className="w-3 h-3" /> Happy Hours (12–5 PM)
-                    </div>
-                    <div className="text-3xl font-display font-black text-black">₹{plan.happy.toLocaleString()}</div>
-                    <div className="text-xs text-primary/70 font-bold mt-1">Save ₹{(plan.regular - plan.happy).toLocaleString()}</div>
+                  <div className="p-4 border-2 border-primary/25 bg-[#f8fbf3] text-center">
+                    <div className="text-xs text-primary uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1"><Clock className="w-3 h-3" /> Happy Hours (12–5 PM)</div>
+                    <div className="text-3xl font-display font-black text-gray-900">₹{plan.happy.toLocaleString()}</div>
+                    <div className="text-xs text-primary font-bold mt-1">Save ₹{(plan.regular - plan.happy).toLocaleString()}</div>
                   </div>
                 </div>
-
-                <Button
-                  onClick={() => { scrollTo("contact"); form.setValue("plan", plan.duration); }}
-                  className={`w-full rounded-none uppercase tracking-widest font-black h-12 ${plan.popular ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20" : "bg-black hover:bg-black/80 text-white"}`}
-                >
+                <Button onClick={() => { scrollTo("contact"); form.setValue("plan", plan.duration); }}
+                  className={`w-full rounded-none uppercase tracking-widest font-black h-12 ${plan.popular ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20" : "bg-gray-900 hover:bg-gray-800 text-white"}`}>
                   Select Plan
                 </Button>
               </motion.div>
             ))}
           </div>
-
-          <div className="mt-12 flex flex-wrap justify-center gap-6 text-black/50 font-black uppercase tracking-widest text-xs">
+          <div className="mt-10 flex flex-wrap justify-center gap-6 text-gray-400 font-black uppercase tracking-widest text-xs">
             <span>Single Session: ₹500</span>
-            <span className="text-black/20">|</span>
-            <span>7-Day Pass: ₹1,500</span>
-            <span className="text-black/20">|</span>
+            <span className="text-gray-200">|</span>
+            <span>7-Day Trial Pass: ₹1,500</span>
+            <span className="text-gray-200">|</span>
             <span>Personal Training: On Request</span>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-gray-400 text-sm font-medium">All memberships include: Group classes · Locker room · Fitness assessment · Nutrition consultation</p>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════ REAL RESULTS / TRANSFORMATIONS ════════════════ */}
-      <section className="py-32 bg-white border-y border-black/5">
+      {/* ════════════════════ TRANSFORMATIONS ═══════════════════════════ */}
+      <section className="py-32 bg-[#f8fbf3] border-y border-gray-100">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4 text-black">
+              <span className="text-primary font-black text-xs uppercase tracking-widest">Member Stories</span>
+              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
                 Real <span className="text-primary">Results</span>
               </h2>
-              <p className="text-black/55 max-w-lg text-lg font-medium">
-                Our members don't just work out — they transform. Witness the power of dedication and expert guidance.
-              </p>
+              <p className="text-gray-500 max-w-lg text-lg font-medium">Our members don't just work out — they transform.</p>
+            </div>
+            <div className="flex gap-4">
+              <div className="text-center p-4 bg-white border-2 border-gray-100">
+                <div className="text-3xl font-display font-black text-primary">15kg</div>
+                <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">Lost in 6 Months</div>
+              </div>
+              <div className="text-center p-4 bg-white border-2 border-gray-100">
+                <div className="text-3xl font-display font-black text-primary">8kg</div>
+                <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">Muscle in 90 Days</div>
+              </div>
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="relative aspect-square md:aspect-[4/3] bg-black/5 group overflow-hidden border border-black/10">
+            <div className="relative aspect-square md:aspect-[4/3] bg-gray-100 group overflow-hidden border-2 border-gray-200">
               <img src="/transformation-1.png" alt="Member Transformation" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-primary font-bold uppercase tracking-widest text-sm">15kg Lost in 6 Months</p>
+                <p className="text-primary font-black uppercase tracking-widest text-sm">15kg Lost · 6 Months</p>
               </div>
             </div>
-            <div className="flex flex-col justify-center gap-8 bg-primary/5 p-8 md:p-12 border border-primary/20">
-              <Trophy className="w-12 h-12 text-primary" />
-              <h3 className="text-3xl font-display font-black uppercase tracking-tight text-black">Your Transformation Starts Here</h3>
-              <p className="text-black/65 font-medium leading-relaxed">
-                With a 1:4 trainer ratio and customized nutrition plans, you are not just another face in the crowd. Your goals become our mission — from day one.
+            <div className="flex flex-col justify-center gap-6 bg-white p-8 md:p-12 border-2 border-gray-100">
+              <Trophy className="w-10 h-10 text-primary" />
+              <h3 className="text-3xl font-display font-black uppercase tracking-tight text-gray-900">Your Transformation Starts Here</h3>
+              <p className="text-gray-500 font-medium leading-relaxed">
+                With a 1:4 trainer-to-member ratio and personalized nutrition plans, every member gets a customized path — from Day 1.
               </p>
               <ul className="space-y-3">
-                {["Personalized workout plan from Day 1", "Weekly progress tracking & assessments", "Nutrition guidance included", "Dedicated trainer accountability"].map((pt) => (
-                  <li key={pt} className="flex items-center gap-3 text-black/70 font-medium text-sm">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
+                {["Personalized workout plan from Day 1", "Weekly body composition tracking", "Nutrition guidance included in all plans", "Dedicated trainer accountability sessions", "Monthly progress reports"].map((pt) => (
+                  <li key={pt} className="flex items-center gap-3 text-gray-600 font-medium text-sm">
+                    <div className="w-5 h-5 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Check className="w-3 h-3 text-primary" /></div>
                     {pt}
                   </li>
                 ))}
               </ul>
-              <Button onClick={() => scrollTo("contact")} className="w-fit bg-black hover:bg-black/80 text-white rounded-none uppercase tracking-widest font-black">
-                Start My Journey
+              <Button onClick={() => scrollTo("contact")} className="w-fit bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-black">
+                Start My Journey <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════ TEAM ═══════════════════════════════════════ */}
-      <section id="team" className="py-32 bg-[#0A0A0A]">
+      {/* ════════════════════ TEAM ══════════════════════════════════════ */}
+      <section id="team" className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4 text-white">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">1:4 Trainer Ratio</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               The <span className="text-primary">Experts</span>
             </h2>
-            <p className="text-white/50 max-w-2xl mx-auto text-lg font-medium">
-              A 1:4 trainer ratio — unmatched personal attention from certified professionals who demand your best every session.
-            </p>
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg font-medium">Certified professionals who demand your best — every single session.</p>
           </div>
 
-          <div className="space-y-16">
-            {/* Floor Managers */}
-            <div>
-              <h3 className="text-sm font-display font-black text-primary uppercase tracking-widest mb-8 border-b border-white/10 pb-4">
-                Floor Managers
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                {[
-                  { name: "Ganesh", role: "Floor Manager", img: "/trainer-ganesh.png" },
-                  { name: "Yogesh", role: "Floor Manager", img: "/trainer-1.png" },
-                ].map((staff, i) => (
-                  <div key={i} className="group">
-                    <div className="relative aspect-[3/4] overflow-hidden mb-4 bg-white/5 border border-white/10">
-                      <img src={staff.img} alt={staff.name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <h4 className="text-xl font-display font-black uppercase tracking-wider text-white">{staff.name}</h4>
-                    <p className="text-primary text-xs uppercase tracking-widest font-bold mt-1">{staff.role}</p>
-                  </div>
-                ))}
-              </div>
+          {/* Floor Managers */}
+          <div className="mb-14">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gray-100" />
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Floor Managers</h3>
+              <div className="h-px flex-1 bg-gray-100" />
             </div>
-
-            {/* Specialized Instructors */}
-            <div>
-              <h3 className="text-sm font-display font-black text-primary uppercase tracking-widest mb-8 border-b border-white/10 pb-4">
-                Specialized Instructors
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                {[
-                  { name: "Poonam", role: "Yoga Expert", img: "/trainer-poonam.png" },
-                  { name: "Kale", role: "Yoga Instructor", img: "/trainer-2.png" },
-                  { name: "Sikandar", role: "Zumba & Bollywood", img: "/trainer-sikandar.png" },
-                  { name: "Gajendra", role: "Bollywood Beats", img: "/trainer-1.png" },
-                ].map((staff, i) => (
-                  <div key={i} className="group">
-                    <div className="relative aspect-[3/4] overflow-hidden mb-4 bg-white/5 border border-white/10">
-                      <img src={staff.img} alt={staff.name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <h4 className="text-xl font-display font-black uppercase tracking-wider text-white">{staff.name}</h4>
-                    <p className="text-primary text-xs uppercase tracking-widest font-bold mt-1">{staff.role}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Full Roster */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white/[0.04] p-8 border border-white/10">
-              <div>
-                <h4 className="font-display font-black uppercase tracking-widest text-white mb-4 text-sm border-b border-white/10 pb-2">Trainers</h4>
-                <div className="space-y-2">
-                  {["Dnyaneshwar", "Aryan", "Sunil", "Mayur", "Pravin", "Rupali"].map((n) => (
-                    <div key={n} className="flex items-center gap-2 text-white/55 font-medium text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      {n}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-display font-black uppercase tracking-widest text-white mb-4 text-sm border-b border-white/10 pb-2">Personal Trainers</h4>
-                <div className="space-y-2">
-                  {["Dinesh", "Rajesh", "Mayur", "Tukaram"].map((n) => (
-                    <div key={n} className="flex items-center gap-2 text-white/55 font-medium text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      {n}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-display font-black uppercase tracking-widest text-white mb-4 text-sm border-b border-white/10 pb-2">Front Desk</h4>
-                <div className="space-y-2">
-                  {["Prateek"].map((n) => (
-                    <div key={n} className="flex items-center gap-2 text-white/55 font-medium text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      {n}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ TESTIMONIALS ══════════════════════════════ */}
-      <section className="py-32 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4 text-black">
-              Member <span className="text-primary">Verdicts</span>
-            </h2>
-            <div className="flex justify-center items-center gap-2 text-primary font-black text-xl">
-              <span>4.2 / 5</span>
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${i < 4 ? "fill-current" : "opacity-40"}`} />
-                ))}
-              </div>
-              <span className="text-black/40 text-sm uppercase tracking-widest ml-2 font-bold">726+ Reviews</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <StaffCard name="Ganesh" role="Floor Manager" img="/trainer-ganesh.png" />
+              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-1.png" />
             </div>
           </div>
 
-          <Carousel className="max-w-4xl mx-auto cursor-grab active:cursor-grabbing">
-            <CarouselContent>
-              {[
-                { text: "Trainers are very friendly and professional. They give personal attention to each member. Highly recommended!", author: "Verified JustDial Review" },
-                { text: "Great gym with well-maintained equipment. The Zumba classes with Sikandar sir are amazing!", author: "Verified Google Review" },
-                { text: "Affordable pricing and excellent facilities. The sauna is a great add-on. Happy hours deal is unbeatable.", author: "Verified JustDial Review" },
-                { text: "Best gym in Baner. Ganesh sir and the team are very motivating. Lost 15kg in 6 months!", author: "Verified Google Review" },
-                { text: "The personal training by Dinesh sir transformed my body completely. Worth every rupee.", author: "Verified Google Review" },
-                { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after office hours.", author: "Verified JustDial Review" },
-              ].map((review, i) => (
-                <CarouselItem key={i}>
-                  <div className="p-8 md:p-16 text-center bg-black/[0.03] border border-black/5 mx-4">
-                    <div className="flex justify-center mb-6 gap-1">
-                      {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-primary fill-current" />)}
-                    </div>
-                    <p className="text-xl md:text-2xl font-display font-bold leading-tight mb-8 text-black italic">"{review.text}"</p>
-                    <div className="text-xs uppercase tracking-widest font-black text-primary">{review.author}</div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 bg-white border-black/10 hover:bg-black/5 text-black shadow-md" />
-            <CarouselNext className="hidden md:flex -right-12 bg-white border-black/10 hover:bg-black/5 text-black shadow-md" />
-          </Carousel>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════ FAQ ════════════════════════════════════ */}
-      <section id="faq" className="py-32 bg-black/[0.03] border-t border-black/5">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mb-4 text-black">
-              Questions? <span className="text-primary">Answered.</span>
-            </h2>
-            <p className="text-black/50 font-medium">Everything you need to know before your first visit.</p>
+          {/* Specialized Instructors */}
+          <div className="mb-14">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gray-100" />
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Specialized Instructors</h3>
+              <div className="h-px flex-1 bg-gray-100" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <StaffCard name="Poonam" role="Yoga Expert" img="/trainer-poonam.png" />
+              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-2.png" />
+              <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.png" />
+              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-1.png" />
+            </div>
           </div>
 
-          <div className="w-full space-y-3">
+          {/* Featured trainer */}
+          <div className="mb-14">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gray-100" />
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Trainers</h3>
+              <div className="h-px flex-1 bg-gray-100" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <StaffCard name="Rupali" role="Trainer" img="/trainer-rupali.png" />
+            </div>
+          </div>
+
+          {/* Full roster */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#f8fbf3] p-8 border-2 border-gray-100">
             {[
-              { q: "Is there parking available?", a: "Yes, parking is available in the Srushti Elegance building complex at no extra charge." },
-              { q: "Do you offer a free trial?", a: "Yes! Book a free trial session by filling the form below or calling +91 95272 37213. No commitment required." },
-              { q: "Can I join for a single day?", a: "Yes, a single session (walk-in) costs ₹500. A 7-day pass is ₹1,500." },
-              { q: "Are there ladies-only batches?", a: "Yes, we have specific batches and dedicated female trainers available. Please contact us for the schedule." },
-              { q: "What is the Happy Hours discount?", a: "Members who train between 12 PM – 5 PM get heavily discounted membership rates. For example, a 1-Year membership drops from ₹15,000 to ₹8,500." },
-              { q: "Do you have diet/nutrition guidance?", a: "Yes, our certified nutritionists provide personalized meal plans based on your body type and goals — fat loss, muscle gain, or overall wellness." },
-              { q: "Is the gym air-conditioned?", a: "Yes, the entire 5th-floor facility is fully air-conditioned, including the gym floor, group class areas, and locker rooms." },
-              { q: "Do you have a sauna?", a: "Yes, our recovery zone includes both a sauna and steam room, available to all members." },
-              { q: "What are your operating hours?", a: "We are open Monday to Saturday, 6:00 AM to 10:00 PM. Trainers are available from 5:30 AM. Sunday is closed." },
-              { q: "How do I get there?", a: "We're at 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Road, near Salt Hotel, Balewadi Phata, Baner, Pune 411045." },
-            ].map((faq, i) => (
-              <FaqItem key={i} question={faq.q} answer={faq.a} />
+              { title: "Trainers", names: ["Dnyaneshwar", "Aryan", "Sunil", "Mayur", "Pravin", "Rupali"] },
+              { title: "Personal Trainers", names: ["Dinesh", "Rajesh", "Mayur", "Tukaram"] },
+              { title: "Front Desk", names: ["Prateek"] },
+            ].map((group) => (
+              <div key={group.title}>
+                <h4 className="font-black uppercase tracking-widest text-gray-900 mb-4 text-xs border-b border-gray-200 pb-2">{group.title}</h4>
+                <div className="space-y-2">
+                  {group.names.map((n) => (
+                    <div key={n} className="flex items-center gap-2 text-gray-600 font-medium text-sm">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />{n}
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ SOCIAL CTA (NEW) ══════════════════════════════ */}
-      <section className="py-24 bg-[#0A0A0A] border-t border-white/10">
+      {/* ════════════════════ PHOTO GALLERY ═════════════════════════════ */}
+      <section id="gallery" className="py-32 bg-[#f8fbf3]">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-16">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Inside Dotfit</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              The <span className="text-primary">Experience</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { src: "/hero.png", label: "Main Gym Floor" },
+              { src: "/facility-equipment.png", label: "Power Station" },
+              { src: "/facility-sauna.png", label: "Recovery Zone" },
+              { src: "/class-zumba.png", label: "Zumba Classes" },
+              { src: "/class-yoga.png", label: "Yoga & Pilates" },
+              { src: "/class-kickboxing.png", label: "Kickboxing" },
+            ].map((photo, i) => (
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                className="group relative overflow-hidden aspect-square bg-gray-900">
+                <img src={photo.src} alt={photo.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-0 left-0 p-4 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                  <span className="text-white font-black uppercase tracking-widest text-xs">{photo.label}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary text-primary font-black uppercase tracking-widest text-sm hover:bg-primary hover:text-white transition-all">
+              <Instagram className="w-4 h-4" /> See More on Instagram @dotfitfitness
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ TESTIMONIALS ══════════════════════════════ */}
+      <section className="py-32 bg-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-16">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Verified Reviews</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              Member <span className="text-primary">Verdicts</span>
+            </h2>
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <div className="flex gap-1">{[...Array(5)].map((_, i) => <Star key={i} className={`w-5 h-5 text-amber-400 ${i < 4 ? "fill-amber-400" : "fill-amber-200"}`} />)}</div>
+              <span className="font-black text-xl text-gray-900">4.2 / 5</span>
+              <span className="text-gray-400 text-sm font-medium">· 726+ Reviews on Google & JustDial</span>
+            </div>
+          </div>
+          <Carousel className="max-w-4xl mx-auto cursor-grab active:cursor-grabbing">
+            <CarouselContent>
+              {[
+                { text: "Trainers are very friendly and professional. They give personal attention to each member. The equipment is well-maintained and the facility is top-notch.", author: "Rahul S.", source: "Google Review" },
+                { text: "Great gym with well-maintained equipment. The Zumba classes with Sikandar sir are amazing — full energy! Highly recommend for anyone in Baner.", author: "Priya M.", source: "JustDial Review" },
+                { text: "Affordable pricing and excellent facilities. The sauna and steam room are a great add-on. Happy hours deal is absolutely unbeatable in Pune.", author: "Aakash P.", source: "Google Review" },
+                { text: "Best gym in Baner. Ganesh sir and the entire team are very motivating. Lost 15kg in 6 months! The nutrition guidance made all the difference.", author: "Sneha R.", source: "Google Review" },
+                { text: "The personal training by Dinesh sir transformed my body completely. The 1:4 trainer ratio is real — I always get personal attention. Worth every rupee.", author: "Vikram D.", source: "JustDial Review" },
+                { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after long office hours. The facility is extremely clean and well-managed.", author: "Anita K.", source: "Google Review" },
+              ].map((r, i) => (
+                <CarouselItem key={i}>
+                  <div className="p-8 md:p-14 text-center bg-[#f8fbf3] border-2 border-gray-100 mx-4">
+                    <div className="flex justify-center mb-5 gap-1">{[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />)}</div>
+                    <p className="text-lg md:text-2xl font-display font-bold leading-snug mb-6 text-gray-800 italic">"{r.text}"</p>
+                    <div className="text-sm font-black text-gray-900">{r.author}</div>
+                    <div className="text-xs uppercase tracking-widest font-bold text-primary mt-1">{r.source}</div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex -left-12 bg-white border-2 border-gray-100 hover:bg-[#f8fbf3] text-gray-700 shadow-md" />
+            <CarouselNext className="hidden md:flex -right-12 bg-white border-2 border-gray-100 hover:bg-[#f8fbf3] text-gray-700 shadow-md" />
+          </Carousel>
+          <div className="flex justify-center gap-4 mt-10 flex-wrap">
+            <a href="https://g.page/r/CXQjnMYrSoMTEBM/review" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 text-gray-600 font-black uppercase tracking-widest text-xs hover:border-primary hover:text-primary transition-all">
+              <Star className="w-3 h-3" /> Rate on Google
+            </a>
+            <a href="https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 text-gray-600 font-black uppercase tracking-widest text-xs hover:border-primary hover:text-primary transition-all">
+              <ExternalLink className="w-3 h-3" /> View on JustDial
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ FITNESS GOALS ═════════════════════════════ */}
+      <section className="py-24 bg-gray-950 text-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-14">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Choose Your Path</span>
+            <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-white">
+              What's Your <span className="text-primary">Goal?</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { icon: <Flame className="w-8 h-8" />, title: "Fat Loss", desc: "Cardio-focused programs, HIIT circuits, and calorie-deficit nutrition plans. Visible results in 8–12 weeks.", plan: "1 Month", cta: "Start Burning" },
+              { icon: <Dumbbell className="w-8 h-8" />, title: "Muscle Gain", desc: "Progressive overload strength training, protein-rich meal plans, and dedicated personal trainer sessions.", plan: "3 Months", cta: "Start Building" },
+              { icon: <HeartPulse className="w-8 h-8" />, title: "Overall Fitness", desc: "Balanced mix of cardio, strength, yoga, and group classes. Improve stamina, flexibility, and energy levels.", plan: "6 Months", cta: "Start Today" },
+            ].map((g, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="p-8 bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all group">
+                <div className="w-14 h-14 bg-primary/10 border border-primary/30 flex items-center justify-center mb-5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                  {g.icon}
+                </div>
+                <h3 className="text-xl font-display font-black uppercase tracking-wider text-white mb-3">{g.title}</h3>
+                <p className="text-white/55 font-medium text-sm leading-relaxed mb-6">{g.desc}</p>
+                <button onClick={() => { scrollTo("contact"); form.setValue("plan", g.plan); }}
+                  className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-3 transition-all">
+                  {g.cta} <ChevronRight className="w-3 h-3" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ FAQ ════════════════════════════════════════ */}
+      <section id="faq" className="py-32 bg-[#f8fbf3]">
+        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+          <div className="text-center mb-16">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Got Questions?</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              We Have <span className="text-primary">Answers.</span>
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {[
+              { q: "Where is Dotfit Fitness located?", a: "We're at 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Road, near Salt Hotel, Balewadi Phata, Baner, Pune 411045. Just 2 minutes from Balewadi High Street." },
+              { q: "What are your operating hours?", a: "Monday to Saturday: 6:00 AM – 10:00 PM. Trainers are available from 5:30 AM. Sunday is closed." },
+              { q: "Do you offer a free trial?", a: "Yes! Book a free trial session via the form below, WhatsApp, or call +91 95272 37213. No commitment or payment required for the trial." },
+              { q: "What is the Happy Hours discount?", a: "Members who train between 12 PM and 5 PM get heavily discounted memberships. Annual membership drops from ₹15,000 to just ₹8,500 — saving ₹6,500!" },
+              { q: "Can I join for a single day or short trial?", a: "Yes. Single session walk-in costs ₹500. A 7-day trial pass is ₹1,500." },
+              { q: "Are there ladies-only batches?", a: "Yes, we have specific batches and dedicated female trainers (Poonam, Rupali) for ladies. Please contact us for the current schedule." },
+              { q: "Do you provide nutrition/diet guidance?", a: "Yes, certified nutritionists provide personalized meal plans based on your goals (fat loss, muscle gain, sports performance) — included in all memberships." },
+              { q: "Is the gym air-conditioned?", a: "Yes, the entire 5th-floor facility is fully air-conditioned including the gym floor, group class studio, and locker rooms." },
+              { q: "Do you have a sauna and steam room?", a: "Yes, our recovery zone includes a professional-grade sauna and steam room — available to all members." },
+              { q: "Is parking available?", a: "Yes, parking is available in the Srushti Elegance building complex at no extra charge." },
+              { q: "What certifications does Dotfit Fitness have?", a: "Dotfit Fitness is K11 Certified — an internationally recognized fitness certification ensuring world-class training standards, equipment safety, and trainer qualifications." },
+              { q: "How is the 1:4 trainer ratio maintained?", a: "Unlike most gyms (1:30 ratio), Dotfit maintains a strict 1 trainer per 4 members policy. This ensures your form, progress, and safety are always monitored during training." },
+            ].map((faq, i) => <FaqItem key={i} question={faq.q} answer={faq.a} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ SOCIAL CTA ════════════════════════════════ */}
+      <section className="py-24 bg-white border-y border-gray-100">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <div className="lg:w-1/2">
-              <p className="text-primary font-black uppercase tracking-widest text-sm mb-4">Follow Our Journey</p>
-              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter text-white mb-6">
-                We're Live On <span className="text-primary">Instagram</span>
+              <span className="text-primary font-black text-xs uppercase tracking-widest">Community</span>
+              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-5 text-gray-900">
+                Follow <span className="text-primary">@dotfitfitness</span>
               </h2>
-              <p className="text-white/55 font-medium text-lg mb-8 leading-relaxed">
-                Member transformations, trainer tips, class previews, and behind-the-scenes action — follow <strong className="text-white">@dotfitfitness</strong> and be part of the community.
+              <p className="text-gray-500 font-medium text-lg mb-8 leading-relaxed">
+                Member transformations, workout reels, class highlights, and behind-the-scenes. Join 10,000+ followers on Instagram.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a
-                  href="https://www.instagram.com/dotfitfitness/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white px-8 h-13 py-3 font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity"
-                >
-                  <Instagram className="w-5 h-5" />
-                  Follow on Instagram
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity">
+                  <Instagram className="w-5 h-5" /> Follow on Instagram
                 </a>
-                <a
-                  href="https://wa.me/919527237213"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 h-13 py-3 font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Chat on WhatsApp
+                <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#25D366] text-white font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity">
+                  <MessageCircle className="w-5 h-5" /> WhatsApp Us
                 </a>
               </div>
             </div>
-
             <div className="lg:w-1/2 grid grid-cols-3 gap-2">
               {[
-                { bg: "from-primary/30 to-primary/10", icon: <Dumbbell className="w-8 h-8 text-primary" />, label: "Workouts" },
-                { bg: "from-white/10 to-white/5", icon: <Users className="w-8 h-8 text-white/60" />, label: "Community" },
-                { bg: "from-primary/20 to-transparent", icon: <Trophy className="w-8 h-8 text-primary" />, label: "Results" },
-                { bg: "from-white/5 to-transparent", icon: <HeartPulse className="w-8 h-8 text-white/60" />, label: "Wellness" },
-                { bg: "from-primary/30 to-primary/5", icon: <Activity className="w-8 h-8 text-primary" />, label: "Classes" },
-                { bg: "from-white/10 to-white/5", icon: <Zap className="w-8 h-8 text-white/60" />, label: "Energy" },
-              ].map((card, i) => (
-                <a
-                  key={i}
-                  href="https://www.instagram.com/dotfitfitness/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`aspect-square bg-gradient-to-br ${card.bg} border border-white/10 flex flex-col items-center justify-center gap-2 hover:border-primary/40 transition-colors group`}
-                >
-                  {card.icon}
-                  <span className="text-white/30 text-xs uppercase tracking-wider font-bold group-hover:text-white/60 transition-colors">{card.label}</span>
+                { src: "/class-zumba.png", label: "Zumba" },
+                { src: "/facility-equipment.png", label: "Training" },
+                { src: "/class-yoga.png", label: "Yoga" },
+                { src: "/class-kickboxing.png", label: "Kickboxing" },
+                { src: "/facility-sauna.png", label: "Recovery" },
+                { src: "/hero.png", label: "Gym Floor" },
+              ].map((p, i) => (
+                <a key={i} href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
+                  className="relative aspect-square overflow-hidden group bg-gray-100">
+                  <img src={p.src} alt={p.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
+                    <Instagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </a>
               ))}
             </div>
@@ -877,249 +809,203 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ════════════════════ CONTACT & LOCATION ════════════════════════════ */}
-      <section id="location" className="relative border-t border-black/10 bg-white">
+      {/* ════════════════════ CONTACT & LOCATION ════════════════════════ */}
+      <section id="location" className="border-t-2 border-gray-100">
         <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Form Side */}
+          {/* Form */}
           <div id="contact" className="p-8 md:p-16 lg:p-20 bg-white">
             <div className="max-w-md mx-auto lg:mx-0">
-              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mb-4 text-black">
+              <span className="text-primary font-black text-xs uppercase tracking-widest">Free Trial Available</span>
+              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
                 Start Your <span className="text-primary">Journey</span>
               </h2>
-              <p className="text-black/55 mb-10 font-medium">
-                Book a free trial or request membership details. Our team responds immediately.
+              <p className="text-gray-500 mb-8 font-medium text-sm leading-relaxed">
+                Fill the form below — our team responds within 30 minutes. Or WhatsApp/call +91 95272 37213 directly.
               </p>
-
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="uppercase tracking-widest text-xs font-black text-black">Full Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Your Full Name" className="rounded-none border-black/20 focus-visible:ring-primary h-12 bg-transparent text-black" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Full Name</FormLabel>
+                      <FormControl><Input placeholder="Your Full Name" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="uppercase tracking-widest text-xs font-black text-black">Phone</FormLabel>
-                          <FormControl>
-                            <Input placeholder="+91 98765 43210" className="rounded-none border-black/20 focus-visible:ring-primary h-12 bg-transparent text-black" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="uppercase tracking-widest text-xs font-black text-black">Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="you@example.com" className="rounded-none border-black/20 focus-visible:ring-primary h-12 bg-transparent text-black" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="phone" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Phone / WhatsApp</FormLabel>
+                        <FormControl><Input placeholder="+91 98765 43210" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="email" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Email</FormLabel>
+                        <FormControl><Input placeholder="you@example.com" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="plan"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="uppercase tracking-widest text-xs font-black text-black">Interest</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-none border-black/20 focus:ring-primary h-12 bg-transparent text-black">
-                              <SelectValue placeholder="Select a plan or inquiry" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="rounded-none border-black/20">
-                            <SelectItem value="Free Trial">Free Trial</SelectItem>
-                            <SelectItem value="1 Month">1 Month Plan</SelectItem>
-                            <SelectItem value="3 Months">3 Months Plan</SelectItem>
-                            <SelectItem value="6 Months">6 Months Plan</SelectItem>
-                            <SelectItem value="1 Year">1 Year Plan</SelectItem>
-                            <SelectItem value="Personal Training">Personal Training</SelectItem>
-                            <SelectItem value="General Inquiry">General Inquiry</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="uppercase tracking-widest text-xs font-black text-black">Message (Optional)</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Your goals, preferred batch timing, or any questions..." className="rounded-none border-black/20 focus-visible:ring-primary min-h-[100px] resize-none bg-transparent text-black" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button
-                    type="submit"
-                    className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-black text-sm shadow-lg shadow-primary/20"
-                    disabled={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting ? "Sending..." : "Submit Request"}
+                  <FormField control={form.control} name="plan" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">I'm Interested In</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger className="rounded-none border-gray-200 focus:ring-primary h-12 bg-white text-gray-900"><SelectValue placeholder="Select a plan or inquiry" /></SelectTrigger></FormControl>
+                        <SelectContent className="rounded-none border-gray-200">
+                          {["Free Trial", "1 Month", "3 Months", "6 Months", "1 Year", "Personal Training", "Zumba / Yoga Classes", "General Inquiry"].map((v) => (
+                            <SelectItem key={v} value={v}>{v === "Free Trial" ? "Free Trial (No payment required)" : v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="message" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Message (Optional)</FormLabel>
+                      <FormControl><Textarea placeholder="Goals, preferred batch timing, any health conditions..." className="rounded-none border-gray-200 focus-visible:ring-primary min-h-[90px] resize-none bg-white text-gray-900" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <Button type="submit" className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-black text-sm shadow-lg shadow-primary/20" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? "Sending..." : "Submit — Get Callback Within 30 Mins"}
                   </Button>
-
-                  <p className="text-xs text-black/40 text-center font-medium">Or call us directly: <a href="tel:+919527237213" className="text-primary font-black">+91 95272 37213</a></p>
+                  <div className="flex gap-3 pt-2">
+                    <a href="tel:+919527237213" className="flex-1 h-11 border-2 border-gray-200 hover:border-primary flex items-center justify-center gap-2 text-gray-600 hover:text-primary transition-all font-black uppercase tracking-widest text-xs">
+                      <Phone className="w-3.5 h-3.5" /> Call Now
+                    </a>
+                    <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer" className="flex-1 h-11 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs transition-all">
+                      <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                    </a>
+                  </div>
                 </form>
               </Form>
             </div>
           </div>
 
-          {/* Location Side */}
-          <div className="bg-[#0A0A0A] p-8 md:p-16 lg:p-20 text-white flex flex-col">
-            <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-4">
-              Visit Us
-            </h2>
-
-            <div className="space-y-7 mb-10 flex-grow">
+          {/* Location info + map */}
+          <div className="bg-gray-950 p-8 md:p-16 lg:p-20 text-white flex flex-col">
+            <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-5">Find Us</h2>
+            <div className="space-y-6 mb-8 flex-grow">
               <div className="flex gap-4">
-                <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
+                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5"><MapPin className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-2">Address</h4>
-                  <p className="text-white/75 font-medium leading-relaxed text-sm">
-                    136/1, 5th Floor, Srushti Elegance<br />
-                    Old Baner-Balewadi Rd, near Salt Hotel<br />
-                    Balewadi Phata, Baner, Pune – 411045
-                  </p>
+                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Address</div>
+                  <p className="text-white/75 font-medium text-sm leading-relaxed">136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045</p>
+                  <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">
+                    Open in Google Maps <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
-
               <div className="flex gap-4">
-                <Clock className="w-5 h-5 text-primary shrink-0 mt-1" />
+                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Clock className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-2">Timings</h4>
-                  <p className="text-white/75 font-medium leading-relaxed text-sm">
+                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Timings</div>
+                  <p className="text-white/75 font-medium text-sm leading-relaxed">
                     Mon – Sat: 6:00 AM – 10:00 PM<br />
-                    Trainers available from 5:30 AM<br />
+                    Trainers from 5:30 AM<br />
                     <span className="text-white/40">Sunday: Closed</span>
                   </p>
                 </div>
               </div>
-
               <div className="flex gap-4">
-                <Phone className="w-5 h-5 text-primary shrink-0 mt-1" />
+                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Phone className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-2">Call / WhatsApp</h4>
-                  <a href="tel:+919527237213" className="text-white/75 font-medium hover:text-primary transition-colors text-sm block">+91 95272 37213</a>
+                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Phone / WhatsApp</div>
+                  <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors block">+91 95272 37213</a>
                 </div>
               </div>
-
               <div className="flex gap-4">
-                <Mail className="w-5 h-5 text-primary shrink-0 mt-1" />
+                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Mail className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-2">Email</h4>
-                  <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium hover:text-primary transition-colors text-sm block">Support@dotfitfitness.in</a>
+                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Email</div>
+                  <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors block">Support@dotfitfitness.in</a>
                 </div>
               </div>
             </div>
-
-            <div className="w-full h-80 border border-white/15 overflow-hidden mt-auto">
+            {/* Google Maps embed with red pin */}
+            <div className="w-full h-72 border border-white/10 overflow-hidden">
               <iframe
-                src="https://maps.google.com/maps?q=Dotfit+Fitness+Baner+Pune&z=17&output=embed"
+                title="Dotfit Fitness Location — Baner, Pune"
+                src="https://maps.google.com/maps?q=Dotfit+Fitness,+136+Srushti+Elegance,+Old+Baner-Balewadi+Road,+Baner,+Pune+411045&t=&z=17&ie=UTF8&iwloc=B&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Dotfit Fitness Location"
               />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════ FOOTER ════════════════════════════════════ */}
-      <footer className="bg-black py-16 border-t border-white/10 text-white">
+      {/* ════════════════════ FOOTER ════════════════════════════════════ */}
+      <footer className="bg-gray-950 text-white py-16 border-t border-white/10">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
             {/* Brand */}
-            <div>
-              <img src="/logo-text.png" alt="Dotfit Fitness" className="h-9 object-contain opacity-90 mb-5" />
-              <p className="text-white/40 text-sm font-medium leading-relaxed max-w-xs">
-                Baner's premier fitness destination since 2012. K11 Certified. 50,000+ happy members. Stay Fit With Dotfit.
+            <div className="md:col-span-2">
+              <img src="/logo-text.png" alt="Dotfit Fitness" className="h-10 object-contain opacity-90 mb-5" />
+              <p className="text-white/40 text-sm font-medium leading-relaxed max-w-xs mb-6">
+                Baner's premier K11 Certified fitness destination since 2012. 50,000+ happy members. Professional coaching. Real results.
               </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: "Google 4.2★", href: "https://g.page/r/CXQjnMYrSoMTEBM/review" },
+                  { label: "JustDial ✓", href: "https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET" },
+                  { label: "K11 Certified", href: "#" },
+                ].map((b) => (
+                  <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 border border-white/15 text-white/50 hover:border-primary hover:text-primary text-xs font-black uppercase tracking-widest transition-all">{b.label}</a>
+                ))}
+              </div>
             </div>
-
             {/* Contact */}
             <div>
-              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Contact</h4>
-              <div className="space-y-3">
-                <a href="tel:+919527237213" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium">
-                  <Phone className="w-4 h-4 text-primary shrink-0" /> +91 95272 37213
+              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Contact Us</h4>
+              <div className="space-y-4">
+                <a href="tel:+919527237213" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium">
+                  <Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />+91 95272 37213
                 </a>
-                <a href="mailto:Support@dotfitfitness.in" className="flex items-center gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium">
-                  <Mail className="w-4 h-4 text-primary shrink-0" /> Support@dotfitfitness.in
+                <a href="mailto:Support@dotfitfitness.in" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium">
+                  <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />Support@dotfitfitness.in
                 </a>
                 <div className="flex items-start gap-3 text-white/50 text-sm font-medium">
                   <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>136/1, 5th Floor, Srushti Elegance, Baner, Pune 411045</span>
+                  <span>136/1, 5th Floor, Srushti Elegance,<br />Baner, Pune 411045</span>
+                </div>
+                <div className="flex items-start gap-3 text-white/50 text-sm font-medium">
+                  <Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" />Mon–Sat: 6 AM – 10 PM<br /><span className="text-white/25">Sunday: Closed</span>
                 </div>
               </div>
             </div>
-
             {/* Social */}
             <div>
-              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Follow Us</h4>
-              <div className="flex gap-4 flex-wrap">
-                <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/30 transition-colors">
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/30 transition-colors">
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-[#25D366] hover:border-[#25D366]/30 transition-colors">
-                  <MessageCircle className="w-5 h-5" />
-                </a>
-                <a href="https://www.linkedin.com/company/dotfit-fitness/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/30 transition-colors">
-                  <Linkedin className="w-5 h-5" />
-                </a>
-                <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-primary hover:border-primary/30 transition-colors">
-                  <Map className="w-5 h-5" />
-                </a>
-              </div>
-              <div className="mt-6">
-                <Button
-                  onClick={() => scrollTo("contact")}
-                  className="bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-black text-xs h-10 px-6 shadow-lg shadow-primary/20"
-                >
-                  Book Free Trial
-                </Button>
+              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Follow Dotfit</h4>
+              <div className="space-y-3">
+                {[
+                  { href: "https://www.instagram.com/dotfitfitness/", label: "Instagram", icon: <Instagram className="w-4 h-4" />, handle: "@dotfitfitness" },
+                  { href: "https://www.facebook.com/DotfitFitness/", label: "Facebook", icon: <Facebook className="w-4 h-4" />, handle: "DotfitFitness" },
+                  { href: "https://wa.me/919527237213", label: "WhatsApp", icon: <MessageCircle className="w-4 h-4" />, handle: "+91 95272 37213" },
+                  { href: "https://www.linkedin.com/company/dotfit-fitness/", label: "LinkedIn", icon: <Linkedin className="w-4 h-4" />, handle: "dotfit-fitness" },
+                  { href: "https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET", label: "JustDial", icon: <ExternalLink className="w-4 h-4" />, handle: "Verified Listing" },
+                  { href: "https://maps.app.goo.gl/kCSULHGjGmG2Nb44r", label: "Google Maps", icon: <MapPin className="w-4 h-4" />, handle: "Get Directions" },
+                ].map((s) => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-white/50 hover:text-primary transition-colors group">
+                    <span className="w-8 h-8 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/30 transition-all">{s.icon}</span>
+                    <div>
+                      <div className="text-xs font-black uppercase tracking-wider leading-none">{s.label}</div>
+                      <div className="text-xs text-white/30 font-medium mt-0.5">{s.handle}</div>
+                    </div>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
-
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/30 text-xs font-bold uppercase tracking-widest">
-              © {new Date().getFullYear()} Dotfit Fitness. All rights reserved.
-            </p>
-            <p className="text-white/20 text-xs font-medium">
-              Mon–Sat: 6:00 AM – 10:00 PM &nbsp;|&nbsp; Sunday: Closed
-            </p>
+            <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness Pvt. Ltd. · All Rights Reserved</p>
+            <p className="text-white/20 text-xs font-medium">136/1 Srushti Elegance, Old Baner-Balewadi Rd, Pune 411045</p>
           </div>
         </div>
       </footer>
