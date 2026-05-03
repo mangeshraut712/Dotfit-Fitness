@@ -1,307 +1,59 @@
 # Dotfit Fitness
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+Baner, Pune gym website built with React, Vite, Express, PostgreSQL, and pnpm workspaces.
 
-[![Website](https://img.shields.io/badge/Website-Live-00C853?style=for-the-badge&logo=web&logoColor=white)](https://dotfit-fitness--mbr63.replit.app/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/mangeshraut712/Dotfit-Fitness/pulls)
-[![GitHub issues](https://img.shields.io/github/issues/mangeshraut712/Dotfit-Fitness.svg)](https://github.com/mangeshraut712/Dotfit-Fitness/issues)
-[![GitHub stars](https://img.shields.io/github/stars/mangeshraut712/Dotfit-Fitness.svg)](https://github.com/mangeshraut712/Dotfit-Fitness/stargazers)
+## Stack
 
-> 🚀 **Dotfit Fitness** - A cutting-edge fitness platform for the future. Built with 2026 technologies including AI-powered coaching, real-time wearable integration, and immersive training experiences.
+- React + TypeScript
+- Vite
+- Express 5
+- Drizzle ORM
+- PostgreSQL
+- Framer Motion
+- TanStack Query
+- React Hook Form + Zod
+- Radix UI
+- Tailwind CSS
+- Pino
 
-**🏋️‍♀️ Modern Gym Management Platform** for Dotfit Fitness in Baner, Pune. Features AI-driven workout personalization, comprehensive health tracking, secure user authentication, and a responsive web interface designed for the fitness industry of tomorrow.
+## Current features
 
-## 🌟 Highlights
+- SEO-ready landing page with JSON-LD, meta tags, sitemap, and robots.txt
+- Pricing, trainers, class timetable, FAQ, gallery, and contact form
+- Contact submissions stored in the database
+- Base-path-aware frontend for Replit/Vercel
+- Responsive layout with strong mobile UX
+- Performance improvements: image optimization, code splitting, preload hints
+- Real gym content for Dotfit Fitness in Baner, Pune
 
-- 🤖 **AI-Powered Coaching**: OpenAI GPT integration for personalized workout plans and real-time guidance
-- 📱 **Wearable Integration**: Seamless sync with Apple HealthKit and Google Health Connect
-- 🔐 **Secure Authentication**: JWT-based user management with role-based access control
-- 📊 **Health Analytics**: ML-driven recovery scoring and biometric data analysis
-- 🎯 **2026-Ready**: Built with modern web technologies and future-proof architecture
+## 2026 upgrade areas
 
-## 📋 Table of Contents
+- PWA/service worker
+- Real payments/checkout
+- Automated tests
+- Deployment hardening
+- Better analytics and conversion tracking
 
-- [✨ Key Features](#-key-features-2026-edition)
-- [🛠 Tech Stack](#-tech-stack-2026-modernized)
-- [📋 Prerequisites](#-prerequisites)
-- [🚀 Quick Start](#-quick-start)
-- [🌐 Live Deployments](#-live-deployments)
-- [📜 Available Scripts](#-available-scripts)
-- [🏗 Architecture](#-architecture)
-- [🔮 2026 Roadmap](#-2026-roadmap--enhancements)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [🙏 Acknowledgments](#-acknowledgments)
+## Local development
 
-## ✨ Key Features (2026 Edition)
-
-### 🚀 Core Functionality
-
-- **Modern Gym Website**: Complete digital presence with home page, admin panel, and guide sections
-- **Membership Management**: Trial booking, pricing plans, and customer onboarding
-- **Trainer Profiles**: Staff showcase with certifications and expertise
-- **Class Scheduling**: Timetable management and live session tracking
-- **SEO Optimized**: JSON-LD structured data for search engine visibility
-
-### 🤖 AI & Personalization (2026 Trends)
-
-- **Adaptive Workouts**: ✅ AI-powered plan generation based on user biometrics and goals
-- **Wearable Integration**: ✅ Real-time sync with Apple HealthKit, Google Health Connect, and advanced wearables (HRV, recovery scores)
-- **Form Analysis**: Computer vision-based pose estimation for exercise correction (ready for MediaPipe integration)
-- **Predictive Recovery**: ✅ ML-driven recovery score calculation using biometric data
-- **Conversational Coaching**: ✅ OpenAI-powered AI assistant for workout guidance and tips
-
-### 🎯 Advanced Features
-
-- **AR/VR Training**: Immersive virtual gym environments with spatial computing
-- **Mental Wellness**: Integrated meditation sessions and stress tracking
-- **Sustainability Tracking**: Carbon footprint monitoring for eco-conscious fitness
-- **Digital Twin Modeling**: Virtual body simulation for safe workout testing
-- **360° Ecosystem**: Unified platform connecting wearables, apps, and gym equipment
-
-### 🔐 Security & Authentication
-
-- **JWT Authentication**: Secure user registration and login system
-- **Password Security**: bcrypt hashing with industry-standard encryption
-- **Role-Based Access**: Protected API endpoints with permission levels
-- **Session Management**: Secure token-based authentication with expiration
-
-### 📱 User Experience
-
-- **Progressive Web App**: Offline-capable with native app performance
-- **Real-time Updates**: Live class bookings and trainer availability
-- **Gamification**: Achievement badges, challenges, and social leaderboards
-- **Accessibility**: WCAG 2.1 compliant with support for older adults
-- **Multilingual**: Global reach with localized content
-
-## 🛠 Tech Stack (2026 Modernized)
-
-### Frontend (`artifacts/dotfit`)
-
-- **React 18+** with TypeScript for type-safe development
-- **Vite** for lightning-fast build and HMR
-- **Tailwind CSS** with custom design system
-- **Radix UI** for accessible, unstyled components
-- **Framer Motion** for advanced animations and micro-interactions
-- **TanStack Query** for efficient server state management
-- **React Hook Form + Zod** for robust form validation
-- **Wouter** for lightweight routing
-- **Recharts** for data visualization
-- **Lucide React** for consistent iconography
-
-### Backend (`artifacts/api-server`)
-
-- **Express.js 5** with TypeScript
-- **Drizzle ORM** for type-safe database operations
-- **PostgreSQL** for reliable data storage
-- **Pino** for structured logging
-- **Zod** for runtime type validation
-- **JWT & bcrypt** for secure authentication
-- **OpenAI** for AI-powered coaching
-- **Cookie Parser & CORS** for secure API handling
-
-### Shared Libraries
-
-- **API Client React**: Type-safe API integration with TanStack Query
-- **API Zod Schemas**: Centralized validation schemas
-- **Database Layer**: Drizzle ORM with PostgreSQL schema definitions
-
-### Development & Deployment
-
-- **pnpm Workspaces** for monorepo management
-- **TypeScript** across all packages for type safety
-- **ESLint + Prettier** for code quality and formatting
-- **Vitest** for comprehensive testing (unit, integration, e2e)
-- **ESBuild** for optimized bundling
-- **GitHub Actions** for CI/CD automation
-- **Replit** for collaborative development environment
-
-## 📋 Prerequisites
-
-- **Node.js** 20+ (with pnpm package manager)
-- **PostgreSQL** 15+
-- **OpenAI API Key** (for AI-powered features)
-- **Git** for version control
-
-## 🚀 Quick Start
-
-1. **Clone and Install**
-
-   ```bash
-   git clone <repository-url>
-   cd dotfit-fitness
-   pnpm install
-   ```
-
-2. **Environment Setup**
-
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials, JWT secret, and OpenAI API key
-   ```
-
-   Required environment variables:
-   - `DATABASE_URL`: PostgreSQL connection string
-   - `JWT_SECRET`: Secret key for JWT token signing
-   - `OPENAI_API_KEY`: OpenAI API key for AI features
-
-3. **Database Initialization**
-
-   ```bash
-   pnpm --filter @workspace/db push
-   ```
-
-4. **Development Servers**
-
-   ```bash
-   # Terminal 1: API Server
-   pnpm --filter @workspace/api-server run dev
-
-   # Terminal 2: Frontend
-   pnpm --filter @workspace/dotfit run dev
-   ```
-
-5. **Access the Application**
-    - Frontend: http://localhost:5173
-    - API: http://localhost:3000/api
-
-## 🌐 Live Deployments
-
-### Replit Deployment
-- **Website**: https://dotfit-fitness--mbr63.replit.app/
-- **API**: https://dotfit-fitness--mbr63.replit.app/api
-- **Status**: Active ✅
-
-### Vercel Deployment (Coming Soon)
-- **Website**: [Deployed on Vercel](https://dotfit-fitness.vercel.app) (after build fixes)
-- **API**: https://dotfit-fitness.vercel.app/api
-
-## 📜 Available Scripts
-
-### Workspace Scripts
-
-- `pnpm run build` - Build all packages
-- `pnpm run typecheck` - Type check across workspace
-- `pnpm run typecheck:libs` - Type check shared libraries
-- `pnpm run lint` - Run ESLint across all packages
-- `pnpm run lint:fix` - Auto-fix ESLint issues
-- `pnpm run format` - Format code with Prettier
-- `pnpm run format:check` - Check code formatting
-
-### API Server Scripts
-
-- `pnpm --filter @workspace/api-server run dev` - Start development server
-- `pnpm --filter @workspace/api-server run build` - Build for production
-- `pnpm --filter @workspace/api-server run start` - Start production server
-- `pnpm --filter @workspace/api-server run test` - Run API tests
-- `pnpm --filter @workspace/api-server run test:run` - Run tests in CI mode
-
-### Frontend Scripts
-
-- `pnpm --filter @workspace/dotfit run dev` - Start development server with HMR
-- `pnpm --filter @workspace/dotfit run build` - Build for production
-- `pnpm --filter @workspace/dotfit run serve` - Preview production build
-- `pnpm --filter @workspace/dotfit run typecheck` - Type check frontend code
-- `pnpm --filter @workspace/dotfit run test` - Run unit tests
-- `pnpm --filter @workspace/dotfit run test:run` - Run tests in CI mode
-
-### Database Scripts
-
-- `pnpm --filter @workspace/db push` - Push schema to database
-- `pnpm --filter @workspace/db push-force` - Force push schema (⚠️ destructive)
-
-## 🏗 Architecture
-
-```
-dotfit-fitness/
-├── artifacts/
-│   ├── dotfit/           # React frontend application
-│   ├── api-server/       # Express.js backend API
-│   └── mockup-sandbox/   # UI component development sandbox
-├── docs/                 # Project notes and reference-only assets
-├── lib/                  # Shared packages
-│   ├── api-client-react/ # Type-safe API client
-│   ├── api-spec/         # API specifications
-│   ├── api-zod/          # Validation schemas
-│   └── db/               # Database schema & utilities
-├── scripts/              # Build and utility scripts
-└── tsconfig.base.json    # Shared TypeScript configuration
+```bash
+pnpm install
+pnpm --filter @workspace/api-server run dev
+pnpm --filter @workspace/dotfit run dev
 ```
 
-See [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md) for the current root and folder conventions. Replit implementation notes live in [`docs/replit.md`](docs/replit.md).
+## Scripts
 
-### Data Flow
+- `pnpm run build`
+- `pnpm run typecheck`
+- `pnpm --filter @workspace/api-server run dev`
+- `pnpm --filter @workspace/dotfit run dev`
+- `pnpm --filter @workspace/api-server run build`
+- `pnpm --filter @workspace/dotfit run build`
 
-1. **Frontend** renders UI with React components
-2. **API Client** handles HTTP requests with TanStack Query
-3. **Backend** processes requests with Express routes
-4. **Database Layer** manages data with Drizzle ORM
-5. **Validation** ensures data integrity with Zod schemas
+## Notes
 
-### API Endpoints
-
-#### Authentication
-
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-
-#### AI Features
-
-- `POST /api/ai/workout-plan` - Generate personalized workout plans
-- `POST /api/ai/workout-tips` - Get AI-powered workout tips
-
-#### Health & Wearables
-
-- `POST /api/health/healthkit/sync` - Sync Apple Health data
-- `POST /api/health/health-connect/sync` - Sync Google Health Connect data
-- `GET /api/health/summary` - Get health summary and insights
-- `GET /api/health/recovery-score` - Calculate recovery score
-
-#### Core Features
-
-- `GET /api/healthz` - Health check endpoint
-- `GET/POST /api/contacts` - Contact form submissions
-
-## 🔮 2026 Roadmap & Enhancements
-
-### ✅ Phase 1: AI Integration (COMPLETED)
-
-- [x] Implement conversational AI coach using OpenAI GPT models
-- [x] Add wearable data integration (Apple HealthKit, Google Health Connect)
-- [ ] Computer vision for form analysis (MediaPipe integration ready)
-
-### Phase 2: Immersive Experiences
-
-- [ ] AR workout overlays with spatial computing
-- [ ] VR virtual gym environments
-- [ ] Digital twin modeling for personalized training
-
-### Phase 3: Ecosystem Expansion
-
-- [x] Multi-device synchronization (wearable data sync)
-- [ ] Social fitness challenges and leaderboards
-- [ ] Sustainability tracking and eco-friendly features
-
-### Phase 4: Advanced Analytics
-
-- [x] ML-driven recovery prediction (recovery score calculation)
-- [ ] Predictive injury prevention
-- [ ] Longevity science integration
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for detailed information on how to get started.
-
-### Quick Start for Contributors
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes and add tests
-4. Ensure code quality: `pnpm run lint && pnpm run format`
+- The frontend lives at `artifacts/dotfit/src/pages/home.tsx`.
+- The API server lives at `artifacts/api-server/src`.
+- `DATABASE_URL` is required for the API server and database-backed features.
+- Vercel uses the root build script for deployment.
