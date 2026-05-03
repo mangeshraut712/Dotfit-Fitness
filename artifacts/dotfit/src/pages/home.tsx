@@ -338,6 +338,18 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const sectionIds = {
+    About: "about",
+    Classes: "classes",
+    Pricing: "pricing",
+    Team: "team",
+    Gallery: "gallery",
+    FAQ: "faq",
+    Location: "location",
+    Facilities: "facilities",
+    Contact: "contact",
+  } as const;
+
   const bookPlan = (plan: string) => {
     form.setValue("plan", plan);
     scrollTo("contact");
@@ -376,7 +388,7 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-6">
             {["About", "Classes", "Pricing", "Team", "Gallery", "FAQ", "Location"].map((item) => (
-              <button key={item} onClick={() => scrollTo(item.toLowerCase())}
+              <button key={item} onClick={() => scrollTo(sectionIds[item as keyof typeof sectionIds])}
                 className={`text-xs font-bold transition-colors uppercase tracking-widest ${isScrolled ? "text-gray-700 hover:text-primary" : "text-white/90 hover:text-primary"}`}>
                 {item}
               </button>
@@ -402,7 +414,7 @@ export default function Home() {
             className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-6 md:hidden">
             <img src="/logo-text.png" alt="Dotfit" className="h-12 mb-2" />
             {["About", "Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location", "Contact"].map((item) => (
-              <button key={item} onClick={() => scrollTo(item.toLowerCase())}
+              <button key={item} onClick={() => scrollTo(sectionIds[item as keyof typeof sectionIds])}
                 className="text-2xl font-display font-black text-gray-900 hover:text-primary transition-colors uppercase tracking-widest">
                 {item}
               </button>
