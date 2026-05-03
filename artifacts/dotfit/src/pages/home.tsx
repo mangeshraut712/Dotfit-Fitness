@@ -1036,22 +1036,24 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ── Desktop floating buttons ───────────────────────────────────── */}
-      <a
-        href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session."
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="WhatsApp Dotfit Fitness"
-        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform"
-      >
-        <MessageCircle className="w-7 h-7" />
-      </a>
-      <a
-        href="tel:+919527237213"
-        aria-label="Call Dotfit Fitness"
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform"
-      >
-        <Phone className="w-6 h-6" aria-hidden="true" />
-      </a>
+      <div className="fixed bottom-5 left-5 z-50 hidden md:flex flex-col gap-3">
+        <a
+          href="tel:+919527237213"
+          aria-label="Call Dotfit Fitness"
+          className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform"
+        >
+          <Phone className="w-6 h-6" aria-hidden="true" />
+        </a>
+        <a
+          href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session."
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="WhatsApp Dotfit Fitness"
+          className="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform"
+        >
+          <MessageCircle className="w-7 h-7" />
+        </a>
+      </div>
 
       {/* ── Scroll to top ────────────────────────────────────────────────── */}
       <AnimatePresence>
@@ -1064,12 +1066,20 @@ export default function Home() {
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             aria-label="Scroll to top"
-            className="fixed bottom-40 right-5 z-50 w-11 h-11 bg-gray-900 text-white hidden md:flex items-center justify-center shadow-xl hover:bg-primary transition-colors"
+            className="fixed bottom-5 right-5 z-50 w-11 h-11 bg-primary text-white hidden md:flex items-center justify-center shadow-xl hover:bg-primary/90 transition-colors"
           >
             <ChevronUp className="w-5 h-5" />
           </motion.button>
         )}
       </AnimatePresence>
+
+      <button
+        type="button"
+        aria-label="Open chatbot"
+        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-gray-950 text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.35)] hover:scale-110 transition-transform"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </button>
 
       {/* ── Desktop floating "Book Trial" left side tab ─────────────────── */}
       <button
