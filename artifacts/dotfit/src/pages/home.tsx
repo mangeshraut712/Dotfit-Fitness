@@ -17,6 +17,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
+const BASE_URL = import.meta.env.BASE_URL;
+
 /* ─── Animated count-up hook ────────────────────────────────────────────── */
 function useCountUp(target: number, duration = 1800) {
   const [count, setCount] = useState(0);
@@ -393,7 +395,7 @@ export default function Home() {
                 {item}
               </button>
             ))}
-            <a href="/guide"
+            <a href={`${BASE_URL}guide`}
               className={`text-xs font-bold transition-colors uppercase tracking-widest ${isScrolled ? "text-gray-700 hover:text-primary" : "text-white/90 hover:text-primary"}`}>
               Guide
             </a>
@@ -1287,7 +1289,7 @@ export default function Home() {
               Begin with the foundational full-body path. Master movement patterns before adding load — five levels await when you're ready.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <a href="/guide" className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors">
+              <a href={`${BASE_URL}guide`} className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors">
                 Open Full Guide <ArrowRight className="w-4 h-4" />
               </a>
               <Button onClick={() => scrollTo("contact")} className="bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-bold text-xs h-12 px-6 shadow-md shadow-primary/20">
