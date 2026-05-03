@@ -3055,6 +3055,86 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ════════════════════ AMENITIES & POLICIES ══════════════════════ */}
+      <section className="py-32 bg-white border-y border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <span className="text-primary font-black text-xs uppercase tracking-widest">
+              Gym Essentials
+            </span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              Amenities <span className="text-primary">&amp; Policies</span>
+            </h2>
+            <p className="text-gray-500 font-medium text-lg max-w-2xl mx-auto leading-relaxed">
+              Everything members should know at a glance — comfort, water,
+              classes, transfers, and support.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {[
+              {
+                title: "Locker Room Care",
+                text: "2 dedicated cleaners maintain the male and female locker rooms throughout the day.",
+              },
+              {
+                title: "Water Station",
+                text: "Cold, normal, and hot drinking water is available from the water machine for members.",
+              },
+              {
+                title: "Transfer Fee",
+                text: "Membership transfer fee is ₹1,500–₹2,000 when a customer wants to transfer an existing membership.",
+              },
+              {
+                title: "Referral Reward",
+                text: "If an existing member brings a new client on a 6–12 month membership, the existing member gets a 1 month extension.",
+              },
+              {
+                title: "Group Classes",
+                text: "All classes are free to join and follow a first-come, first-served space policy.",
+              },
+              {
+                title: "Front Desk Help",
+                text: "The front desk can help with inquiries, holidays, closures, and general gym information.",
+              },
+              {
+                title: "Trainer Support",
+                text: "Trainers are helpful and ready to guide members on what to do next in the gym.",
+              },
+              {
+                title: "Member Experience",
+                text: "A clean facility, helpful staff, and simple policies make the gym easier to use every day.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05, duration: 0.45 }}
+                className="p-6 bg-[#f8fbf3] border-2 border-gray-100 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all"
+              >
+                <div className="w-11 h-11 bg-primary text-white flex items-center justify-center font-black text-sm mb-4">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="text-lg font-display font-black uppercase tracking-wider text-gray-900 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 font-medium text-sm leading-relaxed">
+                  {item.text}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ════════════════════ YOUR FIRST SESSION IS FREE ═════════════════ */}
       <section className="py-28 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
