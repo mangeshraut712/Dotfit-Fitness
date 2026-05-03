@@ -221,6 +221,32 @@ function OfferPopup({ onClose, onBook }: { onClose: () => void; onBook: () => vo
   );
 }
 
+/* ─── Gym open/closed status (IST) ──────────────────────────────────────── */
+function useGymStatus() {
+  const compute = () => {
+    const ist = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+    const d = new Date(ist);
+    const day = d.getDay(); // 0 = Sunday
+    const totalMin = d.getHours() * 60 + d.getMinutes();
+    const o6 = 6 * 60, c12 = 12 * 60, o16 = 16 * 60, c22 = 22 * 60;
+    if (day === 0) {
+      if (totalMin >= o6 && totalMin < c12) return { open: true, sub: "Closes 12 PM" };
+      return { open: false, sub: "Mon–Sat 6AM–10PM" };
+    }
+    if (totalMin >= o6 && totalMin < c12) return { open: true, sub: "Morning Batch" };
+    if (totalMin >= o16 && totalMin < c22) return { open: true, sub: "Evening Batch" };
+    if (totalMin >= c12 && totalMin < o16) return { open: false, sub: "Opens at 4:00 PM" };
+    if (totalMin >= c22) return { open: false, sub: "Opens 6:00 AM" };
+    return { open: false, sub: "Opens at 6:00 AM" };
+  };
+  const [status, setStatus] = useState(compute);
+  useEffect(() => {
+    const id = setInterval(() => setStatus(compute()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  return status;
+}
+
 /* ─── Happy Hours countdown ──────────────────────────────────────────────── */
 function getIST() {
   const ist = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
@@ -290,6 +316,7 @@ export default function Home() {
   const [submittedPlan, setSubmittedPlan] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const happyHoursLabel = useHappyHoursLabel();
+  const gymStatus = useGymStatus();
 
   useEffect(() => {
     if (sessionStorage.getItem("df_popup")) return;
@@ -538,8 +565,8 @@ export default function Home() {
               { icon: <Star className="w-5 h-5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
               { icon: <Shield className="w-5 h-5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
               { icon: <Users className="w-5 h-5 text-primary" />, label: "25,000+ Members", sub: "Since 2012" },
-              { icon: <Check className="w-5 h-5 text-green-600" />, label: "JustDial Verified", sub: "Trusted Business" },
               { icon: <Trophy className="w-5 h-5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
+              { icon: gymStatus.open ? <div className="w-5 h-5 flex items-center justify-center"><div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" /></div> : <div className="w-5 h-5 flex items-center justify-center"><div className="w-3 h-3 rounded-full bg-red-400" /></div>, label: gymStatus.open ? "Open Now" : "Currently Closed", sub: gymStatus.sub },
             ].map((t, i) => (
               <div key={i} className="flex items-center gap-3">
                 {t.icon}
@@ -1013,6 +1040,7 @@ export default function Home() {
               <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-2.png" cert="Certified Yoga" />
               <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.png" cert="Zumba Licensed" />
               <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-1.png" cert="Dance Certified" />
+              <StaffCard name="Rupali" role="Ladies' Trainer" img="/trainer-rupali.png" cert="K11 Certified" />
             </div>
           </div>
 
@@ -1406,6 +1434,41 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ════════════════════ HOW IT WORKS ══════════════════════════════ */}
+      <section className="py-20 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-12">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Zero Friction</span>
+            <h2 className="text-3xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-gray-900">
+              Start in <span className="text-primary">3 Easy Steps</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 border border-gray-100 max-w-4xl mx-auto">
+            {[
+              { step: "01", title: "Book Your Slot", desc: "Fill the form below, WhatsApp, or call +91 95272 37213. Takes under 60 seconds.", icon: <CalendarCheck className="w-7 h-7" /> },
+              { step: "02", title: "We Call You Back", desc: "Our team confirms your free trial slot within 30 minutes and sends you directions via WhatsApp.", icon: <Phone className="w-7 h-7" /> },
+              { step: "03", title: "Walk In — For Free", desc: "Come in at your chosen time. No payment, no pressure — meet the team and try the full facility.", icon: <Check className="w-7 h-7" /> },
+            ].map((s, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="relative flex flex-col items-center text-center p-10">
+                <div className="absolute top-4 right-4 text-6xl font-display font-black text-gray-50 leading-none select-none">{s.step}</div>
+                <div className="relative w-16 h-16 bg-primary/10 border-2 border-primary/20 flex items-center justify-center mb-5 text-primary z-10">
+                  {s.icon}
+                </div>
+                <h3 className="text-lg font-display font-black uppercase tracking-wider text-gray-900 mb-3 relative z-10">{s.title}</h3>
+                <p className="text-gray-500 font-medium text-sm leading-relaxed relative z-10">{s.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+          <div className="flex justify-center mt-10">
+            <button onClick={() => scrollTo("contact")}
+              className="h-14 px-12 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg shadow-primary/20">
+              Book My Free Trial →
+            </button>
+          </div>
         </div>
       </section>
 
