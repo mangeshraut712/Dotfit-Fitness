@@ -892,9 +892,6 @@ export default function Home() {
               height={44}
               className="h-11 w-11 md:h-12 md:w-12 object-contain drop-shadow-md"
             />
-            <span className={`ml-3 hidden sm:block text-lg md:text-xl font-display font-black uppercase tracking-tight ${isScrolled ? "text-gray-900" : "text-white"}`}>
-              Dotfit Fitness
-            </span>
           </button>
           <div className="hidden md:flex items-center gap-6" role="menubar">
             {[
@@ -973,9 +970,6 @@ export default function Home() {
                 height={48}
                 className="h-12 w-12 object-contain drop-shadow-md"
               />
-              <span className="text-2xl font-display font-black uppercase tracking-tight text-gray-900">
-                Dotfit Fitness
-              </span>
             </button>
             {[
               "About",
