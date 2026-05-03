@@ -67,7 +67,7 @@ function StaffCard({ name, role, img, cert }: { name: string; role: string; img:
   return (
     <div className="group text-center">
       <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-gray-100 border-2 border-gray-100 group-hover:border-primary transition-colors duration-300">
-        <img src={img} alt={name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
+        <img src={img} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         {cert && <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0"><span className="text-[10px] font-black uppercase tracking-widest bg-primary text-white px-2 py-1">{cert}</span></div>}
       </div>
@@ -314,8 +314,8 @@ export default function Home() {
 
       {/* ── Desktop floating "Book Trial" left side tab ─────────────────── */}
       <button onClick={() => scrollTo("contact")}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex items-center gap-2 bg-primary text-white font-black uppercase tracking-widest text-[11px] px-3 py-4 shadow-xl shadow-primary/30 hover:bg-primary/90 transition-all"
-        style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "translateY(-50%) rotate(180deg)" }}>
+        className="fixed left-0 top-1/2 z-50 hidden lg:flex items-center gap-2 bg-primary text-white font-black uppercase tracking-widest text-[11px] px-3 py-4 shadow-xl shadow-primary/30 hover:bg-primary/90 transition-colors"
+        style={{ writingMode: "vertical-rl", transform: "translateY(-50%) rotate(180deg)" }}>
         <CalendarCheck className="w-4 h-4 shrink-0" />
         Book Free Trial
       </button>
@@ -338,7 +338,7 @@ export default function Home() {
       {/* ════════════════════════════ HERO ══════════════════════════════ */}
       <section id="hero" className="relative min-h-[100dvh] flex items-center pt-20 overflow-hidden bg-gray-950">
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
-          <img src="/hero.png" alt="Dotfit Fitness Gym Floor" className="w-full h-full object-cover opacity-50" />
+          <img src="/hero.png" alt="Dotfit Fitness Gym Floor" fetchPriority="high" decoding="async" className="w-full h-full object-cover opacity-50" />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-950/70 to-transparent" />
         </motion.div>
@@ -525,7 +525,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-gray-900">
-              <img src="/facility-equipment.png" alt="Power Station" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+              <img src="/facility-equipment.png" alt="Power Station" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-8 left-8">
                 <div className="inline-block px-3 py-1 bg-primary text-white text-xs font-black uppercase tracking-widest mb-3">Premium Equipment</div>
@@ -534,7 +534,7 @@ export default function Home() {
               </div>
             </div>
             <div className="relative aspect-[16/9] overflow-hidden group bg-gray-900">
-              <img src="/facility-sauna.png" alt="Recovery Zone" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+              <img src="/facility-sauna.png" alt="Recovery Zone" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-6 left-6">
                 <h3 className="text-2xl font-display font-black uppercase tracking-wider text-white mb-1">Recovery Zone</h3>
@@ -623,7 +623,7 @@ export default function Home() {
                 ].map((cls, i) => (
                   <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                     className="group relative aspect-video overflow-hidden bg-gray-900 border border-white/10">
-                    <img src={cls.img} alt={cls.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-80" />
+                    <img src={cls.img} alt={cls.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-80" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-4 w-full">
                       <h3 className="text-sm font-display font-black uppercase tracking-widest mb-1">{cls.title}</h3>
@@ -801,7 +801,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative aspect-square md:aspect-[4/3] bg-gray-100 group overflow-hidden border-2 border-gray-200">
-              <img src="/transformation-1.png" alt="Member Transformation" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src="/transformation-1.png" alt="Member Transformation" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity">
                 <p className="text-primary font-black uppercase tracking-widest text-sm">15kg Lost · 6 Months</p>
@@ -922,7 +922,7 @@ export default function Home() {
             ].map((photo, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
                 className="group relative overflow-hidden aspect-square bg-gray-900">
-                <img src={photo.src} alt={photo.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute bottom-0 left-0 p-4 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
                   <span className="text-white font-black uppercase tracking-widest text-xs">{photo.label}</span>
@@ -1146,7 +1146,7 @@ export default function Home() {
               {["/class-zumba.png", "/facility-equipment.png", "/class-yoga.png", "/class-kickboxing.png", "/facility-sauna.png", "/hero.png"].map((src, i) => (
                 <a key={i} href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
                   className="relative aspect-square overflow-hidden group bg-gray-100">
-                  <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={src} alt="Dotfit Fitness on Instagram" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
                     <Instagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
