@@ -78,3 +78,9 @@ id = "J756H43_UQMJ_Qn2s_-fm"
 uri = "file://artifacts/dotfit/public/transformation-1.png"
 type = "image"
 title = "Gym transformation before after"
+
+[[generated]]
+id = "D5F2nleEWg6ojXy_g7QLE"
+uri = "file://artifacts/dotfit/public/transformation-female.webp.png"
+type = "image"
+title = "Female transformation image"

@@ -1263,6 +1263,7 @@ export default function Home() {
               { src: "/class-yoga.webp", label: "Yoga & Pilates", sub: "Mind & Body" },
               { src: "/class-kickboxing.webp", label: "Kickboxing", sub: "Combat Fitness" },
               { src: "/transformation-1.webp", label: "Male Transformation", sub: "Real Results" },
+              { src: "/transformation-female.webp.png", label: "Female Transformation", sub: "Real Results" },
             ].map((photo, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.5 }}
                 whileHover={{ scale: 1.03, y: -3 }}
@@ -1276,20 +1277,6 @@ export default function Home() {
                 </div>
               </motion.div>
             ))}
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.36, duration: 0.5 }}
-              whileHover={{ scale: 1.03, y: -3 }}
-              className="group relative overflow-hidden aspect-square cursor-default"
-              style={{ background: "linear-gradient(135deg, hsl(82,60%,18%) 0%, hsl(82,60%,32%) 100%)" }}>
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                <div className="w-10 h-10 rounded-full border-2 border-primary/40 flex items-center justify-center mb-2">
-                  <HeartPulse className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-primary font-black uppercase tracking-widest text-[9px] block mb-1">Real Results</span>
-                <span className="text-white font-black uppercase tracking-widest text-[10px] leading-tight">Female Transformation</span>
-                <span className="text-white/40 text-[8px] font-medium mt-1 uppercase tracking-widest">Member Story Soon</span>
-              </div>
-              <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
-            </motion.div>
           </div>
           <div className="text-center mt-10">
             <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
