@@ -13,8 +13,18 @@ const queryClient = new QueryClient();
 
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8fbf3]">
-      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-[#f8fbf3]">
+      <div className="h-1 bg-primary/10">
+        <div className="h-full w-1/3 bg-primary animate-pulse" />
+      </div>
+      <div className="container mx-auto px-4 md:px-6 py-10 space-y-4">
+        <div className="h-8 w-44 rounded bg-primary/10 animate-pulse" />
+        <div className="h-4 w-full max-w-3xl rounded bg-primary/10 animate-pulse" />
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="h-56 rounded-2xl bg-white/70 animate-pulse" />
+          <div className="h-56 rounded-2xl bg-white/70 animate-pulse" />
+        </div>
+      </div>
     </div>
   );
 }
