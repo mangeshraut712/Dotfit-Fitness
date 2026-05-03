@@ -1,16 +1,13 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   Search, Download, Users, Calendar, TrendingUp, Phone, Mail,
   RefreshCw, ChevronDown, ChevronUp, X, Dumbbell, MessageCircle,
   CheckCircle2, PhoneCall, Loader2,
 } from "lucide-react";
-import {
-  setAuthTokenGetter,
-  type Contact as ApiContact,
-} from "@workspace/api-client-react";
+import { type Contact } from "@workspace/api-client-react";
 
-type Contact = ApiContact;
 type SortKey = keyof Contact;
 
 const STATUSES = ["New", "Contacted", "Converted"] as const;
@@ -28,41 +25,21 @@ const STATUS_DOTS: Record<Status, string> = {
   Converted: "bg-green-500",
 };
 
-setAuthTokenGetter(() => {
-  const value = document.cookie
-    .split("; ")
-    .find((entry) => entry.startsWith("session="))
-    ?.split("=")[1];
-  return value ? decodeURIComponent(value) : null;
-});
-
-async function authFetch(input: RequestInfo | URL, init: RequestInit = {}) {
-  const headers = new Headers(init.headers);
-  const session = document.cookie
-    .split("; ")
-    .find((entry) => entry.startsWith("session="))
-    ?.split("=")[1];
-  if (session && !headers.has("authorization")) {
-    headers.set("authorization", `Bearer ${decodeURIComponent(session)}`);
-  }
-  return fetch(input, {
-    ...init,
-    headers,
-    credentials: "include",
-  });
+async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  return fetch(input, { ...init, credentials: "include" });
 }
 
 async function fetchContacts(): Promise<Contact[]> {
-  const res = await authFetch("/api/contacts");
+  const res = await apiFetch("/api/contacts");
   if (!res.ok) throw new Error("Failed to fetch contacts");
-  return (await res.json()) as Contact[];
+  return res.json() as Promise<Contact[]>;
 }
 
-function getContactStatus(
-  c: Contact,
-  statusMap: Record<number, Status>,
-): Status {
-  return statusMap[c.id] ?? "New";
+function resolveStatus(c: Contact, overrides: Record<number, Status>): Status {
+  const override = overrides[c.id];
+  if (override) return override;
+  if ((STATUSES as readonly string[]).includes(c.status)) return c.status as Status;
+  return "New";
 }
 
 function formatDate(iso: string) {
@@ -80,29 +57,32 @@ function timeAgo(iso: string) {
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 function isToday(iso: string) {
   const d = new Date(iso);
   const now = new Date();
-  return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  return (
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear()
+  );
 }
 
-function exportCSV(contacts: Contact[]) {
+function exportCSV(contacts: Contact[], overrides: Record<number, Status>) {
   const headers = ["ID", "Name", "Phone", "Email", "Plan", "Status", "Message", "Submitted At"];
-  const rows = contacts.map(c => [
+  const rows = contacts.map((c) => [
     c.id,
     `"${c.name}"`,
     c.phone,
     c.email,
     `"${c.plan}"`,
-    "New",
+    resolveStatus(c, overrides),
     `"${(c.message ?? "").replace(/"/g, '""')}"`,
     formatDate(c.createdAt),
   ]);
-  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -113,7 +93,7 @@ function exportCSV(contacts: Contact[]) {
 }
 
 const PLAN_COLORS: Record<string, string> = {
-  "Trial": "bg-gray-100 text-gray-600",
+  Trial: "bg-gray-100 text-gray-600",
   "Free Trial": "bg-gray-100 text-gray-600",
   "1 Month": "bg-blue-50 text-blue-700",
   "3 Months": "bg-purple-50 text-purple-700",
@@ -121,7 +101,7 @@ const PLAN_COLORS: Record<string, string> = {
   "1 Year": "bg-green-50 text-green-700",
   "Happy Hours Annual": "bg-lime-50 text-lime-700",
   "Personal Training": "bg-rose-50 text-rose-700",
-  "Zumba": "bg-pink-50 text-pink-700",
+  Zumba: "bg-pink-50 text-pink-700",
 };
 
 function planColor(plan: string) {
@@ -132,7 +112,9 @@ function planColor(plan: string) {
 }
 
 function waLink(phone: string, name: string) {
-  const msg = encodeURIComponent(`Hi ${name}! This is Dotfit Fitness. We received your enquiry and would love to help you get started. When would be a good time to visit?`);
+  const msg = encodeURIComponent(
+    `Hi ${name}! This is Dotfit Fitness. We received your enquiry and would love to help you get started. When would be a good time to visit?`
+  );
   const clean = phone.replace(/\D/g, "");
   const num = clean.startsWith("91") ? clean : `91${clean}`;
   return `https://wa.me/${num}?text=${msg}`;
@@ -145,77 +127,96 @@ export default function AdminPage() {
   const [sortKey, setSortKey] = useState<SortKey>("createdAt");
   const [sortAsc, setSortAsc] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [statusMap, setStatusMap] = useState<Record<number, Status>>({});
+  const [statusOverrides, setStatusOverrides] = useState<Record<number, Status>>({});
   const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
 
-  const { data: contacts = [], isLoading, isError, refetch, isFetching } = useQuery({
+  const { data: contacts = [], isLoading, isError, refetch, isFetching } = useQuery<Contact[]>({
     queryKey: ["contacts"],
     queryFn: fetchContacts,
     refetchInterval: 30000,
   });
 
   async function cycleStatus(c: Contact) {
-    const curr = getContactStatus(c, statusMap);
+    const curr = resolveStatus(c, statusOverrides);
     const idx = STATUSES.indexOf(curr);
     const next = STATUSES[(idx + 1) % STATUSES.length];
-    setStatusMap(prev => ({ ...prev, [c.id]: next }));
-    setUpdatingIds(prev => new Set(prev).add(c.id));
+    setStatusOverrides((prev) => ({ ...prev, [c.id]: next }));
+    setUpdatingIds((prev) => new Set(prev).add(c.id));
     try {
-      await authFetch(`/api/contacts/${c.id}/status`, {
+      await apiFetch(`/api/contacts/${c.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),
       });
     } catch {
-      setStatusMap(prev => ({ ...prev, [c.id]: curr }));
+      setStatusOverrides((prev) => ({ ...prev, [c.id]: curr }));
     } finally {
-      setUpdatingIds(prev => { const s = new Set(prev); s.delete(c.id); return s; });
+      setUpdatingIds((prev) => {
+        const s = new Set(prev);
+        s.delete(c.id);
+        return s;
+      });
     }
   }
 
   const plans = useMemo(() => {
-    const set = new Set(contacts.map(c => c.plan));
+    const set = new Set(contacts.map((c) => c.plan));
     return ["All", ...Array.from(set)];
   }, [contacts]);
 
   const topPlan = useMemo(() => {
     if (!contacts.length) return "—";
     const freq: Record<string, number> = {};
-    contacts.forEach(c => { freq[c.plan] = (freq[c.plan] ?? 0) + 1; });
+    contacts.forEach((c) => {
+      freq[c.plan] = (freq[c.plan] ?? 0) + 1;
+    });
     return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
   }, [contacts]);
 
-  const convertedCount = useMemo(() => {
-    return contacts.filter(c => getContactStatus(c, statusMap) === "Converted").length;
-  }, [contacts, statusMap]);
+  const convertedCount = useMemo(
+    () => contacts.filter((c) => resolveStatus(c, statusOverrides) === "Converted").length,
+    [contacts, statusOverrides]
+  );
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return contacts
-      .filter(c =>
-        (planFilter === "All" || c.plan === planFilter) &&
-        (statusFilter === "All" || getContactStatus(c, statusMap) === statusFilter) &&
-        (!q || c.name.toLowerCase().includes(q) || c.phone.includes(q) ||
-          c.email.toLowerCase().includes(q) || c.plan.toLowerCase().includes(q))
+      .filter(
+        (c) =>
+          (planFilter === "All" || c.plan === planFilter) &&
+          (statusFilter === "All" || resolveStatus(c, statusOverrides) === statusFilter) &&
+          (!q ||
+            c.name.toLowerCase().includes(q) ||
+            c.phone.includes(q) ||
+            c.email.toLowerCase().includes(q) ||
+            c.plan.toLowerCase().includes(q))
       )
       .sort((a, b) => {
         const av = String(a[sortKey] ?? "");
         const bv = String(b[sortKey] ?? "");
         return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
       });
-  }, [contacts, search, planFilter, statusFilter, sortKey, sortAsc, statusMap]);
+  }, [contacts, search, planFilter, statusFilter, sortKey, sortAsc, statusOverrides]);
 
-  const todayCount = useMemo(() => contacts.filter(c => isToday(c.createdAt)).length, [contacts]);
+  const todayCount = useMemo(
+    () => contacts.filter((c) => isToday(c.createdAt)).length,
+    [contacts]
+  );
 
   function handleSort(key: SortKey) {
-    if (sortKey === key) setSortAsc(p => !p);
-    else { setSortKey(key); setSortAsc(true); }
+    if (sortKey === key) setSortAsc((p) => !p);
+    else {
+      setSortKey(key);
+      setSortAsc(true);
+    }
   }
 
   const SortIcon = ({ col }: { col: SortKey }) =>
-    sortKey === col
-      ? sortAsc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-      : <ChevronDown className="w-3 h-3 opacity-25" />;
+    sortKey === col ? (
+      sortAsc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+    ) : (
+      <ChevronDown className="w-3 h-3 opacity-25" />
+    );
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -232,14 +233,24 @@ export default function AdminPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <a href="/" className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">← Back to Website</a>
-          <button onClick={() => refetch()}
-            className={`flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white transition-colors px-3 py-1.5 border border-white/10 hover:border-white/30 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
+          <a
+            href="/"
+            className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block"
+          >
+            ← Back to Website
+          </a>
+          <button
+            onClick={() => void refetch()}
+            className={`flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white transition-colors px-3 py-1.5 border border-white/10 hover:border-white/30 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+          >
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             Refresh
           </button>
-          <button onClick={() => exportCSV(filtered)} disabled={!filtered.length}
-            className="flex items-center gap-1.5 text-xs font-black text-white bg-primary hover:bg-primary/90 transition-colors px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+          <button
+            onClick={() => exportCSV(filtered, statusOverrides)}
+            disabled={!filtered.length}
+            className="flex items-center gap-1.5 text-xs font-black text-white bg-primary hover:bg-primary/90 transition-colors px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             <Download className="w-3.5 h-3.5" />
             Export CSV
           </button>
@@ -250,14 +261,20 @@ export default function AdminPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Total Leads", value: contacts.length, icon: <Users className="w-5 h-5" />, color: "text-primary" },
-            { label: "Today", value: todayCount, icon: <Calendar className="w-5 h-5" />, color: "text-blue-500" },
-            { label: "Converted", value: convertedCount, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-green-500" },
-            { label: "Top Plan", value: topPlan, icon: <TrendingUp className="w-5 h-5" />, color: "text-purple-500" },
-          ].map((s) => (
-            <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-white border border-gray-100 p-5 shadow-sm">
+          {(
+            [
+              { label: "Total Leads", value: contacts.length, icon: <Users className="w-5 h-5" />, color: "text-primary" },
+              { label: "Today", value: todayCount, icon: <Calendar className="w-5 h-5" />, color: "text-blue-500" },
+              { label: "Converted", value: convertedCount, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-green-500" },
+              { label: "Top Plan", value: topPlan, icon: <TrendingUp className="w-5 h-5" />, color: "text-purple-500" },
+            ] as { label: string; value: string | number; icon: React.ReactNode; color: string }[]
+          ).map((s) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white border border-gray-100 p-5 shadow-sm"
+            >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-black uppercase tracking-widest text-gray-400">{s.label}</span>
                 <span className={s.color}>{s.icon}</span>
@@ -273,31 +290,48 @@ export default function AdminPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, phone, email, or plan…"
               className="w-full h-10 pl-9 pr-8 border border-gray-200 text-sm font-medium focus:outline-none focus:border-primary transition-colors"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
 
-        {/* Status filter */}
+        {/* Status + Plan filter */}
         <div className="bg-white border border-gray-100 border-t-0 px-4 pb-4 shadow-sm mb-2 flex gap-2 flex-wrap">
           <span className="text-xs font-black uppercase tracking-widest text-gray-400 self-center mr-1">Status:</span>
-          {["All", ...STATUSES].map(s => (
-            <button key={s} onClick={() => setStatusFilter(s)}
-              className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${statusFilter === s ? "bg-primary text-white border-primary" : "bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary"}`}>
+          {(["All", ...STATUSES] as string[]).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${
+                statusFilter === s
+                  ? "bg-primary text-white border-primary"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary"
+              }`}
+            >
               {s}
             </button>
           ))}
           <span className="text-xs font-black uppercase tracking-widest text-gray-400 self-center mr-1 ml-4">Plan:</span>
-          {plans.map(p => (
-            <button key={p} onClick={() => setPlanFilter(p)}
-              className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${planFilter === p ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-gray-700"}`}>
+          {plans.map((p) => (
+            <button
+              key={p}
+              onClick={() => setPlanFilter(p)}
+              className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${
+                planFilter === p
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-gray-700"
+              }`}
+            >
               {p}
             </button>
           ))}
@@ -305,7 +339,7 @@ export default function AdminPage() {
 
         {/* Legend */}
         <div className="flex gap-4 mb-4 px-1">
-          {STATUSES.map(s => (
+          {STATUSES.map((s) => (
             <div key={s} className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
               <div className={`w-2 h-2 rounded-full ${STATUS_DOTS[s]}`} />
               {s}
@@ -314,7 +348,7 @@ export default function AdminPage() {
           <span className="text-gray-300 text-xs ml-1">· Click status badge to cycle</span>
         </div>
 
-        {/* Table */}
+        {/* Table / cards / empty states */}
         {isLoading ? (
           <div className="bg-white border border-gray-100 p-16 text-center shadow-sm">
             <RefreshCw className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
@@ -323,23 +357,31 @@ export default function AdminPage() {
         ) : isError ? (
           <div className="bg-white border border-red-100 p-16 text-center shadow-sm">
             <p className="text-red-500 font-bold text-sm mb-2">Failed to load contacts</p>
-            <button onClick={() => refetch()} className="text-xs font-black text-primary hover:underline">Try again</button>
+            <button onClick={() => void refetch()} className="text-xs font-black text-primary hover:underline">
+              Try again
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           <div className="bg-white border border-gray-100 p-16 text-center shadow-sm">
             <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium text-sm">{contacts.length === 0 ? "No leads yet" : "No results match your filters"}</p>
+            <p className="text-gray-400 font-medium text-sm">
+              {contacts.length === 0 ? "No leads yet" : "No results match your filters"}
+            </p>
           </div>
         ) : (
           <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
+
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-950 text-white">
                   <tr>
-                    {(["id","name","phone","email","plan"] as SortKey[]).map(col => (
-                      <th key={col} onClick={() => handleSort(col)}
-                        className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none">
+                    {(["id", "name", "phone", "email", "plan"] as SortKey[]).map((col) => (
+                      <th
+                        key={col}
+                        onClick={() => handleSort(col)}
+                        className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none"
+                      >
                         <span className="flex items-center gap-1 whitespace-nowrap">
                           {col}
                           <SortIcon col={col} />
@@ -347,62 +389,89 @@ export default function AdminPage() {
                       </th>
                     ))}
                     <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Status</th>
-                    <th onClick={() => handleSort("createdAt")}
-                      className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none">
-                      <span className="flex items-center gap-1">Submitted <SortIcon col="createdAt" /></span>
+                    <th
+                      onClick={() => handleSort("createdAt")}
+                      className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none"
+                    >
+                      <span className="flex items-center gap-1">
+                        Submitted <SortIcon col="createdAt" />
+                      </span>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((c, i) => {
-                    const status = getContactStatus(c, statusMap);
+                    const status = resolveStatus(c, statusOverrides);
                     const isUpdating = updatingIds.has(c.id);
                     return (
-                      <tr key={c.id} className={`border-t border-gray-50 hover:bg-[#f8fbf3] transition-colors ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                      <tr
+                        key={c.id}
+                        className={`border-t border-gray-50 hover:bg-[#f8fbf3] transition-colors ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+                      >
                         <td className="px-4 py-3 text-gray-400 font-mono text-xs">#{c.id}</td>
                         <td className="px-4 py-3 font-bold text-gray-900 whitespace-nowrap">{c.name}</td>
                         <td className="px-4 py-3">
-                          <a href={`tel:${c.phone}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium whitespace-nowrap">
-                            <Phone className="w-3 h-3" />{c.phone}
+                          <a
+                            href={`tel:${c.phone}`}
+                            className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium whitespace-nowrap"
+                          >
+                            <Phone className="w-3 h-3" />
+                            {c.phone}
                           </a>
                         </td>
                         <td className="px-4 py-3">
-                          <a href={`mailto:${c.email}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium truncate max-w-[160px]">
-                            <Mail className="w-3 h-3 shrink-0" />{c.email}
+                          <a
+                            href={`mailto:${c.email}`}
+                            className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium truncate max-w-[160px]"
+                          >
+                            <Mail className="w-3 h-3 shrink-0" />
+                            {c.email}
                           </a>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs font-black uppercase tracking-wide px-2.5 py-1 ${planColor(c.plan)}`}>{c.plan}</span>
+                          <span className={`text-xs font-black uppercase tracking-wide px-2.5 py-1 ${planColor(c.plan)}`}>
+                            {c.plan}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
                           <button
-                            onClick={() => cycleStatus(c)}
+                            onClick={() => void cycleStatus(c)}
                             disabled={isUpdating}
                             title="Click to cycle: New → Contacted → Converted"
                             className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-sm transition-all hover:opacity-80 ${STATUS_STYLES[status]} ${isUpdating ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
                           >
-                            {isUpdating
-                              ? <Loader2 className="w-3 h-3 animate-spin" />
-                              : <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
-                            }
+                            {isUpdating ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
+                            )}
                             {status}
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-gray-400 text-xs font-medium whitespace-nowrap" title={formatDate(c.createdAt)}>
+                        <td
+                          className="px-4 py-3 text-gray-400 text-xs font-medium whitespace-nowrap"
+                          title={formatDate(c.createdAt)}
+                        >
                           <div>{timeAgo(c.createdAt)}</div>
                           <div className="text-gray-300">{formatDate(c.createdAt)}</div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <a href={waLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer"
+                            <a
+                              href={waLink(c.phone, c.name)}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               title="WhatsApp this lead"
-                              className="w-8 h-8 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center text-white transition-colors">
+                              className="w-8 h-8 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center text-white transition-colors"
+                            >
                               <MessageCircle className="w-3.5 h-3.5" />
                             </a>
-                            <a href={`tel:${c.phone}`}
+                            <a
+                              href={`tel:${c.phone}`}
                               title="Call this lead"
-                              className="w-8 h-8 bg-gray-100 hover:bg-primary flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                              className="w-8 h-8 bg-gray-100 hover:bg-primary flex items-center justify-center text-gray-500 hover:text-white transition-colors"
+                            >
                               <PhoneCall className="w-3.5 h-3.5" />
                             </a>
                           </div>
@@ -416,8 +485,8 @@ export default function AdminPage() {
 
             {/* Mobile cards */}
             <div className="md:hidden divide-y divide-gray-100">
-              {filtered.map(c => {
-                const status = getContactStatus(c, statusMap);
+              {filtered.map((c) => {
+                const status = resolveStatus(c, statusOverrides);
                 const isUpdating = updatingIds.has(c.id);
                 return (
                   <div key={c.id} className="p-4">
@@ -428,36 +497,59 @@ export default function AdminPage() {
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button
-                          onClick={() => cycleStatus(c)}
+                          onClick={() => void cycleStatus(c)}
                           disabled={isUpdating}
-                          className={`flex items-center gap-1 text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-sm ${STATUS_STYLES[status]}`}>
-                          {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />}
+                          className={`flex items-center gap-1 text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-sm ${STATUS_STYLES[status]}`}
+                        >
+                          {isUpdating ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
+                          )}
                           {status}
                         </button>
-                        <span className={`text-xs font-black uppercase tracking-wide px-2 py-0.5 ${planColor(c.plan)}`}>{c.plan}</span>
+                        <span className={`text-xs font-black uppercase tracking-wide px-2 py-0.5 ${planColor(c.plan)}`}>
+                          {c.plan}
+                        </span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-1 text-sm">
                       <a href={`tel:${c.phone}`} className="flex items-center gap-2 text-gray-600 font-medium">
-                        <Phone className="w-3.5 h-3.5 text-primary" />{c.phone}
+                        <Phone className="w-3.5 h-3.5 text-primary" />
+                        {c.phone}
                       </a>
-                      <a href={`mailto:${c.email}`} className="flex items-center gap-2 text-gray-600 font-medium truncate">
-                        <Mail className="w-3.5 h-3.5 text-primary" />{c.email}
+                      <a
+                        href={`mailto:${c.email}`}
+                        className="flex items-center gap-2 text-gray-600 font-medium truncate"
+                      >
+                        <Mail className="w-3.5 h-3.5 text-primary" />
+                        {c.email}
                       </a>
                       <div className="flex items-center gap-2 mt-2">
-                        <a href={waLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-xs font-black bg-[#25D366] text-white px-3 py-1.5 hover:bg-[#22c55e] transition-colors">
+                        <a
+                          href={waLink(c.phone, c.name)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs font-black bg-[#25D366] text-white px-3 py-1.5 hover:bg-[#22c55e] transition-colors"
+                        >
                           <MessageCircle className="w-3 h-3" /> WhatsApp
                         </a>
-                        <a href={`tel:${c.phone}`}
-                          className="flex items-center gap-1.5 text-xs font-black bg-gray-900 text-white px-3 py-1.5 hover:bg-gray-800 transition-colors">
+                        <a
+                          href={`tel:${c.phone}`}
+                          className="flex items-center gap-1.5 text-xs font-black bg-gray-900 text-white px-3 py-1.5 hover:bg-gray-800 transition-colors"
+                        >
                           <PhoneCall className="w-3 h-3" /> Call
                         </a>
                       </div>
                       <div className="text-gray-400 text-xs mt-1">{formatDate(c.createdAt)}</div>
                       {c.message && (
-                        <button onClick={() => setExpandedId(expandedId === c.id ? null : c.id)} className="text-left">
-                          <p className={`text-gray-400 text-xs mt-1 ${expandedId === c.id ? "" : "line-clamp-1"}`}>{c.message}</p>
+                        <button
+                          onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
+                          className="text-left"
+                        >
+                          <p className={`text-gray-400 text-xs mt-1 ${expandedId === c.id ? "" : "line-clamp-1"}`}>
+                            {c.message}
+                          </p>
                         </button>
                       )}
                     </div>

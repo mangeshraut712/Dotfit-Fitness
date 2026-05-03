@@ -105,6 +105,8 @@ components:
           type: string
         message:
           type: ["string", "null"]
+        status:
+          type: string
         createdAt:
           type: string
       required:
@@ -113,6 +115,7 @@ components:
         - phone
         - email
         - plan
+        - status
         - createdAt
     ErrorResponse:
       type: object

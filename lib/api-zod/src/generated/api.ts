@@ -36,6 +36,7 @@ export const ListContactsResponseItem = zod.object({
   email: zod.string(),
   plan: zod.string(),
   message: zod.string().nullish(),
+  status: zod.string(),
   createdAt: zod.string(),
 });
 export const ListContactsResponse = zod.array(ListContactsResponseItem);

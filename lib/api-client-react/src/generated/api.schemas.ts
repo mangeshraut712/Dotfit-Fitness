@@ -26,6 +26,7 @@ export interface Contact {
   plan: string;
   /** @nullable */
   message?: string | null;
+  status: string;
   createdAt: string;
 }
 
