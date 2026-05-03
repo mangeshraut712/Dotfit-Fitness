@@ -199,11 +199,11 @@ function OfferPopup({ onClose, onBook }: { onClose: () => void; onBook: () => vo
           <div className="bg-[#f8fbf3] border-2 border-primary/20 p-4 mb-5 flex items-center justify-between">
             <div>
               <div className="text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">Happy Hours Annual</div>
-              <div className="text-3xl font-display font-black text-gray-900">₹8,500</div>
+              <div className="text-3xl font-display font-black text-gray-900">₹10,000</div>
             </div>
             <div className="text-right">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest line-through mb-0.5">₹15,000</div>
-              <div className="text-xs font-black text-green-600 uppercase tracking-widest">Save ₹6,500</div>
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest line-through mb-0.5">₹12,000</div>
+              <div className="text-xs font-black text-green-600 uppercase tracking-widest">Save ₹2,000</div>
             </div>
           </div>
           <button onClick={onBook}
@@ -235,20 +235,20 @@ function useHappyHoursLabel() {
     const totalSec = h * 3600 + m * 60 + s;
     const startSec = 12 * 3600;
     const endSec = 17 * 3600;
-    if (day === 0) return "🔥 Happy Hours Mon–Sat 12PM–5PM · Annual ₹8,500";
+    if (day === 0) return "🔥 Happy Hours Mon–Sat 12PM–5PM · Annual ₹10,000";
     if (totalSec >= startSec && totalSec < endSec) {
       const rem = endSec - totalSec;
       const rh = Math.floor(rem / 3600);
       const rm = Math.floor((rem % 3600) / 60);
       const rs = rem % 60;
-      return `🟢 HAPPY HOURS LIVE — ${rh > 0 ? rh + "h " : ""}${String(rm).padStart(2, "0")}m ${String(rs).padStart(2, "0")}s remaining · Annual ₹8,500`;
+      return `🟢 HAPPY HOURS LIVE — ${rh > 0 ? rh + "h " : ""}${String(rm).padStart(2, "0")}m ${String(rs).padStart(2, "0")}s remaining · Annual ₹10,000`;
     } else if (totalSec < startSec) {
       const rem = startSec - totalSec;
       const rh = Math.floor(rem / 3600);
       const rm2 = Math.floor((rem % 3600) / 60);
-      return `⏰ Happy Hours starts in ${rh}h ${String(rm2).padStart(2, "0")}m · Annual ₹8,500`;
+      return `⏰ Happy Hours starts in ${rh}h ${String(rm2).padStart(2, "0")}m · Annual ₹10,000`;
     }
-    return "🔥 Happy Hours: 12 PM – 5 PM Daily · Annual Membership ₹8,500";
+    return "🔥 Happy Hours: 12 PM – 5 PM Daily · Annual Membership ₹10,000";
   };
   const [label, setLabel] = useState(compute);
   useEffect(() => {
@@ -269,11 +269,12 @@ const formSchema = z.object({
 
 /* ─── SCHEDULE data ──────────────────────────────────────────────────────── */
 const schedule = [
-  { time: "6:00 – 7:00 AM", mon: "Strength", tue: "Power Yoga", wed: "Kickboxing", thu: "Zumba", fri: "Circuit", sat: "Open Gym" },
-  { time: "7:00 – 9:00 AM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
-  { time: "12:00 – 5:00 PM", mon: "Happy Hours", tue: "Happy Hours", wed: "Happy Hours", thu: "Happy Hours", fri: "Happy Hours", sat: "Happy Hours" },
-  { time: "6:00 – 7:00 PM", mon: "Zumba", tue: "Kickboxing", wed: "Yoga", thu: "Bollywood", fri: "Strength", sat: "Open Gym" },
-  { time: "7:00 – 9:00 PM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
+  { time: "6:00 – 8:00 AM", mon: "Strength", tue: "Power Yoga", wed: "Kickboxing", thu: "Zumba", fri: "Circuit", sat: "Open Gym" },
+  { time: "8:00 AM – 12:00 PM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
+  { time: "12:00 – 2:00 PM", mon: "Rest / Closed", tue: "Rest / Closed", wed: "Rest / Closed", thu: "Rest / Closed", fri: "Rest / Closed", sat: "Rest / Closed" },
+  { time: "2:00 – 4:00 PM", mon: "Trainer Workout", tue: "Trainer Workout", wed: "Trainer Workout", thu: "Trainer Workout", fri: "Trainer Workout", sat: "Trainer Workout" },
+  { time: "4:00 – 6:00 PM", mon: "Happy Hours", tue: "Happy Hours", wed: "Happy Hours", thu: "Happy Hours", fri: "Happy Hours", sat: "Happy Hours" },
+  { time: "6:00 – 10:00 PM", mon: "Zumba / Gym", tue: "Kickboxing / Gym", wed: "Yoga / Gym", thu: "Bollywood / Gym", fri: "Strength / Gym", sat: "Open Gym" },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -626,7 +627,7 @@ export default function Home() {
             {[
               { icon: <Shield className="w-8 h-8 text-primary" />, title: "K11 Certified Facility", desc: "Internationally recognized certification ensuring world-class training standards, safety protocols, and equipment quality." },
               { icon: <Users className="w-8 h-8 text-primary" />, title: "1:4 Trainer Ratio", desc: "Every 4 members get one dedicated certified trainer — not the industry-standard 1:30. Your form, your progress, always monitored." },
-              { icon: <Timer className="w-8 h-8 text-primary" />, title: "Happy Hours 12–5 PM", desc: "Train between 12 PM and 5 PM and unlock massively discounted memberships. Annual plan starts at just ₹8,500." },
+              { icon: <Timer className="w-8 h-8 text-primary" />, title: "Happy Hours 12–5 PM", desc: "Train between 12 PM and 5 PM and unlock massively discounted memberships. Annual plan starts at just ₹10,000." },
               { icon: <Wind className="w-8 h-8 text-primary" />, title: "Fully Air-Conditioned", desc: "5th floor, 100% air-conditioned facility with premium lighting, ventilation, sauna, steam room, and spacious locker rooms." },
               { icon: <Apple className="w-8 h-8 text-primary" />, title: "Nutrition Counseling", desc: "Certified nutritionists craft personalized meal plans for fat loss, muscle gain, or sports performance — included with membership." },
               { icon: <CalendarCheck className="w-8 h-8 text-primary" />, title: "8+ Group Classes/Week", desc: "Zumba, Bollywood Beats, Kickboxing, Power Yoga, Pilates, Circuit Training, Dance Aerobics, and Bokwa — every week." },
@@ -768,7 +769,7 @@ export default function Home() {
               <div className="overflow-x-auto">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-display font-black uppercase tracking-widest text-primary">Weekly Schedule</h3>
-                  <span className="text-white/30 text-xs font-medium">Sunday: 6:00 AM – 12:00 PM</span>
+                  <span className="text-white/30 text-xs font-medium">Sunday: 6 AM – 12 PM · Closed rest of day</span>
                 </div>
                 <table className="w-full text-xs border-collapse min-w-[500px]">
                   <thead>
@@ -811,9 +812,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-16">
             {[
-              { duration: "1 Month", regular: 3000, happy: 2000 },
-              { duration: "3 Months", regular: 5500, happy: 4000 },
-              { duration: "6 Months", regular: 7500, happy: 6000 },
+              { duration: "1 Month", regular: 3500, happy: 3000 },
+              { duration: "3 Months", regular: 5500, happy: 5000 },
+              { duration: "6 Months", regular: 7500, happy: 7000 },
               { duration: "1 Year", regular: 12000, happy: 10000, popular: true },
             ].map((plan, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
@@ -899,7 +900,7 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <p className="text-white/80 font-black uppercase tracking-widest text-sm">
-                Happy Hours slots are limited — <span className="text-primary">Annual plan at ₹8,500</span> valid while slots last
+                Happy Hours slots are limited — <span className="text-primary">Annual plan at ₹10,000</span> valid while slots last
               </p>
             </div>
             <button onClick={() => scrollTo("contact")}
@@ -1001,11 +1002,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Featured trainer */}
+          {/* Personal Trainers */}
           <div className="mb-14">
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px flex-1 bg-gray-100" />
-              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Featured Trainer</h3>
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Personal Trainers</h3>
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -1044,21 +1045,48 @@ export default function Home() {
               The <span className="text-primary">Experience</span>
             </h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {/* Row 1: featured large + 2 stacked */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+              className="group relative overflow-hidden md:row-span-2 bg-gray-900 col-span-1 md:col-span-1"
+              style={{ gridRow: "span 2" }}>
+              <div className="relative h-64 md:h-full min-h-[320px] overflow-hidden">
+                <img src="/hero.png" alt="Main Gym Floor" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-85" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-5">
+                  <span className="text-primary font-black uppercase tracking-widest text-[10px]">Gym Floor</span>
+                  <p className="text-white font-black uppercase tracking-tight text-lg leading-tight">Main Training<br />Floor</p>
+                </div>
+              </div>
+            </motion.div>
             {[
-              { src: "/hero.png", label: "Main Gym Floor" },
               { src: "/facility-equipment.png", label: "Power Station" },
-              { src: "/facility-sauna.png", label: "Recovery Zone" },
-              { src: "/class-zumba.png", label: "Zumba Classes" },
+              { src: "/facility-sauna.png", label: "Recovery & Sauna" },
+            ].map((photo, i) => (
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="group relative overflow-hidden aspect-square bg-gray-900">
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-85" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 p-4">
+                  <span className="text-white font-black uppercase tracking-widest text-xs">{photo.label}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          {/* Row 2: 4-col strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { src: "/class-zumba.png", label: "Zumba & Dance" },
               { src: "/class-yoga.png", label: "Yoga & Pilates" },
               { src: "/class-kickboxing.png", label: "Kickboxing" },
+              { src: "/transformation-1.png", label: "Transformations" },
             ].map((photo, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+              <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
                 className="group relative overflow-hidden aspect-square bg-gray-900">
-                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute bottom-0 left-0 p-4 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                  <span className="text-white font-black uppercase tracking-widest text-xs">{photo.label}</span>
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-85" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 p-3">
+                  <span className="text-white font-black uppercase tracking-widest text-[10px]">{photo.label}</span>
                 </div>
               </motion.div>
             ))}
@@ -1268,9 +1296,9 @@ export default function Home() {
           <div className="space-y-3">
             {[
               { q: "Where is Dotfit Fitness located?", a: "We're at 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Road, near Salt Hotel, Balewadi Phata, Baner, Pune 411045. Just 2 minutes from Balewadi High Street." },
-              { q: "What are your operating hours?", a: "Monday to Saturday: 6:00 AM – 10:00 PM. Trainers are available from 5:30 AM. Sunday is closed." },
+              { q: "What are your operating hours?", a: "Mon–Sat: 6:00 AM – 12:00 PM (regular), 12:00–2:00 PM rest/closed, 2:00–4:00 PM trainer workout, 4:00–10:00 PM regular. Sunday: 6:00 AM – 12:00 PM only." },
               { q: "Do you offer a free trial?", a: "Yes! Book a free trial session via the form below, WhatsApp, or call +91 95272 37213. No commitment or payment required for the trial." },
-              { q: "What is the Happy Hours discount?", a: "Members who train between 12 PM and 5 PM get heavily discounted memberships. Annual membership drops from ₹15,000 to just ₹8,500 — saving ₹6,500!" },
+              { q: "What is the Happy Hours discount?", a: "Members who train between 12 PM and 5 PM (Happy Hours) get discounted memberships. Annual plan: ₹10,000 (Happy Hours) vs ₹12,000 regular — saving ₹2,000!" },
               { q: "Can I join for a single day or short trial?", a: "Yes. Single session walk-in costs ₹500. A 7-day trial pass is ₹1,500." },
               { q: "Are there ladies-only batches?", a: "Yes, we have specific batches and dedicated female trainers (Poonam, Rupali) for ladies. Please contact us for the current schedule." },
               { q: "Do you provide nutrition/diet guidance?", a: "Yes, certified nutritionists provide personalized meal plans based on your goals — included from the 3-month plan onwards." },
@@ -1446,7 +1474,7 @@ export default function Home() {
             <div className="space-y-6 mb-8 flex-grow">
               {[
                 { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
-                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <>Mon – Sat: 6:00 AM – 10:00 PM<br />Trainers from 5:30 AM<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM</span></> },
+                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <><strong>Mon – Sat:</strong> 6:00 AM – 12:00 PM &amp; 4:00 PM – 10:00 PM<br />12:00–2:00 PM Rest · 2:00–4:00 PM Trainer Workout<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM only</span></> },
                 { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
                 { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
               ].map((item, i) => (
@@ -1502,7 +1530,7 @@ export default function Home() {
                 { val: "Free", label: "Trial Session" },
                 { val: "30 min", label: "Response Time" },
                 { val: "₹10,000", label: "Annual Plan" },
-                { val: "Mon–Sat", label: "6 AM – 10 PM" },
+                { val: "6–10 PM", label: "Evening Hours" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
                   <div className="text-2xl font-display font-black text-white">{s.val}</div>
@@ -1539,7 +1567,7 @@ export default function Home() {
                 <a href="tel:+919527237213" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />+91 95272 37213</a>
                 <a href="mailto:Support@dotfitfitness.in" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />Support@dotfitfitness.in</a>
                 <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Baner, Pune 411045</span></div>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Mon–Sat: 6 AM – 10 PM<br /><span className="text-white/25">Sunday: 6:00 AM – 12:00 PM</span></span></div>
+                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Mon–Sat: 6 AM–12 PM &amp; 4–10 PM<br /><span className="text-white/25">Sun: 6–12 AM only</span></span></div>
               </div>
             </div>
             <div>
