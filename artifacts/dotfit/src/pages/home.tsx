@@ -1263,7 +1263,6 @@ export default function Home() {
                 </div>
               </motion.div>
             ))}
-            {/* Female transformation placeholder — replace src with real photo when available */}
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.36, duration: 0.5 }}
               whileHover={{ scale: 1.03, y: -3 }}
               className="group relative overflow-hidden aspect-square cursor-default"
@@ -1274,7 +1273,7 @@ export default function Home() {
                 </div>
                 <span className="text-primary font-black uppercase tracking-widest text-[9px] block mb-1">Real Results</span>
                 <span className="text-white font-black uppercase tracking-widest text-[10px] leading-tight">Female Transformation</span>
-                <span className="text-white/40 text-[8px] font-medium mt-1 uppercase tracking-widest">Photo Coming Soon</span>
+                <span className="text-white/40 text-[8px] font-medium mt-1 uppercase tracking-widest">Member Story Soon</span>
               </div>
               <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
             </motion.div>
