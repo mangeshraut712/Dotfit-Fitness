@@ -18,6 +18,75 @@ interface Message {
   streaming?: boolean;
 }
 
+const OFFLINE_KNOWLEDGE = {
+  identity:
+    "I'm Dotfit AI Coach — your gym-side fitness assistant for training, nutrition, equipment selection, and safe progress.",
+  gym:
+    "Dotfit Fitness is the Baner, Pune gym shown on this site. Use the website for gym timing, location, trial, and contact details.",
+  training:
+    "For muscle gain: prioritize progressive overload, 10-20 hard sets per muscle per week, 1-3 RIR on key lifts, and track performance weekly.",
+    nutrition:
+    "For fat loss: keep protein high, build meals around lean protein + fiber + produce, and create a modest calorie deficit you can sustain.",
+  equipment:
+    "Free weights build stability and strength; selectorized machines isolate safely; cables are great for constant tension and angle changes; functional tools help conditioning and core work.",
+  safety:
+    "If a movement causes sharp pain, reduce range of motion, lower load, switch variation, or stop and seek a qualified trainer or clinician.",
+  examples: [
+    {
+      q: "Build muscle",
+      a: "Use a 4-5 day split, base each session on compound lifts, add 1-2 reps or a little weight when all sets hit the top of your target range, and eat enough protein daily.",
+    },
+    {
+      q: "Lose fat",
+      a: "Keep lifting heavy enough to preserve strength, walk more, eat mostly whole foods, and aim for a small calorie deficit instead of crashing calories.",
+    },
+    {
+      q: "Fix my squat",
+      a: "Start with foot pressure and bracing, then check ankle mobility, knee tracking, depth control, and bar path. Goblet squats and heel-elevated squats can help build the pattern.",
+    },
+    {
+      q: "Meal plan",
+      a: "Anchor each meal around protein, include fruit or vegetables, use carbs around workouts, and keep fats moderate so calories stay controlled.",
+    },
+  ],
+} as const;
+
+function getOfflineReply(userText: string): string {
+  const text = userText.toLowerCase();
+  if (text.includes("dotfit") || text.includes("gym timing") || text.includes("timings")) {
+    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.gym}\n\nFor exact membership, timing, or location details, the website contact section is the safest source.`;
+  }
+  if (
+    text.includes("squat") ||
+    text.includes("deadlift") ||
+    text.includes("bench") ||
+    text.includes("workout") ||
+    text.includes("program") ||
+    text.includes("split")
+  ) {
+    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.training}\n\n${OFFLINE_KNOWLEDGE.safety}`;
+  }
+  if (
+    text.includes("meal") ||
+    text.includes("protein") ||
+    text.includes("diet") ||
+    text.includes("nutrition") ||
+    text.includes("calorie")
+  ) {
+    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.nutrition}\n\n${OFFLINE_KNOWLEDGE.safety}`;
+  }
+  if (
+    text.includes("machine") ||
+    text.includes("cable") ||
+    text.includes("dumbbell") ||
+    text.includes("barbell") ||
+    text.includes("equipment")
+  ) {
+    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.equipment}\n\nAt Dotfit, a smart approach is to match the tool to the goal: free weights for skill + strength, machines for stable overload, cables for angles and tension.`;
+  }
+  return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.training}\n${OFFLINE_KNOWLEDGE.nutrition}\n${OFFLINE_KNOWLEDGE.equipment}\n\n${OFFLINE_KNOWLEDGE.safety}`;
+}
+
 function getApiBase(): string {
   const base = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
   return `${base}/api/openrouter`;
@@ -119,6 +188,7 @@ export default function ChatWidget() {
   const [convId, setConvId] = useState<number | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -214,6 +284,7 @@ export default function ChatWidget() {
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
     setStreaming(true);
+    setOfflineMode(false);
 
     const placeholder: Message = { role: "assistant", content: "", streaming: true };
     setMessages((prev) => [...prev, placeholder]);
@@ -305,14 +376,14 @@ export default function ChatWidget() {
       }
     } catch (err) {
       if ((err as Error)?.name !== "AbortError") {
+        setOfflineMode(true);
         setMessages((prev) => {
           const copy = [...prev];
           const last = copy[copy.length - 1];
           if (last?.streaming) {
             copy[copy.length - 1] = {
               role: "assistant",
-              content:
-                "Sorry, I couldn't reach the coaching service right now. Please check your connection and try again.",
+              content: getOfflineReply(text),
               streaming: false,
             };
           }
@@ -403,8 +474,10 @@ export default function ChatWidget() {
                 </p>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-green-400 text-xs">Online</span>
+                <div className={`w-2 h-2 rounded-full ${offlineMode ? "bg-amber-400" : "bg-green-400"} animate-pulse`} />
+                <span className={`text-xs ${offlineMode ? "text-amber-400" : "text-green-400"}`}>
+                  {offlineMode ? "Offline" : "Online"}
+                </span>
               </div>
               <button
                 type="button"
@@ -557,7 +630,9 @@ export default function ChatWidget() {
                 </motion.button>
               </div>
               <p className="text-gray-600 text-[10px] mt-1.5 text-center">
-                Powered by Dotfit AI · Not a substitute for medical advice
+                {offlineMode
+                  ? "Offline coach mode · Local knowledge only · Not a substitute for medical advice"
+                  : "Powered by Dotfit AI · Not a substitute for medical advice"}
               </p>
             </div>
           </motion.div>
