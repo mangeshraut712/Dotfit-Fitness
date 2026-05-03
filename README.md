@@ -21,9 +21,9 @@
 ## 🌟 Highlights
 
 - 🤖 **AI-Powered Coaching**: OpenAI support for personalized workout plans and guidance
-- 📱 **Wearable Integration**: Prepared for health-tracking and recovery insights
-- 🔐 **Secure Authentication**: JWT-based user management with role-based access control
-- 📊 **Health Analytics**: Recovery scoring and biometric data analysis
+- 📱 **Wearable Integration**: Ready for future health-tracking and recovery insights
+- 🔐 **Secure Contact Flow**: Contact form persists to the database with validation
+- 📊 **Health Analytics**: Recovery scoring and biometric-style conversion metrics in the site copy
 - 🎯 **2026-Ready**: Built with modern web technologies and future-proof architecture
 
 ## 📋 Table of Contents
@@ -74,10 +74,8 @@
 - **Tailwind CSS** with custom design system
 - **Radix UI** for accessible primitives
 - **Framer Motion** for animations
-- **TanStack Query** for server state management
 - **React Hook Form + Zod** for form validation
 - **Wouter** for lightweight routing
-- **Recharts** for data visualization
 - **Lucide React** for icons
 
 ### Backend (`artifacts/api-server`)
@@ -125,13 +123,7 @@
    cp .env.example .env
    ```
 
-3. **Database Initialization**
-
-   ```bash
-   pnpm --filter @workspace/db push
-   ```
-
-4. **Development Servers**
+3. **Development Servers**
 
    ```bash
    pnpm --filter @workspace/api-server run dev
