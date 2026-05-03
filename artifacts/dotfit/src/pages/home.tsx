@@ -66,15 +66,23 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 /* ─── Staff card ─────────────────────────────────────────────────────────── */
 function StaffCard({ name, role, img, cert }: { name: string; role: string; img: string; cert?: string }) {
   return (
-    <div className="group text-center">
+    <motion.div
+      whileHover={{ y: -8 }}
+      transition={{ type: "spring", stiffness: 360, damping: 22 }}
+      className="group text-center cursor-default"
+    >
       <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-gray-100 border-2 border-gray-100 group-hover:border-primary transition-colors duration-300">
         <img src={img} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        {cert && <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0"><span className="text-[10px] font-black uppercase tracking-widest bg-primary text-white px-2 py-1">{cert}</span></div>}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+          {cert && <span className="self-start text-[10px] font-black uppercase tracking-widest bg-primary text-white px-2 py-1 mb-1">{cert}</span>}
+          <span className="text-white font-black text-sm uppercase tracking-wider">{name}</span>
+          <span className="text-primary/80 text-[10px] uppercase tracking-widest font-bold">{role}</span>
+        </div>
       </div>
-      <h4 className="text-base font-display font-black uppercase tracking-wider text-gray-900">{name}</h4>
+      <h4 className="text-base font-display font-black uppercase tracking-wider text-gray-900 group-hover:text-primary transition-colors">{name}</h4>
       <p className="text-primary text-xs uppercase tracking-widest font-bold mt-0.5">{role}</p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -82,11 +90,14 @@ function StaffCard({ name, role, img, cert }: { name: string; role: string; img:
 function StatBox({ value, suffix, label, icon }: { value: number; suffix: string; label: string; icon: React.ReactNode }) {
   const { count, ref } = useCountUp(value);
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-      className="text-center p-8 bg-white border-2 border-gray-100 hover:border-primary/30 transition-colors">
-      <div className="flex justify-center mb-3">{icon}</div>
-      <div className="text-4xl md:text-5xl font-display font-black text-gray-900 mb-1 tracking-tight">{count}{suffix}</div>
-      <div className="text-xs text-gray-400 uppercase tracking-widest font-bold">{label}</div>
+    <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+      whileHover={{ y: -4, borderColor: "hsl(82,60%,45%)" }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="text-center p-8 bg-white border-2 border-gray-100 relative overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="relative flex justify-center mb-4">{icon}</div>
+      <div className="relative text-4xl md:text-5xl font-display font-black text-gray-900 mb-1 tracking-tight">{count}{suffix}</div>
+      <div className="relative text-xs text-gray-400 uppercase tracking-widest font-bold">{label}</div>
     </motion.div>
   );
 }
@@ -518,23 +529,28 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-gray-950/70 to-transparent" />
         </motion.div>
         <div className="container relative z-10 mx-auto px-4 md:px-6">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 border border-primary/40 bg-primary/10 backdrop-blur-sm">
+          <div className="max-w-4xl">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 border border-primary/40 bg-primary/10 backdrop-blur-sm">
               <Shield className="w-4 h-4 text-primary" />
               <span className="text-xs font-black tracking-widest uppercase text-white">K11 Certified · Est. 2012 · Baner, Pune</span>
-            </div>
-            <h1 className="text-6xl md:text-8xl lg:text-[108px] font-display font-black leading-[0.88] tracking-tighter mb-5 uppercase text-white">
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+              className="text-6xl md:text-8xl lg:text-[108px] font-display font-black leading-[0.88] tracking-tighter mb-5 uppercase text-white">
               Raw Power.<br />
               <span className="text-primary">Precision.</span><br />
               Results.
-            </h1>
-            <p className="text-xl md:text-2xl font-display font-black text-white/90 mb-3 tracking-wide uppercase">
+            </motion.h1>
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.42 }}
+              className="text-xl md:text-2xl font-display font-black text-white/90 mb-3 tracking-wide uppercase">
               Baner's Most Trusted Gym Since 2012
-            </p>
-            <p className="text-base text-white/60 mb-10 max-w-xl font-medium leading-relaxed">
+            </motion.p>
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.54 }}
+              className="text-base text-white/60 mb-10 max-w-xl font-medium leading-relaxed">
               Join 25,000+ members who chose excellence. Expert coaches, premium equipment, and real transformations — 5th floor, fully air-conditioned.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 pb-20 md:pb-0">
+            </motion.p>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.66 }}
+              className="flex flex-col sm:flex-row gap-4 pb-20 md:pb-0">
               <Button onClick={() => scrollTo("contact")} size="lg"
                 className="h-14 px-10 bg-primary hover:bg-primary/90 text-white rounded-none text-sm uppercase tracking-widest font-black group shadow-xl shadow-primary/30">
                 Book Free Trial <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -547,8 +563,8 @@ export default function Home() {
                 className="h-14 px-8 border border-white/20 bg-transparent hover:bg-white/5 text-white rounded-none text-sm uppercase tracking-widest font-bold flex items-center gap-2 justify-center transition-colors">
                 <Phone className="w-4 h-4 text-primary" /> +91 95272 37213
               </a>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
         <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 cursor-pointer hidden md:flex"
           animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 2 }} onClick={() => scrollTo("trust")}>
@@ -558,26 +574,39 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════ TRUST STRIP ═══════════════════════════ */}
-      <div id="trust" className="bg-white border-b border-gray-100 py-5">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-14">
-            {[
-              { icon: <Star className="w-5 h-5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
-              { icon: <Shield className="w-5 h-5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
-              { icon: <Users className="w-5 h-5 text-primary" />, label: "25,000+ Members", sub: "Since 2012" },
-              { icon: <Trophy className="w-5 h-5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
-              { icon: gymStatus.open ? <div className="w-5 h-5 flex items-center justify-center"><div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" /></div> : <div className="w-5 h-5 flex items-center justify-center"><div className="w-3 h-3 rounded-full bg-red-400" /></div>, label: gymStatus.open ? "Open Now" : "Currently Closed", sub: gymStatus.sub },
-            ].map((t, i) => (
-              <div key={i} className="flex items-center gap-3">
-                {t.icon}
-                <div>
-                  <div className="text-sm font-black text-gray-900 leading-none">{t.label}</div>
-                  <div className="text-xs text-gray-400 font-medium mt-0.5">{t.sub}</div>
-                </div>
+      <div id="trust" className="bg-white border-b border-gray-100 py-4 overflow-hidden">
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 32, repeat: Infinity, ease: "linear" }}
+          className="flex items-center whitespace-nowrap"
+        >
+          {[
+            { icon: <Star className="w-4.5 h-4.5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
+            { icon: <Shield className="w-4.5 h-4.5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
+            { icon: <Users className="w-4.5 h-4.5 text-primary" />, label: "25,000+ Members", sub: "Since 2012" },
+            { icon: <Trophy className="w-4.5 h-4.5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
+            { icon: gymStatus.open ? <div className="w-4.5 h-4.5 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" /></div> : <div className="w-4.5 h-4.5 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-red-400" /></div>, label: gymStatus.open ? "Open Now" : "Currently Closed", sub: gymStatus.sub },
+            { icon: <Flame className="w-4.5 h-4.5 text-primary" />, label: "Happy Hours 12–5 PM", sub: "Annual from ₹10,000" },
+            { icon: <Timer className="w-4.5 h-4.5 text-primary" />, label: "30-Min Response", sub: "Call or WhatsApp" },
+            { icon: <Wind className="w-4.5 h-4.5 text-primary" />, label: "Fully Air-Conditioned", sub: "5th Floor Facility" },
+            { icon: <Star className="w-4.5 h-4.5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
+            { icon: <Shield className="w-4.5 h-4.5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
+            { icon: <Users className="w-4.5 h-4.5 text-primary" />, label: "25,000+ Members", sub: "Since 2012" },
+            { icon: <Trophy className="w-4.5 h-4.5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
+            { icon: gymStatus.open ? <div className="w-4.5 h-4.5 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" /></div> : <div className="w-4.5 h-4.5 flex items-center justify-center"><div className="w-2.5 h-2.5 rounded-full bg-red-400" /></div>, label: gymStatus.open ? "Open Now" : "Currently Closed", sub: gymStatus.sub },
+            { icon: <Flame className="w-4.5 h-4.5 text-primary" />, label: "Happy Hours 12–5 PM", sub: "Annual from ₹10,000" },
+            { icon: <Timer className="w-4.5 h-4.5 text-primary" />, label: "30-Min Response", sub: "Call or WhatsApp" },
+            { icon: <Wind className="w-4.5 h-4.5 text-primary" />, label: "Fully Air-Conditioned", sub: "5th Floor Facility" },
+          ].map((t, i) => (
+            <div key={i} className="flex items-center gap-3 shrink-0 px-8 border-r border-gray-100 last:border-r-0">
+              <span className="text-primary">{t.icon}</span>
+              <div>
+                <div className="text-sm font-black text-gray-900 leading-none">{t.label}</div>
+                <div className="text-xs text-gray-400 font-medium mt-0.5">{t.sub}</div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ))}
+        </motion.div>
       </div>
 
       {/* ════════════════════ ABOUT / OUR STORY ═════════════════════════ */}
@@ -585,30 +614,35 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <span className="text-primary font-black text-xs uppercase tracking-widest">Est. 2012 · Baner, Pune</span>
-              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-6 text-gray-900">
-                Our <span className="text-primary">Story</span>
-              </h2>
-              <p className="text-gray-600 font-medium leading-relaxed mb-5">
-                Dotfit Fitness was founded in 2012 with a single vision: make world-class fitness accessible to every person in Baner, Pune. Starting from a modest setup, we invested aggressively in equipment, trainer certification, and member experience.
-              </p>
-              <p className="text-gray-600 font-medium leading-relaxed mb-8">
-                Today, from our 5th-floor facility at Srushti Elegance, we serve 25,000+ members — backed by a K11 Certified team, a strict 1:4 trainer-to-member ratio, and a relentless focus on delivering real, measurable results.
-              </p>
+              <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                <span className="text-primary font-black text-xs uppercase tracking-widest">Est. 2012 · Baner, Pune</span>
+                <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-6 text-gray-900">
+                  Our <span className="text-primary">Story</span>
+                </h2>
+                <p className="text-gray-600 font-medium leading-relaxed mb-5">
+                  Dotfit Fitness was founded in 2012 with a single vision: make world-class fitness accessible to every person in Baner, Pune. Starting from a modest setup, we invested aggressively in equipment, trainer certification, and member experience.
+                </p>
+                <p className="text-gray-600 font-medium leading-relaxed mb-8">
+                  Today, from our 5th-floor facility at Srushti Elegance, we serve 25,000+ members — backed by a K11 Certified team, a strict 1:4 trainer-to-member ratio, and a relentless focus on delivering real, measurable results.
+                </p>
+              </motion.div>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { icon: <Target className="w-5 h-5 text-primary" />, label: "Mission", text: "Results for every member, every day" },
                   { icon: <Sparkles className="w-5 h-5 text-primary" />, label: "Vision", text: "Pune's most trusted fitness brand" },
                   { icon: <Shield className="w-5 h-5 text-primary" />, label: "Certified", text: "K11 International Standard" },
                   { icon: <Heart className="w-5 h-5 text-primary" />, label: "Community", text: "25,000+ happy members" },
-                ].map((item) => (
-                  <div key={item.label} className="flex gap-3 p-4 bg-[#f8fbf3] border border-gray-100">
+                ].map((item, idx) => (
+                  <motion.div key={item.label}
+                    initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.08, duration: 0.45 }}
+                    whileHover={{ y: -3, boxShadow: "0 8px 24px rgba(125,181,32,0.10)" }}
+                    className="flex gap-3 p-4 bg-[#f8fbf3] border border-gray-100 hover:border-primary/30 transition-all cursor-default">
                     {item.icon}
                     <div>
                       <div className="text-xs font-black uppercase tracking-widest text-gray-500">{item.label}</div>
                       <div className="text-sm font-bold text-gray-800 mt-0.5">{item.text}</div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -655,7 +689,8 @@ export default function Home() {
       {/* ════════════════════ WHY DOTFIT ════════════════════════════════ */}
       <section className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Why Choose Us</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               Not Just a Gym.<br /><span className="text-primary">A Lifestyle.</span>
@@ -663,7 +698,7 @@ export default function Home() {
             <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">
               Dotfit Fitness is Baner's most complete fitness ecosystem — built around your results, not just your membership fee.
             </p>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: <Shield className="w-8 h-8 text-primary" />, title: "K11 Certified Facility", desc: "Internationally recognized certification ensuring world-class training standards, safety protocols, and equipment quality." },
@@ -692,12 +727,13 @@ export default function Home() {
       {/* ════════════════════ FACILITIES ════════════════════════════════ */}
       <section id="facilities" className="py-32 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">5th Floor, Baner</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               World-Class <span className="text-primary">Facilities</span>
             </h2>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-gray-900">
               <img src="/facility-equipment.png" alt="Power Station" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
@@ -762,18 +798,20 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col lg:flex-row gap-16">
             <div className="lg:w-1/3">
-              <span className="text-primary font-black text-xs uppercase tracking-widest">Group Training</span>
-              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-6">
-                Group <span className="text-primary">Discipline</span>
-              </h2>
-              <p className="text-white/60 text-base mb-8 font-medium leading-relaxed">
-                8+ diverse weekly classes led by certified instructors. From high-energy Zumba to calming Yoga — there's something for every goal.
-              </p>
+              <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.65 }}>
+                <span className="text-primary font-black text-xs uppercase tracking-widest">Group Training</span>
+                <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-6">
+                  Group <span className="text-primary">Discipline</span>
+                </h2>
+                <p className="text-white/60 text-base mb-8 font-medium leading-relaxed">
+                  8+ diverse weekly classes led by certified instructors. From high-energy Zumba to calming Yoga — there's something for every goal.
+                </p>
+              </motion.div>
               <div className="space-y-3 mb-8">
                 {[
                   { label: "Morning Batch", time: "6:00 AM – 9:00 AM", color: "border-primary" },
                   { label: "Happy Hours", time: "12:00 PM – 5:00 PM", color: "border-primary/40", note: "Discounted Membership" },
-                  { label: "Evening Batch", time: "6:00 PM – 9:00 PM", color: "border-primary" },
+                  { label: "Evening Batch", time: "4:00 PM – 10:00 PM", color: "border-primary" },
                 ].map((b) => (
                   <div key={b.label} className={`bg-white/5 p-5 border-l-4 ${b.color}`}>
                     <div className="text-primary font-black uppercase tracking-widest text-xs mb-1">{b.label}</div>
@@ -844,13 +882,14 @@ export default function Home() {
       {/* ════════════════════ PRICING ═══════════════════════════════════ */}
       <section id="pricing" className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">No Hidden Fees</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               Transparent <span className="text-primary">Pricing</span>
             </h2>
             <p className="text-gray-500 text-lg font-medium">Train 12 PM – 5 PM (Happy Hours) for massively discounted rates.</p>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-16">
             {[
               { duration: "1 Month", regular: 3500, happy: 3000 },
@@ -858,12 +897,17 @@ export default function Home() {
               { duration: "6 Months", regular: 7500, happy: 7000 },
               { duration: "1 Year", regular: 12000, happy: 10000, popular: true },
             ].map((plan, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className={`relative p-8 bg-white flex flex-col transition-all hover:shadow-xl ${plan.popular ? "border-2 border-primary shadow-xl shadow-primary/10 scale-[1.02] z-10" : "border-2 border-gray-100 hover:border-primary/30"}`}>
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.55 }}
+                whileHover={plan.popular ? { y: -8, boxShadow: "0 24px 48px rgba(125,181,32,0.25)" } : { y: -6, boxShadow: "0 16px 40px rgba(0,0,0,0.10)" }}
+                className={`relative p-8 bg-white flex flex-col cursor-default ${plan.popular ? "border-2 border-primary shadow-xl shadow-primary/10 scale-[1.02] z-10" : "border-2 border-gray-100"}`}>
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-primary text-white text-xs font-black uppercase tracking-widest shadow-lg">
+                  <motion.div
+                    animate={{ opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-primary text-white text-xs font-black uppercase tracking-widest shadow-lg">
                     Best Value
-                  </div>
+                  </motion.div>
                 )}
                 <h3 className="text-2xl font-display font-black uppercase tracking-wider mb-6 text-center text-gray-900">{plan.duration}</h3>
                 <div className="space-y-4 mb-8 flex-grow">
@@ -878,7 +922,7 @@ export default function Home() {
                   </div>
                 </div>
                 <Button onClick={() => bookPlan(plan.duration)}
-                  className={`w-full rounded-none uppercase tracking-widest font-black h-12 ${plan.popular ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20" : "bg-gray-900 hover:bg-gray-800 text-white"}`}>
+                  className={`w-full rounded-none uppercase tracking-widest font-black h-12 transition-all ${plan.popular ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20" : "bg-gray-900 hover:bg-gray-800 text-white"}`}>
                   Select Plan
                 </Button>
               </motion.div>
@@ -956,14 +1000,15 @@ export default function Home() {
       <section className="py-32 bg-[#f8fbf3] border-y border-gray-100">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div>
+            <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.65 }}>
               <span className="text-primary font-black text-xs uppercase tracking-widest">Member Stories</span>
               <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
                 Real <span className="text-primary">Results</span>
               </h2>
               <p className="text-gray-500 max-w-lg text-lg font-medium">Our members don't just work out — they transform.</p>
-            </div>
-            <div className="flex gap-4">
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.65, delay: 0.1 }}
+              className="flex gap-4">
               <div className="text-center p-4 bg-white border-2 border-gray-100">
                 <div className="text-3xl font-display font-black text-primary">15kg</div>
                 <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">Lost in 6 Months</div>
@@ -972,7 +1017,7 @@ export default function Home() {
                 <div className="text-3xl font-display font-black text-primary">8kg</div>
                 <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">Muscle in 90 Days</div>
               </div>
-            </div>
+            </motion.div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative aspect-square md:aspect-[4/3] bg-gray-100 group overflow-hidden border-2 border-gray-200">
@@ -1007,13 +1052,14 @@ export default function Home() {
       {/* ════════════════════ TEAM ══════════════════════════════════════ */}
       <section id="team" className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">1:4 Trainer Ratio</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               The <span className="text-primary">Experts</span>
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto text-lg font-medium">Certified professionals who demand your best — every single session.</p>
-          </div>
+          </motion.div>
 
           {/* Floor Managers */}
           <div className="mb-14">
@@ -1084,35 +1130,41 @@ export default function Home() {
       {/* ════════════════════ PHOTO GALLERY ═════════════════════════════ */}
       <section id="gallery" className="py-32 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Inside Dotfit</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               The <span className="text-primary">Experience</span>
             </h2>
-          </div>
+          </motion.div>
           {/* Row 1: featured large + 2 stacked */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-              className="group relative overflow-hidden md:row-span-2 bg-gray-900 col-span-1 md:col-span-1"
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+              whileHover={{ scale: 1.01 }}
+              className="group relative overflow-hidden md:row-span-2 bg-gray-900 col-span-1 md:col-span-1 cursor-default"
               style={{ gridRow: "span 2" }}>
               <div className="relative h-64 md:h-full min-h-[320px] overflow-hidden">
-                <img src="/hero.png" alt="Main Gym Floor" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-85" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <img src="/hero.png" alt="Main Gym Floor" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
                 <div className="absolute bottom-0 left-0 p-5">
-                  <span className="text-primary font-black uppercase tracking-widest text-[10px]">Gym Floor</span>
-                  <p className="text-white font-black uppercase tracking-tight text-lg leading-tight">Main Training<br />Floor</p>
+                  <span className="text-primary font-black uppercase tracking-widest text-[10px]">Main Training Floor</span>
+                  <p className="text-white font-black uppercase tracking-tight text-xl leading-tight group-hover:text-primary transition-colors duration-300">5th Floor<br />Baner, Pune</p>
                 </div>
               </div>
             </motion.div>
             {[
-              { src: "/facility-equipment.png", label: "Power Station" },
-              { src: "/facility-sauna.png", label: "Recovery & Sauna" },
+              { src: "/facility-equipment.png", label: "Power Station", sub: "Premium Equipment" },
+              { src: "/facility-sauna.png", label: "Recovery & Sauna", sub: "Relax & Recover" },
             ].map((photo, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="group relative overflow-hidden aspect-square bg-gray-900">
-                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-85" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 p-4">
+              <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.6 }}
+                whileHover={{ scale: 1.02 }}
+                className="group relative overflow-hidden aspect-square bg-gray-900 cursor-default">
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
+                <div className="absolute bottom-0 left-0 p-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                  <span className="text-primary/70 font-black uppercase tracking-widest text-[9px] block mb-0.5">{photo.sub}</span>
                   <span className="text-white font-black uppercase tracking-widest text-xs">{photo.label}</span>
                 </div>
               </motion.div>
@@ -1121,16 +1173,19 @@ export default function Home() {
           {/* Row 2: 4-col strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { src: "/class-zumba.png", label: "Zumba & Dance" },
-              { src: "/class-yoga.png", label: "Yoga & Pilates" },
-              { src: "/class-kickboxing.png", label: "Kickboxing" },
-              { src: "/transformation-1.png", label: "Transformations" },
+              { src: "/class-zumba.png", label: "Zumba & Dance", sub: "Group Class" },
+              { src: "/class-yoga.png", label: "Yoga & Pilates", sub: "Mind & Body" },
+              { src: "/class-kickboxing.png", label: "Kickboxing", sub: "Combat Fitness" },
+              { src: "/transformation-1.png", label: "Transformations", sub: "Real Results" },
             ].map((photo, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="group relative overflow-hidden aspect-square bg-gray-900">
-                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-85" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 p-3">
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.5 }}
+                whileHover={{ scale: 1.03, y: -3 }}
+                className="group relative overflow-hidden aspect-square bg-gray-900 cursor-default">
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
+                <div className="absolute bottom-0 left-0 p-3 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                  <span className="text-primary/70 font-black uppercase tracking-widest text-[9px] block">{photo.sub}</span>
                   <span className="text-white font-black uppercase tracking-widest text-[10px]">{photo.label}</span>
                 </div>
               </motion.div>
@@ -1148,7 +1203,8 @@ export default function Home() {
       {/* ════════════════════ TESTIMONIALS ══════════════════════════════ */}
       <section className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Verified Reviews</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               Member <span className="text-primary">Verdicts</span>
@@ -1158,7 +1214,7 @@ export default function Home() {
               <span className="font-black text-xl text-gray-900">4.2 / 5</span>
               <span className="text-gray-400 text-sm font-medium">· 726+ Reviews on Google & JustDial</span>
             </div>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               { text: "Trainers are very friendly and professional. They give personal attention to each member. The equipment is well-maintained and the facility is top-notch.", author: "Rahul S.", source: "Google Review", goal: "Fat Loss" },
@@ -1168,8 +1224,11 @@ export default function Home() {
               { text: "The personal training by Dinesh sir transformed my body completely. The 1:4 trainer ratio is real — I always get personal attention. Worth every rupee.", author: "Vikram D.", source: "JustDial Review", goal: "Muscle Gain" },
               { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after long office hours. The facility is extremely clean and well-managed.", author: "Anita K.", source: "Google Review", goal: "Yoga & Flexibility" },
             ].map((r, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="p-7 bg-[#f8fbf3] border-2 border-gray-100 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all flex flex-col">
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.5 }}
+                whileHover={{ y: -5, boxShadow: "0 16px 36px rgba(125,181,32,0.10)" }}
+                className="p-7 bg-[#f8fbf3] border-2 border-gray-100 hover:border-primary/30 transition-all flex flex-col cursor-default relative overflow-hidden group">
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="flex gap-1 mb-3">{[...Array(5)].map((_, j) => <Star key={j} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />)}</div>
                 <span className="self-start px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">{r.goal}</span>
                 <p className="text-gray-700 font-medium text-sm leading-relaxed flex-grow italic mb-5">"{r.text}"</p>
@@ -1212,12 +1271,13 @@ export default function Home() {
       {/* ════════════════════ FITNESS GOALS ═════════════════════════════ */}
       <section className="py-24 bg-gray-950 text-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-14">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Choose Your Path</span>
             <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-white">
               What's Your <span className="text-primary">Goal?</span>
             </h2>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { icon: <Flame className="w-8 h-8" />, title: "Fat Loss", desc: "Cardio-focused programs, HIIT circuits, and calorie-deficit nutrition plans. Visible results in 8–12 weeks.", plan: "1 Month", cta: "Start Burning" },
@@ -1332,12 +1392,13 @@ export default function Home() {
       {/* ════════════════════ FAQ ════════════════════════════════════════ */}
       <section id="faq" className="py-32 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-          <div className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-16">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Got Questions?</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               We Have <span className="text-primary">Answers.</span>
             </h2>
-          </div>
+          </motion.div>
           <div className="space-y-3">
             {[
               { q: "Where is Dotfit Fitness located?", a: "We're at 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Road, near Salt Hotel, Balewadi Phata, Baner, Pune 411045. Just 2 minutes from Balewadi High Street." },
@@ -1353,44 +1414,6 @@ export default function Home() {
               { q: "What certifications does Dotfit Fitness have?", a: "Dotfit Fitness is K11 Certified — an internationally recognized fitness certification ensuring world-class training standards, equipment safety, and trainer qualifications." },
               { q: "How is the 1:4 trainer ratio maintained?", a: "Unlike most gyms (1:30 ratio), Dotfit maintains a strict 1 trainer per 4 members policy. This ensures your form, progress, and safety are always monitored during training." },
             ].map((faq, i) => <FaqItem key={i} question={faq.q} answer={faq.a} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════════ SOCIAL CTA ════════════════════════════════ */}
-      <section className="py-24 bg-white border-y border-gray-100">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-            <div className="lg:w-1/2">
-              <span className="text-primary font-black text-xs uppercase tracking-widest">Community</span>
-              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-5 text-gray-900">
-                Follow <span className="text-primary">@dotfitfitness</span>
-              </h2>
-              <p className="text-gray-500 font-medium text-lg mb-8 leading-relaxed">
-                Member transformations, workout reels, class highlights, and behind-the-scenes. Join our community on Instagram.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity">
-                  <Instagram className="w-5 h-5" /> Follow on Instagram
-                </a>
-                <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#25D366] text-white font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity">
-                  <MessageCircle className="w-5 h-5" /> WhatsApp Us
-                </a>
-              </div>
-            </div>
-            <div className="lg:w-1/2 grid grid-cols-3 gap-2">
-              {["/class-zumba.png", "/facility-equipment.png", "/class-yoga.png", "/class-kickboxing.png", "/facility-sauna.png", "/hero.png"].map((src, i) => (
-                <a key={i} href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
-                  className="relative aspect-square overflow-hidden group bg-gray-100">
-                  <img src={src} alt="Dotfit Fitness on Instagram" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
-                    <Instagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </a>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -1425,7 +1448,7 @@ export default function Home() {
                 { val: "Free", label: "Trial Session" },
                 { val: "30 min", label: "Response Time" },
                 { val: "₹10,000", label: "Annual Plan" },
-                { val: "6–10 PM", label: "Evening Hours" },
+                { val: "4–10 PM", label: "Evening Hours" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
                   <div className="text-2xl font-display font-black text-white">{s.val}</div>
@@ -1440,12 +1463,13 @@ export default function Home() {
       {/* ════════════════════ HOW IT WORKS ══════════════════════════════ */}
       <section className="py-20 bg-white border-t border-gray-100">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+            className="text-center mb-12">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Zero Friction</span>
             <h2 className="text-3xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-gray-900">
               Start in <span className="text-primary">3 Easy Steps</span>
             </h2>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 border border-gray-100 max-w-4xl mx-auto">
             {[
               { step: "01", title: "Book Your Slot", desc: "Fill the form below, WhatsApp, or call +91 95272 37213. Takes under 60 seconds.", icon: <CalendarCheck className="w-7 h-7" /> },

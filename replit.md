@@ -53,9 +53,26 @@ World-class fitness website for Dotfit Fitness gym in Baner, Pune, India. Built 
 - `PATCH /api/contacts/:id/status` — update lead status (allowed: "New","Contacted","Converted")
 
 ## Pages
-- `/` — Main single-page site (home.tsx, 1580+ lines)
+- `/` — Main single-page site (home.tsx, 1680+ lines)
 - `/guide` — 5-level fitness progression guide (tabbed interface, Level 1 default)
 - `/admin` — Lead management: list submissions, cycle status, CSV export
+
+## Animation Architecture (home.tsx)
+- **Hero**: Individually staggered children — badge (0.1s), h1 (0.2s), subheading (0.42s), body (0.54s), buttons (0.66s)
+- **Trust Strip**: Seamless `motion.div animate={{ x: ["0%", "-50%"] }}` scrolling marquee (16 items × 2 = 32 loop), 32s linear repeat
+- **Section Headings**: Every section heading wrapped with `motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}`
+- **Pricing Cards**: `whileHover={{ y: -8, boxShadow }}` spring; "Best Value" badge has `animate={{ opacity: [1, 0.7, 1] }}` pulse
+- **Testimonial Cards**: `whileHover={{ y: -5 }}` + green gradient top-bar on hover reveal
+- **Gallery Photos**: `whileHover={{ scale: 1.02–1.03, y: -3 }}` + `border-primary` overlay, sub-label slide-up on hover
+- **StaffCard**: `whileHover={{ y: -8 }}` spring + cert badge overlay
+- **StatBox**: `whileHover={{ y: -4 }}` spring + gradient overlay
+- **About Section**: Left column heading/text in one motion.div; 4 info cards individually staggered with whileHover lift
+- **Real Results**: Heading slides in from left (x:-24), stats counter slides in from right (x:24)
+- **Classes Section**: Left column slides in from left (x:-24)
+- **Guide Page Header**: Badge, h1, description individually staggered; stat cards stagger scale-in
+
+## Deduplication
+- Social CTA section removed (was duplicate of "Find Us" social links)
 
 ## Key Commands
 

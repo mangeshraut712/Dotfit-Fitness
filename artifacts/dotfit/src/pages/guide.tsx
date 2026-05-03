@@ -418,18 +418,21 @@ export default function GuidePage() {
       <section className="bg-gray-950 text-white py-14 md:py-20">
         <div className="container mx-auto px-4 md:px-6 max-w-5xl grid md:grid-cols-[1.4fr_.8fr] gap-10 items-end">
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
+              className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-primary flex items-center justify-center">
                 <Dumbbell className="w-4 h-4 text-white" />
               </div>
               <span className="text-primary font-black text-xs uppercase tracking-widest">Dotfit Fitness · Baner, Pune</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-display font-black uppercase tracking-tighter leading-none mb-4">
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 36 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+              className="text-5xl md:text-7xl font-display font-black uppercase tracking-tighter leading-none mb-4">
               Fitness<br /><span className="text-primary">Progression</span><br />Guide
-            </h1>
-            <p className="text-white/60 font-medium max-w-xl leading-relaxed">
-              Compact, modular training roadmap with level-based access and minimal scrolling.
-            </p>
+            </motion.h1>
+            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.42 }}
+              className="text-white/60 font-medium max-w-xl leading-relaxed">
+              A structured five-level path from foundational movement to advanced split training — designed by Dotfit's K11-certified coaches for every fitness level.
+            </motion.p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -437,10 +440,12 @@ export default function GuidePage() {
               { icon: <Target className="w-4 h-4" />, label: "40+ Exercises" },
               { icon: <Shield className="w-4 h-4" />, label: "K11 Certified" },
               { icon: <Zap className="w-4 h-4" />, label: "Compact Layout" },
-            ].map((item) => (
-              <div key={item.label} className="bg-white/5 border border-white/10 p-3 flex items-center gap-2 text-sm font-bold text-white/70">
+            ].map((item, i) => (
+              <motion.div key={item.label}
+                initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: 0.5 + i * 0.07 }}
+                className="bg-white/5 border border-white/10 p-3 flex items-center gap-2 text-sm font-bold text-white/70 hover:bg-white/10 hover:border-primary/40 transition-all">
                 <span className="text-primary">{item.icon}</span>{item.label}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
