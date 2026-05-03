@@ -52,11 +52,13 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
     <div className="border border-gray-200 overflow-hidden bg-white">
       <button onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={`faq-answer-${question.slice(0, 20).replace(/\s/g, "-")}`}
         className="w-full flex items-center justify-between px-6 py-5 text-left font-display font-bold uppercase tracking-wider text-gray-900 hover:text-primary transition-colors">
         <span>{question}</span>
-        <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-gray-400"}`} />
+        <ChevronDown aria-hidden="true" className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-gray-400"}`} />
       </button>
-      <div ref={ref} style={{ maxHeight: open ? `${ref.current?.scrollHeight ?? 400}px` : "0px", transition: "max-height 0.35s ease", overflow: "hidden" }}>
+      <div ref={ref} id={`faq-answer-${question.slice(0, 20).replace(/\s/g, "-")}`} role="region" aria-label={question} style={{ maxHeight: open ? `${ref.current?.scrollHeight ?? 400}px` : "0px", transition: "max-height 0.35s ease", overflow: "hidden" }}>
         <div className="px-6 pb-5 text-gray-600 font-medium text-sm leading-relaxed border-t border-gray-100 pt-4">{answer}</div>
       </div>
     </div>
@@ -72,7 +74,7 @@ function StaffCard({ name, role, img, cert }: { name: string; role: string; img:
       className="group text-center cursor-default"
     >
       <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-gray-100 border-2 border-gray-100 group-hover:border-primary transition-colors duration-300">
-        <img src={img} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
+        <img src={img} alt={`${name} — Dotfit Fitness trainer`} loading="lazy" decoding="async" width={300} height={400} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
           {cert && <span className="self-start text-[10px] font-black uppercase tracking-widest bg-primary text-white px-2 py-1 mb-1">{cert}</span>}
@@ -153,9 +155,11 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
             Get your BMI, ideal weight range, daily calorie needs, and a personalised Dotfit program — instantly.
           </p>
 
-          <div className="flex gap-3 mb-4">
+          <div className="flex gap-3 mb-4" role="group" aria-label="Select gender">
             {(["male", "female"] as const).map((g) => (
               <button key={g} onClick={() => setGender(g)}
+                aria-pressed={gender === g}
+                aria-label={g === "male" ? "Male" : "Female"}
                 className={`flex-1 h-10 font-black uppercase tracking-widest text-xs border-2 transition-all ${gender === g ? "bg-primary text-white border-primary" : "bg-white text-gray-500 border-gray-200 hover:border-primary"}`}>
                 {g === "male" ? "♂ Male" : "♀ Female"}
               </button>
@@ -164,18 +168,18 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
 
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div>
-              <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Weight (kg)</label>
-              <input value={weight} onChange={e => setWeight(e.target.value)} type="number" placeholder="75"
+              <label htmlFor="bmi-weight" className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Weight (kg)</label>
+              <input id="bmi-weight" value={weight} onChange={e => setWeight(e.target.value)} type="number" placeholder="75" min={1} max={300}
                 className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-3 text-gray-900 font-bold text-sm transition-colors" />
             </div>
             <div>
-              <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Height (cm)</label>
-              <input value={heightCm} onChange={e => setHeightCm(e.target.value)} type="number" placeholder="170"
+              <label htmlFor="bmi-height" className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Height (cm)</label>
+              <input id="bmi-height" value={heightCm} onChange={e => setHeightCm(e.target.value)} type="number" placeholder="170" min={50} max={250}
                 className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-3 text-gray-900 font-bold text-sm transition-colors" />
             </div>
             <div>
-              <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Age</label>
-              <input value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="25"
+              <label htmlFor="bmi-age" className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Age</label>
+              <input id="bmi-age" value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="25" min={10} max={100}
                 className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-3 text-gray-900 font-bold text-sm transition-colors" />
             </div>
           </div>
@@ -467,7 +471,7 @@ export default function Home() {
 
   /* ─── RENDER ──────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden selection:bg-primary selection:text-white" id="main-content">
 
       {/* ── Offer popup ────────────────────────────────────────────────── */}
       <AnimatePresence>
@@ -490,15 +494,16 @@ export default function Home() {
       </div>
 
       {/* ── Navigation ────────────────────────────────────────────────── */}
-      <nav className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/98 backdrop-blur-md border-b border-gray-100 py-3 shadow-sm top-0" : "bg-transparent py-5"}`}
+      <nav aria-label="Main navigation" className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/98 backdrop-blur-md border-b border-gray-100 py-3 shadow-sm top-0" : "bg-transparent py-5"}`}
         style={{ top: isScrolled ? "3px" : "35px" }}>
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          <div className="cursor-pointer" onClick={() => scrollTo("hero")}>
-            <img src="/logo-text.png" alt="Dotfit Fitness" className={`h-10 w-auto object-contain transition-all ${isScrolled ? "brightness-100" : "brightness-0 invert"}`} />
-          </div>
-          <div className="hidden md:flex items-center gap-6">
+          <button className="cursor-pointer bg-transparent border-0 p-0" onClick={() => scrollTo("hero")} aria-label="Go to top — Dotfit Fitness">
+            <img src="/logo-text.webp" alt="Dotfit Fitness" width={160} height={40} className={`h-10 w-auto object-contain transition-all ${isScrolled ? "brightness-100" : "brightness-0 invert"}`} />
+          </button>
+          <div className="hidden md:flex items-center gap-6" role="menubar">
             {["About", "Classes", "Pricing", "Team", "Gallery", "FAQ", "Location"].map((item) => (
-              <button key={item} onClick={() => scrollTo(sectionIds[item as keyof typeof sectionIds])}
+              <button key={item} role="menuitem" onClick={() => scrollTo(sectionIds[item as keyof typeof sectionIds])}
+                aria-label={`Navigate to ${item} section`}
                 className={`text-xs font-bold transition-colors uppercase tracking-widest ${isScrolled ? "text-gray-700 hover:text-primary" : "text-white/90 hover:text-primary"}`}>
                 {item}
               </button>
@@ -511,8 +516,8 @@ export default function Home() {
               Free Trial
             </Button>
           </div>
-          <button className={`md:hidden ${isScrolled ? "text-gray-900" : "text-white"}`} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+          <button aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen} aria-controls="mobile-menu" className={`md:hidden ${isScrolled ? "text-gray-900" : "text-white"}`} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X size={26} aria-hidden="true" /> : <Menu size={26} aria-hidden="true" />}
           </button>
         </div>
       </nav>
@@ -520,22 +525,23 @@ export default function Home() {
       {/* ── Mobile full-screen menu ────────────────────────────────────── */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          <motion.div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-6 md:hidden">
-            <img src="/logo-text.png" alt="Dotfit" className="h-12 mb-2" />
+            <img src="/logo-text.webp" alt="Dotfit Fitness" width={160} height={48} className="h-12 mb-2" />
             {["About", "Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location", "Contact"].map((item) => (
               <button key={item} onClick={() => scrollTo(sectionIds[item as keyof typeof sectionIds])}
+                aria-label={`Go to ${item} section`}
                 className="text-2xl font-display font-black text-gray-900 hover:text-primary transition-colors uppercase tracking-widest">
                 {item}
               </button>
             ))}
             <div className="flex gap-4 mt-4">
               {[
-                { href: "https://www.instagram.com/dotfitfitness/", icon: <Instagram className="w-6 h-6" /> },
-                { href: "https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session.", icon: <MessageCircle className="w-6 h-6" /> },
-                { href: "https://www.facebook.com/DotfitFitness/", icon: <Facebook className="w-6 h-6" /> },
-                { href: "https://www.linkedin.com/company/dotfit-fitness/", icon: <Linkedin className="w-6 h-6" /> },
-              ].map((s, i) => <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary">{s.icon}</a>)}
+                { href: "https://www.instagram.com/dotfitfitness/", label: "Instagram", icon: <Instagram className="w-6 h-6" aria-hidden="true" /> },
+                { href: "https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session.", label: "WhatsApp", icon: <MessageCircle className="w-6 h-6" aria-hidden="true" /> },
+                { href: "https://www.facebook.com/DotfitFitness/", label: "Facebook", icon: <Facebook className="w-6 h-6" aria-hidden="true" /> },
+                { href: "https://www.linkedin.com/company/dotfit-fitness/", label: "LinkedIn", icon: <Linkedin className="w-6 h-6" aria-hidden="true" /> },
+              ].map((s, i) => <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label} className="text-gray-400 hover:text-primary">{s.icon}</a>)}
             </div>
           </motion.div>
         )}
@@ -546,9 +552,9 @@ export default function Home() {
         className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform">
         <MessageCircle className="w-7 h-7" />
       </a>
-      <a href="tel:+919527237213"
+      <a href="tel:+919527237213" aria-label="Call Dotfit Fitness"
         className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform">
-        <Phone className="w-6 h-6" />
+        <Phone className="w-6 h-6" aria-hidden="true" />
       </a>
 
       {/* ── Scroll to top ────────────────────────────────────────────────── */}
@@ -594,7 +600,7 @@ export default function Home() {
       {/* ════════════════════════════ HERO ══════════════════════════════ */}
       <section id="hero" className="relative min-h-[100dvh] flex items-center pt-20 overflow-hidden bg-gray-950">
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
-          <img src="/hero.png" alt="Dotfit Fitness Gym Floor" fetchPriority="high" decoding="async" className="w-full h-full object-cover opacity-50" />
+          <img src="/hero.webp" alt="Dotfit Fitness Gym Floor — 5th Floor, Baner Pune" fetchPriority="high" decoding="async" width={1920} height={1080} className="w-full h-full object-cover opacity-50" />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/50 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-950/70 to-transparent" />
         </motion.div>
@@ -803,7 +809,7 @@ export default function Home() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-gray-900">
-              <img src="/facility-equipment.png" alt="Power Station" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+              <img src="/facility-equipment.webp" alt="Dotfit Fitness Power Station — premium gym equipment floor" loading="lazy" decoding="async" width={900} height={1200} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-8 left-8">
                 <div className="inline-block px-3 py-1 bg-primary text-white text-xs font-black uppercase tracking-widest mb-3">Premium Equipment</div>
@@ -812,7 +818,7 @@ export default function Home() {
               </div>
             </div>
             <div className="relative aspect-[16/9] overflow-hidden group bg-gray-900">
-              <img src="/facility-sauna.png" alt="Recovery Zone" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
+              <img src="/facility-sauna.webp" alt="Dotfit Fitness Recovery Zone — sauna and steam room" loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-6 left-6">
                 <h3 className="text-2xl font-display font-black uppercase tracking-wider text-white mb-1">Recovery Zone</h3>
@@ -896,14 +902,14 @@ export default function Home() {
             <div className="lg:w-2/3 flex flex-col gap-8">
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { title: "Zumba & Bollywood Beats", img: "/class-zumba.png", inst: "Sikandar & Gajendra" },
-                  { title: "Kickboxing & Boxing", img: "/class-kickboxing.png", inst: "Certified Trainers" },
-                  { title: "Power Yoga & Pilates", img: "/class-yoga.png", inst: "Poonam & Kale" },
-                  { title: "Circuit & Body Building", img: "/facility-equipment.png", inst: "Floor Managers" },
+                  { title: "Zumba & Bollywood Beats", img: "/class-zumba.webp", inst: "Sikandar & Gajendra" },
+                  { title: "Kickboxing & Boxing", img: "/class-kickboxing.webp", inst: "Certified Trainers" },
+                  { title: "Power Yoga & Pilates", img: "/class-yoga.webp", inst: "Poonam & Kale" },
+                  { title: "Circuit & Body Building", img: "/facility-equipment.webp", inst: "Floor Managers" },
                 ].map((cls, i) => (
                   <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                     className="group relative aspect-video overflow-hidden bg-gray-900 border border-white/10">
-                    <img src={cls.img} alt={cls.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-80" />
+                    <img src={cls.img} alt={cls.title} loading="lazy" decoding="async" width={480} height={270} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-80" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-4 w-full">
                       <h3 className="text-sm font-display font-black uppercase tracking-widest mb-1">{cls.title}</h3>
@@ -1088,7 +1094,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative aspect-square md:aspect-[4/3] bg-gray-100 group overflow-hidden border-2 border-gray-200">
-              <img src="/transformation-1.png" alt="Member Transformation" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src="/transformation-1.webp" alt="Dotfit Fitness member transformation — real results" loading="lazy" decoding="async" width={800} height={800} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity">
                 <p className="text-primary font-black uppercase tracking-widest text-sm">15kg Lost · 6 Months</p>
@@ -1136,8 +1142,8 @@ export default function Home() {
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Ganesh" role="Floor Manager" img="/trainer-ganesh.png" cert="K11 Certified" />
-              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-sikandar.png" cert="K11 Certified" />
+              <StaffCard name="Ganesh" role="Floor Manager" img="/trainer-ganesh.webp" cert="K11 Certified" />
+              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-sikandar.webp" cert="K11 Certified" />
             </div>
           </div>
 
@@ -1149,11 +1155,11 @@ export default function Home() {
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Poonam" role="Yoga Expert" img="/trainer-poonam.png" cert="Yoga Alliance" />
-              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-ganesh.png" cert="Certified Yoga" />
-              <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.png" cert="Zumba Licensed" />
-              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-sikandar.png" cert="Dance Certified" />
-              <StaffCard name="Rupali" role="Ladies' Trainer" img="/trainer-rupali.png" cert="K11 Certified" />
+              <StaffCard name="Poonam" role="Yoga Expert" img="/trainer-poonam.webp" cert="Yoga Alliance" />
+              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-ganesh.webp" cert="Certified Yoga" />
+              <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.webp" cert="Zumba Licensed" />
+              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-sikandar.webp" cert="Dance Certified" />
+              <StaffCard name="Rupali" role="Ladies' Trainer" img="/trainer-rupali.webp" cert="K11 Certified" />
             </div>
           </div>
 
@@ -1165,10 +1171,10 @@ export default function Home() {
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Dinesh" role="Personal Trainer" img="/trainer-ganesh.png" cert="CPT Certified" />
-              <StaffCard name="Rajesh" role="Personal Trainer" img="/trainer-sikandar.png" cert="K11 Certified" />
-              <StaffCard name="Mayur" role="Personal Trainer" img="/trainer-ganesh.png" cert="Strength Coach" />
-              <StaffCard name="Tukaram" role="Personal Trainer" img="/trainer-sikandar.png" cert="K11 Certified" />
+              <StaffCard name="Dinesh" role="Personal Trainer" img="/trainer-ganesh.webp" cert="CPT Certified" />
+              <StaffCard name="Rajesh" role="Personal Trainer" img="/trainer-sikandar.webp" cert="K11 Certified" />
+              <StaffCard name="Mayur" role="Personal Trainer" img="/trainer-ganesh.webp" cert="Strength Coach" />
+              <StaffCard name="Tukaram" role="Personal Trainer" img="/trainer-sikandar.webp" cert="K11 Certified" />
             </div>
           </div>
 
@@ -1211,7 +1217,7 @@ export default function Home() {
               className="group relative overflow-hidden md:row-span-2 bg-gray-900 col-span-1 md:col-span-1 cursor-default"
               style={{ gridRow: "span 2" }}>
               <div className="relative h-64 md:h-full min-h-[320px] overflow-hidden">
-                <img src="/hero.png" alt="Main Gym Floor" loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
+                <img src="/hero.webp" alt="Main Gym Floor — Dotfit Fitness Baner" loading="lazy" decoding="async" width={800} height={1100} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
                 <div className="absolute bottom-0 left-0 p-5">
@@ -1221,13 +1227,13 @@ export default function Home() {
               </div>
             </motion.div>
             {[
-              { src: "/facility-equipment.png", label: "Power Station", sub: "Premium Equipment" },
-              { src: "/facility-sauna.png", label: "Recovery & Sauna", sub: "Relax & Recover" },
+              { src: "/facility-equipment.webp", label: "Power Station", sub: "Premium Equipment" },
+              { src: "/facility-sauna.webp", label: "Recovery & Sauna", sub: "Relax & Recover" },
             ].map((photo, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.6 }}
                 whileHover={{ scale: 1.02 }}
                 className="group relative overflow-hidden aspect-square bg-gray-900 cursor-default">
-                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" width={600} height={600} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
                 <div className="absolute bottom-0 left-0 p-4 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
@@ -1240,15 +1246,15 @@ export default function Home() {
           {/* Row 2: 5-col strip */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
-              { src: "/class-zumba.png", label: "Zumba & Dance", sub: "Group Class" },
-              { src: "/class-yoga.png", label: "Yoga & Pilates", sub: "Mind & Body" },
-              { src: "/class-kickboxing.png", label: "Kickboxing", sub: "Combat Fitness" },
-              { src: "/transformation-1.png", label: "Male Transformation", sub: "Real Results" },
+              { src: "/class-zumba.webp", label: "Zumba & Dance", sub: "Group Class" },
+              { src: "/class-yoga.webp", label: "Yoga & Pilates", sub: "Mind & Body" },
+              { src: "/class-kickboxing.webp", label: "Kickboxing", sub: "Combat Fitness" },
+              { src: "/transformation-1.webp", label: "Male Transformation", sub: "Real Results" },
             ].map((photo, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.5 }}
                 whileHover={{ scale: 1.03, y: -3 }}
                 className="group relative overflow-hidden aspect-square bg-gray-900 cursor-default">
-                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
+                <img src={photo.src} alt={photo.label} loading="lazy" decoding="async" width={400} height={400} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108 opacity-85" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
                 <div className="absolute bottom-0 left-0 p-3 translate-y-1 group-hover:translate-y-0 transition-transform duration-300">

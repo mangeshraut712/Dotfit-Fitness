@@ -16,7 +16,7 @@
     <meta property="og:site_name" content="Dotfit Fitness" />
     <meta property="og:locale" content="en_IN" />
     <meta property="og:title" content="Dotfit Fitness | Best Gym in Baner, Pune" />
-    <meta property="og:description" content="Join Baner's #1 K11-certified gym. 25,000+ members, world-class equipment, 1:4 trainer ratio. Happy Hours Annual Plan at ₹10,000. Book your free trial." />
+    <meta property="og:description" content="Join Baner's #1 K11-certified gym. 25,000+ members, world-class equipment. Happy Hours Annual Plan at ₹10,000. Book your free trial." />
     <meta property="og:image" content="https://dotfitfitness.in/opengraph.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -31,18 +31,26 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" href="/logo-icon.png" />
-    <link rel="apple-touch-icon" href="/logo-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo-icon.png" />
+    <meta name="theme-color" content="#6aaa14" />
 
-    <!-- LCP: preload hero image so it starts loading before JS executes -->
-    <link rel="preload" as="image" href="/hero.png" fetchpriority="high" />
+    <!-- LCP: preload hero WebP so it starts loading before JS executes -->
+    <link rel="preload" as="image" href="/hero.webp" fetchpriority="high" type="image/webp" />
+    <!-- Preload logo for nav (above the fold) -->
+    <link rel="preload" as="image" href="/logo-text.webp" fetchpriority="high" type="image/webp" />
 
-    <!-- Fonts — preconnect first, then preload critical weight -->
+    <!-- Fonts — preconnect first, then async load -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@400;500;600;700&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
+
+    <!-- DNS prefetch for external services -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="dns-prefetch" href="https://maps.gstatic.com" />
+    <link rel="preconnect" href="https://maps.googleapis.com" />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -116,6 +124,7 @@
     </script>
   </head>
   <body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:font-bold focus:rounded">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
