@@ -1,23 +1,16 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   Search, Download, Users, Calendar, TrendingUp, Phone, Mail,
   RefreshCw, ChevronDown, ChevronUp, X, Dumbbell, MessageCircle,
   CheckCircle2, PhoneCall, Loader2,
 } from "lucide-react";
+import {
+  setAuthTokenGetter,
+  type Contact as ApiContact,
+} from "@workspace/api-client-react";
 
-interface Contact {
-  id: number;
-  name: string;
-  phone: string;
-  email: string;
-  plan: string;
-  message: string | null;
-  status: string;
-  createdAt: string;
-}
-
+type Contact = ApiContact;
 type SortKey = keyof Contact;
 
 const STATUSES = ["New", "Contacted", "Converted"] as const;
@@ -34,6 +27,43 @@ const STATUS_DOTS: Record<Status, string> = {
   Contacted: "bg-amber-500",
   Converted: "bg-green-500",
 };
+
+setAuthTokenGetter(() => {
+  const value = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith("session="))
+    ?.split("=")[1];
+  return value ? decodeURIComponent(value) : null;
+});
+
+async function authFetch(input: RequestInfo | URL, init: RequestInit = {}) {
+  const headers = new Headers(init.headers);
+  const session = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith("session="))
+    ?.split("=")[1];
+  if (session && !headers.has("authorization")) {
+    headers.set("authorization", `Bearer ${decodeURIComponent(session)}`);
+  }
+  return fetch(input, {
+    ...init,
+    headers,
+    credentials: "include",
+  });
+}
+
+async function fetchContacts(): Promise<Contact[]> {
+  const res = await authFetch("/api/contacts");
+  if (!res.ok) throw new Error("Failed to fetch contacts");
+  return (await res.json()) as Contact[];
+}
+
+function getContactStatus(
+  c: Contact,
+  statusMap: Record<number, Status>,
+): Status {
+  return statusMap[c.id] ?? "New";
+}
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -68,7 +98,7 @@ function exportCSV(contacts: Contact[]) {
     c.phone,
     c.email,
     `"${c.plan}"`,
-    c.status,
+    "New",
     `"${(c.message ?? "").replace(/"/g, '""')}"`,
     formatDate(c.createdAt),
   ]);
@@ -118,28 +148,20 @@ export default function AdminPage() {
   const [statusMap, setStatusMap] = useState<Record<number, Status>>({});
   const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
 
-  const { data: contacts = [], isLoading, isError, refetch, isFetching } = useQuery<Contact[]>({
+  const { data: contacts = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["contacts"],
-    queryFn: async () => {
-      const res = await fetch("/api/contacts");
-      if (!res.ok) throw new Error("Failed to fetch contacts");
-      return res.json();
-    },
+    queryFn: fetchContacts,
     refetchInterval: 30000,
   });
 
-  function getStatus(c: Contact): Status {
-    return (statusMap[c.id] ?? c.status ?? "New") as Status;
-  }
-
   async function cycleStatus(c: Contact) {
-    const curr = getStatus(c);
+    const curr = getContactStatus(c, statusMap);
     const idx = STATUSES.indexOf(curr);
     const next = STATUSES[(idx + 1) % STATUSES.length];
     setStatusMap(prev => ({ ...prev, [c.id]: next }));
     setUpdatingIds(prev => new Set(prev).add(c.id));
     try {
-      await fetch(`/api/contacts/${c.id}/status`, {
+      await authFetch(`/api/contacts/${c.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),
@@ -164,7 +186,7 @@ export default function AdminPage() {
   }, [contacts]);
 
   const convertedCount = useMemo(() => {
-    return contacts.filter(c => getStatus(c) === "Converted").length;
+    return contacts.filter(c => getContactStatus(c, statusMap) === "Converted").length;
   }, [contacts, statusMap]);
 
   const filtered = useMemo(() => {
@@ -172,7 +194,7 @@ export default function AdminPage() {
     return contacts
       .filter(c =>
         (planFilter === "All" || c.plan === planFilter) &&
-        (statusFilter === "All" || getStatus(c) === statusFilter) &&
+        (statusFilter === "All" || getContactStatus(c, statusMap) === statusFilter) &&
         (!q || c.name.toLowerCase().includes(q) || c.phone.includes(q) ||
           c.email.toLowerCase().includes(q) || c.plan.toLowerCase().includes(q))
       )
@@ -334,7 +356,7 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {filtered.map((c, i) => {
-                    const status = getStatus(c);
+                    const status = getContactStatus(c, statusMap);
                     const isUpdating = updatingIds.has(c.id);
                     return (
                       <tr key={c.id} className={`border-t border-gray-50 hover:bg-[#f8fbf3] transition-colors ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
@@ -395,7 +417,7 @@ export default function AdminPage() {
             {/* Mobile cards */}
             <div className="md:hidden divide-y divide-gray-100">
               {filtered.map(c => {
-                const status = getStatus(c);
+                const status = getContactStatus(c, statusMap);
                 const isUpdating = updatingIds.has(c.id);
                 return (
                   <div key={c.id} className="p-4">
