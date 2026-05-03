@@ -27,8 +27,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
-    compression({ algorithms: ["gzip"], exclude: [/\.(webp|png|jpg|jpeg|gif|svg|woff2)$/] }),
-    compression({ algorithms: ["brotliCompress"], exclude: [/\.(webp|png|jpg|jpeg|gif|svg|woff2)$/] }),
+    compression({
+      algorithms: ["gzip"],
+      exclude: [/\.(webp|png|jpg|jpeg|gif|svg|woff2)$/],
+    }),
+    compression({
+      algorithms: ["brotliCompress"],
+      exclude: [/\.(webp|png|jpg|jpeg|gif|svg|woff2)$/],
+    }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
@@ -46,7 +52,12 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
-      "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
+      "@assets": path.resolve(
+        import.meta.dirname,
+        "..",
+        "..",
+        "attached_assets",
+      ),
     },
     dedupe: ["react", "react-dom"],
   },
