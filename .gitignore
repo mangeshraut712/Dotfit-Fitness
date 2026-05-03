@@ -47,3 +47,6 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Pasted/attached dev notes (not part of the source)
+attached_assets/Pasted-*.txt

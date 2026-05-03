@@ -2,108 +2,149 @@
 
 ## Overview
 
-World-class fitness website for Dotfit Fitness gym in Baner, Pune, India. Built as a pnpm monorepo with a React + Vite frontend and Express API backend.
+Official website for Dotfit Fitness gym in Baner, Pune, India. Built as a pnpm monorepo with a React + Vite frontend (single-page marketing site) and an Express 5 API backend.
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
-- **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **Frontend**: React + Vite (artifacts/dotfit) — serves at /
-- **API framework**: Express 5 (artifacts/api-server) — serves at /api
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec) — mode: single, no workspace barrel (avoids naming conflicts)
-- **Build**: esbuild (CJS bundle)
-- **UI**: Tailwind CSS + shadcn/ui + framer-motion + embla-carousel
-- **Fonts**: Oswald (display), Inter (body) via Google Fonts
+- **Monorepo**: pnpm workspaces
+- **Node.js**: 20+ (24 in Replit)
+- **Package manager**: pnpm 10
+- **TypeScript**: 5.9 (strict)
+- **Frontend**: React 19 + Vite 7 (`artifacts/dotfit`) — serves at `/`
+- **API**: Express 5 (`artifacts/api-server`) — serves at `/api`
+- **Database**: PostgreSQL + Drizzle ORM (`lib/db`)
+- **Validation**: Zod v4, drizzle-zod (`lib/api-zod`)
+- **API codegen**: Orval from OpenAPI 3.1 spec (`lib/api-spec`)
+- **Build**: esbuild CJS bundle (API), Vite (frontend)
+- **UI**: Tailwind CSS 4 + shadcn/ui + Framer Motion 12 + Embla Carousel
+- **Fonts**: Oswald (display/headings), Inter (body) — Google Fonts, non-render-blocking
 - **Icons**: Lucide React
 
-## Gym Info (Dotfit Fitness)
-- Address: 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Rd, Baner, Pune 411045
-- Phone: +91 95272 37213
-- Email: Support@dotfitfitness.in
-- Established: 2012, 25,000+ members, 4.2/5 rating (726+ reviews)
-- Timings: Mon–Sat 6AM–12PM & 4PM–10PM (12–2PM rest, 2–4PM trainer workout); Sunday 6AM–12PM only
-- Happy Hours: 12PM–5PM Mon–Sat (discounted membership — Annual ₹10,000, regular ₹12,000)
+## Gym Info
+
+| | |
+|---|---|
+| Address | 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Rd, Balewadi Phata, Pune 411045 |
+| Phone | +91 95272 37213 |
+| Email | Support@dotfitfitness.in |
+| Founded | 2012 |
+| Members | 25,000+ |
+| Rating | 4.2/5 (726+ reviews) |
+
+**Timings**: Mon–Sat 6AM–12PM & 4PM–10PM (12–2PM rest, 2–4PM trainer workout); Sunday 6AM–12PM only
+
+**Happy Hours**: 12PM–5PM Mon–Sat — discounted memberships
 
 ## Pricing
-- 1 Month: ₹3,500 regular / ₹3,000 Happy Hours
-- 3 Months: ₹5,500 regular / ₹5,000 Happy Hours
-- 6 Months: ₹7,500 regular / ₹7,000 Happy Hours
-- 1 Year: ₹12,000 regular / ₹10,000 Happy Hours
-- Single session: ₹500 · 7-day trial: ₹1,500
+
+| Plan | Regular | Happy Hours |
+|------|---------|-------------|
+| 1 Month | ₹3,500 | ₹3,000 |
+| 3 Months | ₹5,500 | ₹5,000 |
+| 6 Months | ₹7,500 | ₹7,000 |
+| 1 Year | ₹12,000 | ₹10,000 |
+| 7-day trial | ₹1,500 | — |
+| Single session | ₹500 | — |
 
 ## Team
-- Floor Managers: Ganesh, Yogesh (K11 Certified)
-- Specialized Instructors: Poonam (Yoga), Kale (Yoga), Sikandar (Zumba/Bollywood Beats), Gajendra (Bollywood Beats)
-- Personal Trainers: Dinesh, Rajesh, Mayur, Tukaram
-- Trainers: Dnyaneshwar, Aryan, Sunil, Mayur, Pravin, Rupali
-- Front Desk: Prateek
+
+- **Floor Managers (K11 Certified)**: Ganesh, Yogesh
+- **Yoga Instructors**: Poonam, Kale
+- **Zumba / Bollywood Beats**: Sikandar, Gajendra
+- **Personal Trainers**: Dinesh, Rajesh, Mayur, Tukaram
+- **Trainers**: Dnyaneshwar, Aryan, Sunil, Mayur, Pravin, Rupali
+- **Front Desk**: Prateek
 
 ## Database Schema
-- `contacts` table — lead/contact form submissions (name, phone, email, plan, message, createdAt)
-- `status` field added: allowed values ["New","Contacted","Converted"]
+
+### `contacts` table
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial | PK |
+| name | text | not null |
+| phone | text | not null |
+| email | text | not null |
+| plan | text | not null |
+| message | text | nullable |
+| status | text | default "New"; allowed: New, Contacted, Converted |
+| created_at | timestamp | auto |
 
 ## API Endpoints
-- `GET /api/healthz` — health check
-- `POST /api/contacts` — submit contact/join form (Zod validated, try/catch DB error handling)
-- `GET /api/contacts` — list contact submissions
-- `PATCH /api/contacts/:id/status` — update lead status (allowed: "New","Contacted","Converted")
+
+- `GET /api/healthz` — health check → `{ status: "ok" }`
+- `POST /api/contacts` — submit contact/trial form (Zod validated, persisted to DB)
+- `GET /api/contacts` — list all submissions (used by admin page)
+- `PATCH /api/contacts/:id/status` — update lead status (New / Contacted / Converted)
 
 ## Pages
-- `/` — Main single-page site (home.tsx, 1680+ lines)
-- `/guide` — 5-level fitness progression guide (tabbed interface, Level 1 default)
-- `/admin` — Lead management: list submissions, cycle status, CSV export
+
+| Route | File | Description |
+|-------|------|-------------|
+| `/` | `src/pages/home.tsx` | Main landing page (~1700 lines) |
+| `/guide` | `src/pages/guide.tsx` | 5-level progressive fitness guide |
+| `/admin` | `src/pages/admin.tsx` | Lead management: list, status cycle, CSV export |
 
 ## Animation Architecture (home.tsx)
-- **Hero**: Individually staggered children — badge (0.1s), h1 (0.2s), subheading (0.42s), body (0.54s), buttons (0.66s)
-- **Trust Strip**: Seamless `motion.div animate={{ x: ["0%", "-50%"] }}` scrolling marquee (16 items × 2 = 32 loop), 32s linear repeat
-- **Section Headings**: Every section heading wrapped with `motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}`
-- **Pricing Cards**: `whileHover={{ y: -8, boxShadow }}` spring; "Best Value" badge has `animate={{ opacity: [1, 0.7, 1] }}` pulse
-- **Testimonial Cards**: `whileHover={{ y: -5 }}` + green gradient top-bar on hover reveal
-- **Gallery Photos**: `whileHover={{ scale: 1.02–1.03, y: -3 }}` + `border-primary` overlay, sub-label slide-up on hover
-- **StaffCard**: `whileHover={{ y: -8 }}` spring + cert badge overlay
-- **StatBox**: `whileHover={{ y: -4 }}` spring + gradient overlay
-- **About Section**: Left column heading/text in one motion.div; 4 info cards individually staggered with whileHover lift
-- **Real Results**: Heading slides in from left (x:-24), stats counter slides in from right (x:24)
-- **Classes Section**: Left column slides in from left (x:-24)
-- **Guide Page Header**: Badge, h1, description individually staggered; stat cards stagger scale-in
 
-## Deduplication
-- Social CTA section removed (was duplicate of "Find Us" social links)
+- **Hero**: Individually staggered children — badge 0.1s, h1 0.2s, subheading 0.42s, body 0.54s, buttons 0.66s
+- **Trust Strip**: `motion.div animate={{ x: ["0%", "-50%"] }}` marquee — 16 items × 2 = 32 loop, 32s linear infinite
+- **Section headings**: `initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}`
+- **Pricing cards**: `whileHover={{ y: -8 }}` spring; "Best Value" badge pulses `animate={{ opacity: [1, 0.7, 1] }}`
+- **Gallery / Staff / Stats**: `whileHover={{ y: -4 to -8 }}` spring + overlays
 
 ## Key Commands
 
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+```bash
+pnpm run typecheck                              # Full typecheck across all packages
+pnpm run build                                  # Typecheck + build all packages
+pnpm run build:vercel                           # Alias used by Vercel CI
+pnpm --filter @workspace/api-spec run codegen   # Regenerate API hooks + Zod schemas from OpenAPI
+pnpm --filter @workspace/db run push            # Push DB schema (dev only)
+```
+
+## Live URLs
+
+- Replit: https://dotfit-fitness--mbr63.replit.app/
+- Vercel: https://dotfit-fitness.vercel.app
+- Custom domain: https://dotfitfitness.in
 
 ## GitHub
+
 - Remote: https://github.com/mangeshraut712/Dotfit-Fitness.git
 - Push: `git --no-optional-locks push "https://${GITHUB_TOKEN}@github.com/mangeshraut712/Dotfit-Fitness.git" main`
 
 ## Important Notes
 
 ### API / Backend
-- CORS is origin-restricted in production (`*.replit.app`, `dotfitfitness.in`); wildcard in development
-- Request body size limited to 10kb
-- Global 404 handler and Express error handler middleware added to `app.ts`
-- `contacts.ts` has try/catch on both DB operations — errors are logged via `req.log.error()` and return user-friendly 500 messages
+
+- CORS: restricted to `*.replit.app` and `dotfitfitness.in` in production; wildcard in development
+- Request body limit: 10 KB
+- Global 404 and error handler middleware in `app.ts`
+- All DB operations in routes have try/catch; errors logged via `req.log.error()`, user-friendly 500 messages returned
 
 ### Frontend
-- `index.html`: no duplicate og:image, full OG/Twitter/JSON-LD schema, canonical URL, robots meta, `og:site_name`, `og:locale`, non-render-blocking font loading, JSON-LD now includes `geo`, `foundingDate`, `aggregateRating`, `openingHoursSpecification`
-- Hero image uses `fetchPriority="high"` + `decoding="async"` for LCP performance
-- All below-the-fold images use `loading="lazy" decoding="async"` (trainer photos, class images, facility, gallery, Instagram grid, transformation, staff cards)
-- Floating desktop side tab uses clean inline `transform: translateY(-50%) rotate(180deg)` — removed conflicting Tailwind `-translate-y-1/2` class
-- Logo files permissions fixed to 644 (were 600)
-- `vite.config.ts` requires `PORT` and `BASE_PATH` env vars (injected by Replit workflow; do not set manually in dev)
+
+- `index.html`: full OG/Twitter/JSON-LD schema, canonical URL, robots meta, non-render-blocking fonts
+- JSON-LD includes: geo, foundingDate, aggregateRating, openingHoursSpecification, amenityFeature, sameAs
+- Hero image: `fetchPriority="high"` + `decoding="async"` for LCP
+- Below-fold images: `loading="lazy" decoding="async"`
+- Favicon: `%BASE_URLfavicon.svg` (Vite base-URL substitution format)
+- Preload links: `%BASE_URLhero.webp` and `%BASE_URLlogo-text.webp`
+- `vite.config.ts`: `base: process.env.BASE_PATH ?? "/"`, `strictPort: false`
 
 ### Color / Design
-- PRIMARY: hsl(82, 60%, 45%) — lime green
-- Light bg: `#f8fbf3`, Dark sections: `bg-gray-950`
-- CSS var: `--app-font-display` for Oswald, `--app-font-sans` for Inter
+
+- Primary: `hsl(82, 60%, 45%)` — lime green (`#6aaa14` theme-color)
+- Light bg: `#f8fbf3`
+- Dark sections: `bg-gray-950`
+- Display font: Oswald (`--app-font-display`)
+- Body font: Inter (`--app-font-sans`)
+
+### Repo Cleanup (done)
+
+- Removed pasted dev-note `.txt` files from `attached_assets/`
+- `.gitignore` now ignores `attached_assets/Pasted-*.txt`
+- `README.md` rewritten with accurate, real gym + tech information (no invented features)
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
