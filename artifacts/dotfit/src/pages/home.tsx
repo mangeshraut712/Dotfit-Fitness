@@ -1220,6 +1220,236 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ════════════════════ FITNESS PROGRESSION GUIDE ═══════════════════ */}
+      <section className="py-32 bg-white border-y border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">New Member Roadmap</span>
+            <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              Fitness <span className="text-primary">Progression</span> Guide
+            </h2>
+            <p className="text-gray-500 font-medium text-lg leading-relaxed">
+              A structured five-level path that takes you from movement fundamentals to advanced split training.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {[
+              {
+                level: "Level 1",
+                title: "Foundational Full-Body Integration",
+                focus: "Learn the base movement patterns, build confidence, and adapt joints, tendons, and posture to training.",
+                workouts: [
+                  {
+                    name: "Goblet Squat",
+                    muscles: "Primary: quads, glutes; Secondary: core, upper back",
+                    equipment: "Dumbbell or kettlebell",
+                    how: "Hold the weight close to your chest, sit down between your hips, keep heels flat, and stand up by driving through the floor. Avoid letting the knees cave in or the chest collapse.",
+                    visual: "Check a squat anatomy diagram and a coach demo photo/video for torso angle and knee tracking.",
+                  },
+                  {
+                    name: "Incline Push-Up",
+                    muscles: "Primary: chest, triceps; Secondary: shoulders, core",
+                    equipment: "Bodyweight / bench or stable platform",
+                    how: "Keep a straight line from head to heels, lower under control, and press without shrugging. Avoid flaring elbows too wide or sagging the hips.",
+                    visual: "Use a push-up alignment reference and a trainer demonstration for hand placement and plank posture.",
+                  },
+                  {
+                    name: "Dumbbell Romanian Deadlift",
+                    muscles: "Primary: hamstrings, glutes; Secondary: lower back, grip",
+                    equipment: "Dumbbells",
+                    how: "Hinge at the hips with soft knees, push hips back, keep the dumbbells close to the legs, and stand by squeezing the glutes. Avoid rounding the back or turning it into a squat.",
+                    visual: "Look for a hip-hinge diagram and a coach demo showing neutral spine and bar path.",
+                  },
+                ],
+              },
+              {
+                level: "Level 2",
+                title: "Foundational Full-Body Conditioning",
+                focus: "Increase work capacity, coordination, and basic load tolerance with slightly more volume and complexity.",
+                workouts: [
+                  {
+                    name: "Dumbbell Split Squat",
+                    muscles: "Primary: quads, glutes; Secondary: core, calves",
+                    equipment: "Dumbbells",
+                    how: "Set one foot forward and lower straight down, keeping the torso tall and front heel grounded. Avoid bouncing off the back knee or leaning too far forward.",
+                    visual: "Check a lunge mechanics chart and a side-view trainer demo for stride length and depth.",
+                  },
+                  {
+                    name: "Single-Arm Dumbbell Row",
+                    muscles: "Primary: lats, rhomboids; Secondary: rear delts, biceps",
+                    equipment: "Dumbbell + bench",
+                    how: "Brace the torso, row toward the hip, and pause briefly at the top. Avoid twisting the torso or yanking with momentum.",
+                    visual: "Use a back anatomy diagram and a demonstration photo showing scapular retraction.",
+                  },
+                  {
+                    name: "Dumbbell Overhead Press",
+                    muscles: "Primary: shoulders; Secondary: triceps, upper chest",
+                    equipment: "Dumbbells",
+                    how: "Press overhead in a controlled line, ribs down, and finish with biceps near ears. Avoid over-arching the lower back or pressing too far forward.",
+                    visual: "Look for an overhead press setup guide and a trainer video focusing on rib control.",
+                  },
+                ],
+              },
+              {
+                level: "Level 3",
+                title: "Upper/Lower Hypertrophy Split",
+                focus: "Move into targeted muscle growth with more sets, better exercise selection, and improved recovery planning.",
+                workouts: [
+                  {
+                    name: "Barbell Bench Press",
+                    muscles: "Primary: chest; Secondary: triceps, front delts",
+                    equipment: "Barbell",
+                    how: "Set the upper back, keep feet planted, lower with control to mid-chest, and press explosively. Avoid bouncing the bar or losing shoulder tension.",
+                    visual: "Study a bench press anatomy graphic and a spotter-led demo video before loading heavy.",
+                  },
+                  {
+                    name: "Lat Pulldown",
+                    muscles: "Primary: lats; Secondary: biceps, rear delts",
+                    equipment: "Cable machine / lat pulldown machine",
+                    how: "Pull the bar to upper chest while keeping the chest tall and elbows driving down. Avoid leaning back excessively or pulling behind the neck.",
+                    visual: "Reference a lat engagement diagram and a cable machine setup video for grip width.",
+                  },
+                  {
+                    name: "Leg Press",
+                    muscles: "Primary: quads, glutes; Secondary: hamstrings",
+                    equipment: "Weight machine",
+                    how: "Lower under control until thighs are near the torso, then drive through mid-foot. Avoid locking the knees hard or letting the pelvis curl.",
+                    visual: "Use the machine setup chart and a trainer demo for seat position and foot placement.",
+                  },
+                ],
+              },
+              {
+                level: "Level 4",
+                title: "Targeted Muscle Group Split",
+                focus: "Train chest, back, shoulders, arms, and legs separately for higher weekly volume and better hypertrophy focus.",
+                workouts: [
+                  {
+                    name: "Incline Dumbbell Press",
+                    muscles: "Primary: upper chest; Secondary: front delts, triceps",
+                    equipment: "Dumbbells + incline bench",
+                    how: "Keep shoulder blades packed, lower dumbbells to the upper chest line, and press without banging them together. Avoid flaring elbows hard or over-arching the back.",
+                    visual: "Look for an upper-chest anatomy diagram and incline press demo from a trainer.",
+                  },
+                  {
+                    name: "Seated Cable Row",
+                    muscles: "Primary: mid-back, lats; Secondary: biceps, rear delts",
+                    equipment: "Cable machine",
+                    how: "Brace tall, pull toward the lower ribs, and control the return. Avoid rocking the torso or shrugging the shoulders up.",
+                    visual: "Use a cable row setup guide and a coach demo showing chest-up posture.",
+                  },
+                  {
+                    name: "Walking Lunge",
+                    muscles: "Primary: glutes, quads; Secondary: core, calves",
+                    equipment: "Dumbbells optional",
+                    how: "Step forward into a long stride, drop the back knee under control, and push through the front heel. Avoid rushing the step or letting the front knee collapse inward.",
+                    visual: "Check a lunge mobility chart and a side-angle trainer video for stride control.",
+                  },
+                ],
+              },
+              {
+                level: "Level 5",
+                title: "Advanced Split Training & Conditioning",
+                focus: "Use higher intensity, denser sessions, and dedicated conditioning work to refine strength, size, and athletic endurance.",
+                workouts: [
+                  {
+                    name: "Barbell Back Squat",
+                    muscles: "Primary: quads, glutes; Secondary: core, adductors, lower back",
+                    equipment: "Barbell",
+                    how: "Brace deeply, sit between the hips, keep the bar over mid-foot, and stand with full-body tension. Avoid excessive forward lean or losing brace at depth.",
+                    visual: "Study a squat anatomy chart and coach-led depth/safety video before adding load.",
+                  },
+                  {
+                    name: "Cable Face Pull",
+                    muscles: "Primary: rear delts, upper back; Secondary: rotator cuff",
+                    equipment: "Cable machine",
+                    how: "Pull toward the face with elbows high, rotate the thumbs back, and pause in the squeezed position. Avoid turning it into a row or letting the shoulders shrug.",
+                    visual: "Use a shoulder health diagram and a slow-motion trainer demo for elbow path.",
+                  },
+                  {
+                    name: "Kettlebell Swing",
+                    muscles: "Primary: glutes, hamstrings; Secondary: core, grip, conditioning",
+                    equipment: "Kettlebell",
+                    how: "Hinge sharply, snap the hips, and let the bell float to chest height. Avoid squatting the movement or lifting with the arms.",
+                    visual: "Reference a hip-hinge biomechanics chart and a kettlebell demo video for timing.",
+                  },
+                ],
+                splits: [
+                  "Chest: bench press, incline press, chest fly",
+                  "Back: rows, pulldowns, face pulls",
+                  "Biceps: curls, hammer curls, cable curls",
+                  "Triceps: pushdowns, overhead extensions, close-grip press",
+                  "Shoulders: overhead press, lateral raise, rear delt work",
+                  "Legs: squats, lunges, leg press, RDLs",
+                  "Cardio/Conditioning: treadmill intervals, bike sprints, kettlebell swings, sled pushes",
+                ],
+              },
+            ].map((phase, phaseIndex) => (
+              <motion.div
+                key={phase.level}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: phaseIndex * 0.06 }}
+                className="border-2 border-gray-100 bg-[#f8fbf3] p-6 md:p-8 shadow-sm"
+              >
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+                  <div>
+                    <span className="text-primary font-black text-xs uppercase tracking-widest">{phase.level}</span>
+                    <h3 className="text-2xl md:text-3xl font-display font-black uppercase tracking-tight text-gray-900 mt-1">{phase.title}</h3>
+                    <p className="text-gray-500 font-medium text-sm mt-2 leading-relaxed">{phase.focus}</p>
+                  </div>
+                  {phase.splits && (
+                    <div className="text-xs font-black uppercase tracking-widest text-primary bg-white border border-primary/20 px-3 py-2">
+                      Split Focus: Chest · Back · Arms · Legs · Cardio
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-5">
+                  {phase.workouts.map((workout) => (
+                    <div key={workout.name} className="bg-white border border-gray-100 p-5">
+                      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 mb-4">
+                        <div>
+                          <h4 className="text-xl font-black text-gray-900">{workout.name}</h4>
+                          <p className="text-xs font-bold uppercase tracking-widest text-primary mt-1">{workout.muscles}</p>
+                        </div>
+                        <div className="text-xs font-bold uppercase tracking-widest text-gray-400 bg-gray-50 px-3 py-2">
+                          {workout.equipment}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Execution Guide</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">{workout.how}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Visual Learning Reference</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">{workout.visual}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {phase.splits && (
+                  <div className="mt-6 bg-gray-950 text-white p-5">
+                    <p className="text-xs font-black uppercase tracking-widest text-primary mb-3">Phase 3 Breakdown</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {phase.splits.map((item) => (
+                        <div key={item} className="text-sm text-white/80 border border-white/10 px-3 py-2">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ════════════════════ FAQ ════════════════════════════════════════ */}
       <section id="faq" className="py-32 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6 max-w-4xl">
