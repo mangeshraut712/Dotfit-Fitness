@@ -1048,6 +1048,19 @@ export default function Home() {
             <span className="text-gray-200">|</span>
             <span>Personal Training: On Request</span>
           </div>
+          <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27m%20ready%20to%20buy%20a%20membership%20and%20need%20payment%20details."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 h-12 px-7 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs transition-colors"
+            >
+              Buy Membership
+            </a>
+            <button onClick={() => scrollTo("contact")} className="inline-flex items-center justify-center gap-2 h-12 px-7 border-2 border-gray-200 hover:border-primary text-gray-700 hover:text-primary font-black uppercase tracking-widest text-xs transition-colors">
+              Book Free Trial
+            </button>
+          </div>
         </div>
       </section>
 
