@@ -7,8 +7,8 @@ import {
   MapPin, Phone, Mail, Instagram, Facebook, Clock, Check, Menu, X,
   ArrowRight, Star, MessageCircle, Linkedin, ChevronDown, Shield,
   Users, Trophy, Activity, Zap, HeartPulse, Timer, Dumbbell,
-  ExternalLink, Flame, Wind, Brain, Apple, Weight, CalendarCheck,
-  ChevronRight,
+  ExternalLink, Flame, Wind, Brain, Apple, CalendarCheck, ChevronRight,
+  Target, Sparkles, BookOpen, BarChart2, Heart, Bike,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,20 +18,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
+/* ─── Animated count-up hook ────────────────────────────────────────────── */
+function useCountUp(target: number, duration = 1800) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const step = target / (duration / 16);
+        let cur = 0;
+        const t = setInterval(() => {
+          cur += step;
+          if (cur >= target) { setCount(target); clearInterval(t); }
+          else setCount(Math.floor(cur));
+        }, 16);
+      }
+    }, { threshold: 0.5 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [target, duration]);
+  return { count, ref };
+}
+
 /* ─── FAQ accordion ─────────────────────────────────────────────────────── */
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className="border border-gray-200 overflow-hidden rounded-sm bg-white">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left font-display font-bold uppercase tracking-wider text-gray-900 hover:text-primary transition-colors"
-      >
+    <div className="border border-gray-200 overflow-hidden bg-white">
+      <button onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-6 py-5 text-left font-display font-bold uppercase tracking-wider text-gray-900 hover:text-primary transition-colors">
         <span>{question}</span>
         <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-gray-400"}`} />
       </button>
-      <div ref={ref} style={{ maxHeight: open ? `${ref.current?.scrollHeight ?? 300}px` : "0px", transition: "max-height 0.35s ease", overflow: "hidden" }}>
+      <div ref={ref} style={{ maxHeight: open ? `${ref.current?.scrollHeight ?? 400}px` : "0px", transition: "max-height 0.35s ease", overflow: "hidden" }}>
         <div className="px-6 pb-5 text-gray-600 font-medium text-sm leading-relaxed border-t border-gray-100 pt-4">{answer}</div>
       </div>
     </div>
@@ -39,15 +63,111 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 }
 
 /* ─── Staff card ─────────────────────────────────────────────────────────── */
-function StaffCard({ name, role, img }: { name: string; role: string; img: string }) {
+function StaffCard({ name, role, img, cert }: { name: string; role: string; img: string; cert?: string }) {
   return (
     <div className="group text-center">
       <div className="relative aspect-[3/4] overflow-hidden mb-3 bg-gray-100 border-2 border-gray-100 group-hover:border-primary transition-colors duration-300">
         <img src={img} alt={name} className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {cert && <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0"><span className="text-[10px] font-black uppercase tracking-widest bg-primary text-white px-2 py-1">{cert}</span></div>}
       </div>
       <h4 className="text-base font-display font-black uppercase tracking-wider text-gray-900">{name}</h4>
       <p className="text-primary text-xs uppercase tracking-widest font-bold mt-0.5">{role}</p>
+    </div>
+  );
+}
+
+/* ─── Stat box with count-up ─────────────────────────────────────────────── */
+function StatBox({ value, suffix, label, icon }: { value: number; suffix: string; label: string; icon: React.ReactNode }) {
+  const { count, ref } = useCountUp(value);
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+      className="text-center p-8 bg-white border-2 border-gray-100 hover:border-primary/30 transition-colors">
+      <div className="flex justify-center mb-3">{icon}</div>
+      <div className="text-4xl md:text-5xl font-display font-black text-gray-900 mb-1 tracking-tight">{count}{suffix}</div>
+      <div className="text-xs text-gray-400 uppercase tracking-widest font-bold">{label}</div>
+    </motion.div>
+  );
+}
+
+/* ─── BMI Calculator ─────────────────────────────────────────────────────── */
+function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
+  const [weight, setWeight] = useState("");
+  const [heightCm, setHeightCm] = useState("");
+  const [bmi, setBmi] = useState<number | null>(null);
+
+  const calculate = () => {
+    const w = parseFloat(weight);
+    const h = parseFloat(heightCm) / 100;
+    if (w > 0 && h > 0) setBmi(parseFloat((w / (h * h)).toFixed(1)));
+  };
+
+  const category = bmi
+    ? bmi < 18.5 ? { label: "Underweight", color: "text-blue-500", plan: "3 Months", tip: "Focus on strength training + nutrition for healthy weight gain." }
+    : bmi < 25 ? { label: "Normal Weight", color: "text-primary", plan: "1 Year", tip: "Maintain your fitness with group classes + toning sessions." }
+    : bmi < 30 ? { label: "Overweight", color: "text-amber-500", plan: "6 Months", tip: "Combine cardio, HIIT circuits, and a calorie-managed meal plan." }
+    : { label: "Obese", color: "text-red-500", plan: "1 Year", tip: "Medically supervised fat-loss program with dedicated personal trainer." }
+    : null;
+
+  return (
+    <div className="bg-white border-2 border-gray-100 p-8 md:p-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div>
+          <span className="text-primary font-black text-xs uppercase tracking-widest">Free Tool</span>
+          <h3 className="text-3xl md:text-4xl font-display font-black uppercase tracking-tighter text-gray-900 mt-2 mb-3">
+            Check Your <span className="text-primary">BMI</span>
+          </h3>
+          <p className="text-gray-500 font-medium text-sm mb-6 leading-relaxed">
+            Calculate your Body Mass Index instantly and get a personalised Dotfit program recommendation.
+          </p>
+          <div className="flex gap-4 mb-4">
+            <div className="flex-1">
+              <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Weight (kg)</label>
+              <input value={weight} onChange={e => setWeight(e.target.value)} type="number" placeholder="e.g. 75"
+                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-4 text-gray-900 font-bold text-sm transition-colors" />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Height (cm)</label>
+              <input value={heightCm} onChange={e => setHeightCm(e.target.value)} type="number" placeholder="e.g. 170"
+                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-4 text-gray-900 font-bold text-sm transition-colors" />
+            </div>
+          </div>
+          <button onClick={calculate}
+            className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-sm transition-colors">
+            Calculate My BMI
+          </button>
+        </div>
+
+        <div>
+          {!bmi ? (
+            <div className="border-2 border-dashed border-gray-200 p-10 text-center">
+              <BarChart2 className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+              <p className="text-gray-400 font-medium text-sm">Your BMI result will appear here</p>
+              <div className="mt-6 space-y-2">
+                {[["< 18.5", "Underweight"], ["18.5 – 24.9", "Normal"], ["25 – 29.9", "Overweight"], ["≥ 30", "Obese"]].map(([r, l]) => (
+                  <div key={l} className="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    <span>{r}</span><span>{l}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="border-2 border-primary/30 bg-[#f8fbf3] p-8">
+              <div className="text-6xl font-display font-black mb-1 text-gray-900">{bmi}</div>
+              <div className={`text-xl font-display font-black uppercase tracking-wider mb-4 ${category?.color}`}>{category?.label}</div>
+              <p className="text-gray-600 font-medium text-sm mb-6 leading-relaxed">{category?.tip}</p>
+              <div className="bg-white border border-primary/20 p-4 mb-5">
+                <div className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-1">Recommended Plan</div>
+                <div className="text-lg font-display font-black text-gray-900">{category?.plan} Membership</div>
+              </div>
+              <button onClick={() => onBook(category?.plan ?? "")}
+                className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-colors">
+                Book Free Trial <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -70,16 +190,21 @@ const schedule = [
   { time: "7:00 – 9:00 PM", mon: "Open Gym", tue: "Open Gym", wed: "Open Gym", thu: "Open Gym", fri: "Open Gym", sat: "Open Gym" },
 ];
 
-/* ══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 export default function Home() {
   const { toast } = useToast();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrollPct, setScrollPct] = useState(0);
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, 160]);
 
   useEffect(() => {
-    const fn = () => setIsScrolled(window.scrollY > 60);
+    const fn = () => {
+      setIsScrolled(window.scrollY > 60);
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct(docH > 0 ? (window.scrollY / docH) * 100 : 0);
+    };
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
@@ -110,24 +235,34 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  /* ─── RENDER ─────────────────────────────────────────────────────────── */
+  const bookPlan = (plan: string) => {
+    form.setValue("plan", plan);
+    scrollTo("contact");
+  };
+
+  /* ─── RENDER ──────────────────────────────────────────────────────────── */
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden selection:bg-primary selection:text-white">
 
+      {/* ── Scroll progress bar ────────────────────────────────────────── */}
+      <div className="fixed top-0 left-0 z-[70] h-[3px] bg-primary transition-all duration-75 shadow-[0_0_8px_rgba(125,181,32,0.8)]"
+        style={{ width: `${scrollPct}%` }} />
+
       {/* ── Promo announcement bar ─────────────────────────────────────── */}
-      <div className="bg-primary text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative">
-        🔥 Happy Hours Offer: Annual Membership from just ₹8,500 &nbsp;|&nbsp; 12 PM – 5 PM &nbsp;
+      <div className="bg-primary text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative" style={{ marginTop: "3px" }}>
+        🔥 Happy Hours: Annual Membership from ₹8,500 &nbsp;|&nbsp; 12 PM – 5 PM &nbsp;
         <button onClick={() => scrollTo("contact")} className="underline underline-offset-2 hover:no-underline">Book Free Trial →</button>
       </div>
 
       {/* ── Navigation ────────────────────────────────────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/98 backdrop-blur-md border-b border-gray-100 py-3 shadow-sm" : "bg-transparent py-5"}`} style={{ top: isScrolled ? "0" : "32px" }}>
+      <nav className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/98 backdrop-blur-md border-b border-gray-100 py-3 shadow-sm top-0" : "bg-transparent py-5"}`}
+        style={{ top: isScrolled ? "3px" : "35px" }}>
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
           <div className="cursor-pointer" onClick={() => scrollTo("hero")}>
             <img src="/logo-text.png" alt="Dotfit Fitness" className={`h-10 w-auto object-contain transition-all ${isScrolled ? "brightness-100" : "brightness-0 invert"}`} />
           </div>
-          <div className="hidden md:flex items-center gap-7">
-            {["Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location"].map((item) => (
+          <div className="hidden md:flex items-center gap-6">
+            {["About", "Classes", "Pricing", "Team", "Gallery", "FAQ", "Location"].map((item) => (
               <button key={item} onClick={() => scrollTo(item.toLowerCase())}
                 className={`text-xs font-bold transition-colors uppercase tracking-widest ${isScrolled ? "text-gray-700 hover:text-primary" : "text-white/90 hover:text-primary"}`}>
                 {item}
@@ -143,45 +278,61 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── Mobile menu ───────────────────────────────────────────────── */}
+      {/* ── Mobile full-screen menu ────────────────────────────────────── */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-7 md:hidden">
-            <img src="/logo-text.png" alt="Dotfit" className="h-12 mb-4" />
-            {["Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location", "Contact"].map((item) => (
+            className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-6 md:hidden">
+            <img src="/logo-text.png" alt="Dotfit" className="h-12 mb-2" />
+            {["About", "Classes", "Pricing", "Facilities", "Team", "Gallery", "FAQ", "Location", "Contact"].map((item) => (
               <button key={item} onClick={() => scrollTo(item.toLowerCase())}
                 className="text-2xl font-display font-black text-gray-900 hover:text-primary transition-colors uppercase tracking-widest">
                 {item}
               </button>
             ))}
-            <div className="flex gap-5 mt-4">
+            <div className="flex gap-4 mt-4">
               {[
                 { href: "https://www.instagram.com/dotfitfitness/", icon: <Instagram className="w-6 h-6" /> },
                 { href: "https://wa.me/919527237213", icon: <MessageCircle className="w-6 h-6" /> },
                 { href: "https://www.facebook.com/DotfitFitness/", icon: <Facebook className="w-6 h-6" /> },
+                { href: "https://www.linkedin.com/company/dotfit-fitness/", icon: <Linkedin className="w-6 h-6" /> },
               ].map((s, i) => <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary">{s.icon}</a>)}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Floating buttons ──────────────────────────────────────────── */}
+      {/* ── Desktop floating buttons ───────────────────────────────────── */}
       <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
-        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform">
+        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform">
         <MessageCircle className="w-7 h-7" />
       </a>
       <a href="tel:+919527237213"
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform">
+        className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform">
         <Phone className="w-6 h-6" />
       </a>
+
+      {/* ── Mobile sticky bottom bar ───────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden border-t border-gray-200 shadow-2xl">
+        <a href="tel:+919527237213" className="flex-1 h-14 bg-gray-900 text-white flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs">
+          <Phone className="w-4 h-4 text-primary" /> Call Now
+        </a>
+        <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
+          className="flex-1 h-14 bg-[#25D366] text-white flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs">
+          <MessageCircle className="w-4 h-4" /> WhatsApp
+        </a>
+        <button onClick={() => scrollTo("contact")}
+          className="flex-1 h-14 bg-primary text-white flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs">
+          <CalendarCheck className="w-4 h-4" /> Book Trial
+        </button>
+      </div>
 
       {/* ════════════════════════════ HERO ══════════════════════════════ */}
       <section id="hero" className="relative min-h-[100dvh] flex items-center pt-20 overflow-hidden bg-gray-950">
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
           <img src="/hero.png" alt="Dotfit Fitness Gym Floor" className="w-full h-full object-cover opacity-50" />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-950/70 to-transparent" />
         </motion.div>
         <div className="container relative z-10 mx-auto px-4 md:px-6">
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-4xl">
@@ -200,7 +351,7 @@ export default function Home() {
             <p className="text-base text-white/60 mb-10 max-w-xl font-medium leading-relaxed">
               Join 50,000+ members who chose excellence. Expert coaches, premium equipment, and real transformations — 5th floor, fully air-conditioned.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 pb-20 md:pb-0">
               <Button onClick={() => scrollTo("contact")} size="lg"
                 className="h-14 px-10 bg-primary hover:bg-primary/90 text-white rounded-none text-sm uppercase tracking-widest font-black group shadow-xl shadow-primary/30">
                 Book Free Trial <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -216,7 +367,7 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
-        <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 cursor-pointer"
+        <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 cursor-pointer hidden md:flex"
           animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 2 }} onClick={() => scrollTo("trust")}>
           <span className="text-white/30 text-xs uppercase tracking-widest font-bold">Scroll</span>
           <ChevronDown className="w-5 h-5 text-white/30" />
@@ -226,11 +377,11 @@ export default function Home() {
       {/* ════════════════════════ TRUST STRIP ═══════════════════════════ */}
       <div id="trust" className="bg-white border-b border-gray-100 py-5">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-14">
             {[
               { icon: <Star className="w-5 h-5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
               { icon: <Shield className="w-5 h-5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
-              { icon: <Users className="w-5 h-5 text-primary" />, label: "50,000+ Happy Members", sub: "Since 2012" },
+              { icon: <Users className="w-5 h-5 text-primary" />, label: "50,000+ Members", sub: "Since 2012" },
               { icon: <Check className="w-5 h-5 text-green-600" />, label: "JustDial Verified", sub: "Trusted Business" },
               { icon: <Trophy className="w-5 h-5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
             ].map((t, i) => (
@@ -246,23 +397,74 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ════════════════════════ STATS ═════════════════════════════════ */}
+      {/* ════════════════════ ABOUT / OUR STORY ═════════════════════════ */}
+      <section id="about" className="py-32 bg-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="text-primary font-black text-xs uppercase tracking-widest">Est. 2012 · Baner, Pune</span>
+              <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-6 text-gray-900">
+                Our <span className="text-primary">Story</span>
+              </h2>
+              <p className="text-gray-600 font-medium leading-relaxed mb-5">
+                Dotfit Fitness was founded in 2012 with a single vision: make world-class fitness accessible to every person in Baner, Pune. Starting from a modest setup, we invested aggressively in equipment, trainer certification, and member experience.
+              </p>
+              <p className="text-gray-600 font-medium leading-relaxed mb-8">
+                Today, from our 5th-floor facility at Srushti Elegance, we serve 50,000+ members — backed by a K11 Certified team, a strict 1:4 trainer-to-member ratio, and a relentless focus on delivering real, measurable results.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { icon: <Target className="w-5 h-5 text-primary" />, label: "Mission", text: "Results for every member, every day" },
+                  { icon: <Sparkles className="w-5 h-5 text-primary" />, label: "Vision", text: "Pune's most trusted fitness brand" },
+                  { icon: <Shield className="w-5 h-5 text-primary" />, label: "Certified", text: "K11 International Standard" },
+                  { icon: <Heart className="w-5 h-5 text-primary" />, label: "Community", text: "50,000+ happy members" },
+                ].map((item) => (
+                  <div key={item.label} className="flex gap-3 p-4 bg-[#f8fbf3] border border-gray-100">
+                    {item.icon}
+                    <div>
+                      <div className="text-xs font-black uppercase tracking-widest text-gray-500">{item.label}</div>
+                      <div className="text-sm font-bold text-gray-800 mt-0.5">{item.text}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Milestone timeline */}
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-primary mb-8">Our Journey</h3>
+              <div className="relative pl-8 border-l-2 border-gray-100 space-y-0">
+                {[
+                  { year: "2012", event: "Founded in Baner", detail: "Dotfit Fitness opens its doors with a vision to transform Pune's fitness culture." },
+                  { year: "2014", event: "Full 5th Floor Expansion", detail: "Doubled facility size — dedicated zones for weights, cardio, and group classes." },
+                  { year: "2016", event: "K11 Certification Achieved", detail: "Became one of Pune's first K11 certified gyms — international training standards." },
+                  { year: "2018", event: "10,000 Member Milestone", detail: "Hit 10,000 members and launched our dedicated nutrition counseling program." },
+                  { year: "2020", event: "Recovery Zone Launch", detail: "Added professional sauna, steam room, and post-workout recovery facilities." },
+                  { year: "2022", event: "25,000 Members Strong", detail: "Expanded personal training programs and launched Bollywood Beats classes." },
+                  { year: "2026", event: "50,000+ Members Today", detail: "Baner's #1 gym — still growing, still delivering real results every day." },
+                ].map((m, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                    className="relative pb-7 last:pb-0">
+                    <div className="absolute -left-[37px] top-1 w-4 h-4 rounded-full border-2 border-primary bg-white" />
+                    <div className="text-xs font-black text-primary uppercase tracking-widest mb-0.5">{m.year}</div>
+                    <div className="text-base font-black text-gray-900">{m.event}</div>
+                    <div className="text-xs text-gray-500 font-medium mt-0.5">{m.detail}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════ STATS ─ animated ══════════════════════ */}
       <section className="py-20 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: "Happy Members", value: "50,000+", icon: <Users className="w-7 h-7 text-primary mx-auto mb-3" /> },
-              { label: "Google Rating", value: "4.2 / 5", icon: <Star className="w-7 h-7 text-amber-400 mx-auto mb-3" /> },
-              { label: "Trainer Ratio", value: "1 : 4", icon: <Activity className="w-7 h-7 text-primary mx-auto mb-3" /> },
-              { label: "Years Running", value: "13+", icon: <Trophy className="w-7 h-7 text-primary mx-auto mb-3" /> },
-            ].map((s, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="text-center p-8 bg-white border-2 border-gray-100 hover:border-primary/30 transition-colors">
-                {s.icon}
-                <div className="text-4xl md:text-5xl font-display font-black text-gray-900 mb-1 tracking-tight">{s.value}</div>
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-bold">{s.label}</div>
-              </motion.div>
-            ))}
+            <StatBox value={50000} suffix="+" label="Happy Members" icon={<Users className="w-7 h-7 text-primary mx-auto" />} />
+            <StatBox value={13} suffix="+" label="Years Running" icon={<Trophy className="w-7 h-7 text-primary mx-auto" />} />
+            <StatBox value={4} suffix=":1" label="Member Trainer Ratio" icon={<Activity className="w-7 h-7 text-primary mx-auto" />} />
+            <StatBox value={726} suffix="+" label="Google Reviews" icon={<Star className="w-7 h-7 text-amber-400 mx-auto" />} />
           </div>
         </div>
       </section>
@@ -312,7 +514,6 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               World-Class <span className="text-primary">Facilities</span>
             </h2>
-            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-medium">Premium, air-conditioned fitness infrastructure — everything in one location.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-gray-900">
@@ -351,6 +552,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ════════════════════ EQUIPMENT ZONES ══════════════════════════ */}
+      <div className="bg-gray-950 py-10 border-y border-white/5">
+        <div className="container mx-auto px-4 md:px-6">
+          <p className="text-center text-white/30 text-xs uppercase tracking-widest font-black mb-8">Equipment & Training Zones</p>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            {[
+              { icon: <Dumbbell className="w-6 h-6" />, label: "Free Weights Zone" },
+              { icon: <Bike className="w-6 h-6" />, label: "Premium Cardio" },
+              { icon: <Zap className="w-6 h-6" />, label: "Functional Area" },
+              { icon: <Activity className="w-6 h-6" />, label: "Cable & Pulley" },
+              { icon: <Wind className="w-6 h-6" />, label: "Sauna & Steam" },
+              { icon: <Brain className="w-6 h-6" />, label: "PT Studio" },
+            ].map((z, i) => (
+              <div key={i} className="flex flex-col items-center gap-2 p-5 border border-white/10 hover:border-primary/40 transition-colors group">
+                <div className="text-white/40 group-hover:text-primary transition-colors">{z.icon}</div>
+                <span className="text-white/40 group-hover:text-white/70 text-xs uppercase tracking-widest font-bold text-center transition-colors">{z.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ════════════════════ CLASSES & SCHEDULE ════════════════════════ */}
       <section id="classes" className="py-32 bg-gray-950 text-white">
         <div className="container mx-auto px-4 md:px-6">
@@ -383,25 +606,24 @@ export default function Home() {
               </div>
             </div>
             <div className="lg:w-2/3 flex flex-col gap-8">
-              <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  { title: "Zumba & Bollywood Beats", img: "/class-zumba.png" },
-                  { title: "Kickboxing & Boxing", img: "/class-kickboxing.png" },
-                  { title: "Power Yoga & Pilates", img: "/class-yoga.png" },
-                  { title: "Circuit & Body Building", img: "/facility-equipment.png" },
+                  { title: "Zumba & Bollywood Beats", img: "/class-zumba.png", inst: "Sikandar & Gajendra" },
+                  { title: "Kickboxing & Boxing", img: "/class-kickboxing.png", inst: "Certified Trainers" },
+                  { title: "Power Yoga & Pilates", img: "/class-yoga.png", inst: "Poonam & Kale" },
+                  { title: "Circuit & Body Building", img: "/facility-equipment.png", inst: "Floor Managers" },
                 ].map((cls, i) => (
                   <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                     className="group relative aspect-video overflow-hidden bg-gray-900 border border-white/10">
                     <img src={cls.img} alt={cls.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-80" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-4 w-full">
-                      <h3 className="text-sm font-display font-black uppercase tracking-widest mb-2">{cls.title}</h3>
-                      <div className="w-8 h-0.5 bg-primary transform origin-left transition-transform group-hover:scale-x-150" />
+                      <h3 className="text-sm font-display font-black uppercase tracking-widest mb-1">{cls.title}</h3>
+                      <p className="text-white/40 text-xs font-medium">{cls.inst}</p>
                     </div>
                   </motion.div>
                 ))}
               </div>
-              {/* Schedule table */}
               <div className="overflow-x-auto">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-display font-black uppercase tracking-widest text-primary">Weekly Schedule</h3>
@@ -429,7 +651,7 @@ export default function Home() {
                     ))}
                   </tbody>
                 </table>
-                <p className="text-white/25 text-xs mt-2">* Schedule subject to change. Confirm at front desk or WhatsApp +91 95272 37213</p>
+                <p className="text-white/25 text-xs mt-2">* Schedule may vary. Confirm on WhatsApp +91 95272 37213</p>
               </div>
             </div>
           </div>
@@ -446,7 +668,7 @@ export default function Home() {
             </h2>
             <p className="text-gray-500 text-lg font-medium">Train 12 PM – 5 PM (Happy Hours) for massively discounted rates.</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-16">
             {[
               { duration: "1 Month", regular: 3000, happy: 2000 },
               { duration: "3 Months", regular: 5500, happy: 4000 },
@@ -472,22 +694,59 @@ export default function Home() {
                     <div className="text-xs text-primary font-bold mt-1">Save ₹{(plan.regular - plan.happy).toLocaleString()}</div>
                   </div>
                 </div>
-                <Button onClick={() => { scrollTo("contact"); form.setValue("plan", plan.duration); }}
+                <Button onClick={() => bookPlan(plan.duration)}
                   className={`w-full rounded-none uppercase tracking-widest font-black h-12 ${plan.popular ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20" : "bg-gray-900 hover:bg-gray-800 text-white"}`}>
                   Select Plan
                 </Button>
               </motion.div>
             ))}
           </div>
-          <div className="mt-10 flex flex-wrap justify-center gap-6 text-gray-400 font-black uppercase tracking-widest text-xs">
+
+          {/* Membership comparison table */}
+          <div className="overflow-x-auto">
+            <h3 className="text-center text-lg font-display font-black uppercase tracking-widest text-gray-900 mb-6">What's Included — Plan Comparison</h3>
+            <table className="w-full border-collapse min-w-[640px] text-sm">
+              <thead>
+                <tr className="border-b-2 border-gray-100">
+                  <th className="text-left px-4 py-3 font-black text-xs uppercase tracking-widest text-gray-500 w-48">Feature</th>
+                  {["1 Month", "3 Months", "6 Months", "1 Year"].map((p) => (
+                    <th key={p} className="text-center px-4 py-3 font-black text-xs uppercase tracking-widest text-gray-900 w-1/5">{p}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: "Full Gym Access", vals: [true, true, true, true] },
+                  { feature: "All Group Classes", vals: [true, true, true, true] },
+                  { feature: "Locker Room Access", vals: [true, true, true, true] },
+                  { feature: "Fitness Assessment", vals: [true, true, true, true] },
+                  { feature: "Nutrition Consultation", vals: [false, true, true, true] },
+                  { feature: "Sauna & Steam Room", vals: [false, false, true, true] },
+                  { feature: "Priority Batch Booking", vals: [false, false, true, true] },
+                  { feature: "Free Personal Training Sessions", vals: [false, false, false, "2 Free"] },
+                  { feature: "Guest Pass", vals: [false, false, false, true] },
+                  { feature: "Progress Report (Monthly)", vals: [false, true, true, true] },
+                ].map((row, i) => (
+                  <tr key={i} className={`border-b border-gray-50 ${i % 2 === 0 ? "bg-[#f8fbf3]/40" : ""}`}>
+                    <td className="px-4 py-3 font-bold text-gray-700 text-xs">{row.feature}</td>
+                    {row.vals.map((v, j) => (
+                      <td key={j} className="text-center px-4 py-3">
+                        {v === true ? <Check className="w-4 h-4 text-primary mx-auto" />
+                          : v === false ? <X className="w-4 h-4 text-gray-300 mx-auto" />
+                          : <span className="text-xs font-black text-primary uppercase tracking-widest">{v}</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-6 text-gray-400 font-black uppercase tracking-widest text-xs">
             <span>Single Session: ₹500</span>
             <span className="text-gray-200">|</span>
             <span>7-Day Trial Pass: ₹1,500</span>
             <span className="text-gray-200">|</span>
             <span>Personal Training: On Request</span>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm font-medium">All memberships include: Group classes · Locker room · Fitness assessment · Nutrition consultation</p>
           </div>
         </div>
       </section>
@@ -563,8 +822,8 @@ export default function Home() {
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Ganesh" role="Floor Manager" img="/trainer-ganesh.png" />
-              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-1.png" />
+              <StaffCard name="Ganesh" role="Floor Manager" img="/trainer-ganesh.png" cert="K11 Certified" />
+              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-1.png" cert="K11 Certified" />
             </div>
           </div>
 
@@ -576,10 +835,10 @@ export default function Home() {
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Poonam" role="Yoga Expert" img="/trainer-poonam.png" />
-              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-2.png" />
-              <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.png" />
-              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-1.png" />
+              <StaffCard name="Poonam" role="Yoga Expert" img="/trainer-poonam.png" cert="Yoga Alliance" />
+              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-2.png" cert="Certified Yoga" />
+              <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.png" cert="Zumba Licensed" />
+              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-1.png" cert="Dance Certified" />
             </div>
           </div>
 
@@ -587,11 +846,11 @@ export default function Home() {
           <div className="mb-14">
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px flex-1 bg-gray-100" />
-              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Trainers</h3>
+              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Featured Trainer</h3>
               <div className="h-px flex-1 bg-gray-100" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Rupali" role="Trainer" img="/trainer-rupali.png" />
+              <StaffCard name="Rupali" role="Personal Trainer" img="/trainer-rupali.png" cert="CPT Certified" />
             </div>
           </div>
 
@@ -671,16 +930,17 @@ export default function Home() {
           <Carousel className="max-w-4xl mx-auto cursor-grab active:cursor-grabbing">
             <CarouselContent>
               {[
-                { text: "Trainers are very friendly and professional. They give personal attention to each member. The equipment is well-maintained and the facility is top-notch.", author: "Rahul S.", source: "Google Review" },
-                { text: "Great gym with well-maintained equipment. The Zumba classes with Sikandar sir are amazing — full energy! Highly recommend for anyone in Baner.", author: "Priya M.", source: "JustDial Review" },
-                { text: "Affordable pricing and excellent facilities. The sauna and steam room are a great add-on. Happy hours deal is absolutely unbeatable in Pune.", author: "Aakash P.", source: "Google Review" },
-                { text: "Best gym in Baner. Ganesh sir and the entire team are very motivating. Lost 15kg in 6 months! The nutrition guidance made all the difference.", author: "Sneha R.", source: "Google Review" },
-                { text: "The personal training by Dinesh sir transformed my body completely. The 1:4 trainer ratio is real — I always get personal attention. Worth every rupee.", author: "Vikram D.", source: "JustDial Review" },
-                { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after long office hours. The facility is extremely clean and well-managed.", author: "Anita K.", source: "Google Review" },
+                { text: "Trainers are very friendly and professional. They give personal attention to each member. The equipment is well-maintained and the facility is top-notch.", author: "Rahul S.", source: "Google Review", goal: "Fat Loss" },
+                { text: "Great gym with well-maintained equipment. The Zumba classes with Sikandar sir are amazing — full energy! Highly recommend for anyone in Baner.", author: "Priya M.", source: "JustDial Review", goal: "Fitness" },
+                { text: "Affordable pricing and excellent facilities. The sauna and steam room are a great add-on. Happy hours deal is absolutely unbeatable in Pune.", author: "Aakash P.", source: "Google Review", goal: "Overall Fitness" },
+                { text: "Best gym in Baner. Ganesh sir and the entire team are very motivating. Lost 15kg in 6 months! The nutrition guidance made all the difference.", author: "Sneha R.", source: "Google Review", goal: "Fat Loss — 15kg in 6 months" },
+                { text: "The personal training by Dinesh sir transformed my body completely. The 1:4 trainer ratio is real — I always get personal attention. Worth every rupee.", author: "Vikram D.", source: "JustDial Review", goal: "Muscle Gain" },
+                { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after long office hours. The facility is extremely clean and well-managed.", author: "Anita K.", source: "Google Review", goal: "Yoga & Flexibility" },
               ].map((r, i) => (
                 <CarouselItem key={i}>
                   <div className="p-8 md:p-14 text-center bg-[#f8fbf3] border-2 border-gray-100 mx-4">
-                    <div className="flex justify-center mb-5 gap-1">{[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />)}</div>
+                    <div className="flex justify-center mb-4 gap-1">{[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />)}</div>
+                    <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-black uppercase tracking-widest mb-5">{r.goal}</div>
                     <p className="text-lg md:text-2xl font-display font-bold leading-snug mb-6 text-gray-800 italic">"{r.text}"</p>
                     <div className="text-sm font-black text-gray-900">{r.author}</div>
                     <div className="text-xs uppercase tracking-widest font-bold text-primary mt-1">{r.source}</div>
@@ -701,6 +961,19 @@ export default function Home() {
               <ExternalLink className="w-3 h-3" /> View on JustDial
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ BMI CALCULATOR ════════════════════════════ */}
+      <section className="py-24 bg-[#f8fbf3]">
+        <div className="container mx-auto px-4 md:px-6 max-w-5xl">
+          <div className="text-center mb-10">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Free Tool</span>
+            <h2 className="text-3xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-gray-900">
+              Know Your <span className="text-primary">BMI</span>
+            </h2>
+          </div>
+          <BmiCalculator onBook={bookPlan} />
         </div>
       </section>
 
@@ -726,10 +999,66 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-display font-black uppercase tracking-wider text-white mb-3">{g.title}</h3>
                 <p className="text-white/55 font-medium text-sm leading-relaxed mb-6">{g.desc}</p>
-                <button onClick={() => { scrollTo("contact"); form.setValue("plan", g.plan); }}
+                <button onClick={() => bookPlan(g.plan)}
                   className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-3 transition-all">
                   {g.cta} <ChevronRight className="w-3 h-3" />
                 </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ FITNESS TIPS / BLOG ═══════════════════════ */}
+      <section className="py-32 bg-white">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-14">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Expert Advice</span>
+            <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              Fitness <span className="text-primary">Tips</span>
+            </h2>
+            <p className="text-gray-500 max-w-xl mx-auto font-medium">Curated insights from Dotfit's certified trainers and nutritionists.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: <Flame className="w-6 h-6 text-primary" />,
+                tag: "Fat Loss",
+                title: "5 Ways to Maximise Your Morning Workout",
+                excerpt: "Early morning workouts on an empty stomach (fasted cardio) can boost fat oxidation by up to 20%. Combine it with HIIT and a protein-rich breakfast for maximum results.",
+                read: "3 min read",
+              },
+              {
+                icon: <Dumbbell className="w-6 h-6 text-primary" />,
+                tag: "Muscle Gain",
+                title: "The Right Protein Intake for Your Goal",
+                excerpt: "Aim for 1.6–2.2g of protein per kg of body weight daily. Spread intake across 4–5 meals for optimal muscle protein synthesis. Our nutritionists can personalise this for you.",
+                read: "4 min read",
+              },
+              {
+                icon: <HeartPulse className="w-6 h-6 text-primary" />,
+                tag: "Recovery",
+                title: "Why Rest Days are the Secret to Faster Progress",
+                excerpt: "Muscles grow during rest, not during training. Our sauna and steam room accelerate recovery by improving circulation and reducing DOMS. 1–2 rest days per week is optimal.",
+                read: "3 min read",
+              },
+            ].map((tip, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="border-2 border-gray-100 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group bg-white flex flex-col">
+                <div className="relative overflow-hidden aspect-video bg-[#f8fbf3] flex items-center justify-center border-b border-gray-100">
+                  <div className="w-16 h-16 bg-primary/10 border border-primary/20 flex items-center justify-center">{tip.icon}</div>
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest">{tip.tag}</div>
+                </div>
+                <div className="p-6 flex flex-col flex-grow">
+                  <h3 className="font-display font-black uppercase tracking-wider text-gray-900 mb-3 text-base leading-tight group-hover:text-primary transition-colors">{tip.title}</h3>
+                  <p className="text-gray-500 font-medium text-sm leading-relaxed flex-grow">{tip.excerpt}</p>
+                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
+                    <span className="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1"><BookOpen className="w-3 h-3" />{tip.read}</span>
+                    <button onClick={() => scrollTo("contact")} className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+                      Ask Our Trainers <ChevronRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -753,9 +1082,9 @@ export default function Home() {
               { q: "What is the Happy Hours discount?", a: "Members who train between 12 PM and 5 PM get heavily discounted memberships. Annual membership drops from ₹15,000 to just ₹8,500 — saving ₹6,500!" },
               { q: "Can I join for a single day or short trial?", a: "Yes. Single session walk-in costs ₹500. A 7-day trial pass is ₹1,500." },
               { q: "Are there ladies-only batches?", a: "Yes, we have specific batches and dedicated female trainers (Poonam, Rupali) for ladies. Please contact us for the current schedule." },
-              { q: "Do you provide nutrition/diet guidance?", a: "Yes, certified nutritionists provide personalized meal plans based on your goals (fat loss, muscle gain, sports performance) — included in all memberships." },
+              { q: "Do you provide nutrition/diet guidance?", a: "Yes, certified nutritionists provide personalized meal plans based on your goals — included from the 3-month plan onwards." },
               { q: "Is the gym air-conditioned?", a: "Yes, the entire 5th-floor facility is fully air-conditioned including the gym floor, group class studio, and locker rooms." },
-              { q: "Do you have a sauna and steam room?", a: "Yes, our recovery zone includes a professional-grade sauna and steam room — available to all members." },
+              { q: "Do you have a sauna and steam room?", a: "Yes, our recovery zone includes a professional-grade sauna and steam room — available to 6-month and 1-year members." },
               { q: "Is parking available?", a: "Yes, parking is available in the Srushti Elegance building complex at no extra charge." },
               { q: "What certifications does Dotfit Fitness have?", a: "Dotfit Fitness is K11 Certified — an internationally recognized fitness certification ensuring world-class training standards, equipment safety, and trainer qualifications." },
               { q: "How is the 1:4 trainer ratio maintained?", a: "Unlike most gyms (1:30 ratio), Dotfit maintains a strict 1 trainer per 4 members policy. This ensures your form, progress, and safety are always monitored during training." },
@@ -774,7 +1103,7 @@ export default function Home() {
                 Follow <span className="text-primary">@dotfitfitness</span>
               </h2>
               <p className="text-gray-500 font-medium text-lg mb-8 leading-relaxed">
-                Member transformations, workout reels, class highlights, and behind-the-scenes. Join 10,000+ followers on Instagram.
+                Member transformations, workout reels, class highlights, and behind-the-scenes. Join our community on Instagram.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
@@ -788,17 +1117,10 @@ export default function Home() {
               </div>
             </div>
             <div className="lg:w-1/2 grid grid-cols-3 gap-2">
-              {[
-                { src: "/class-zumba.png", label: "Zumba" },
-                { src: "/facility-equipment.png", label: "Training" },
-                { src: "/class-yoga.png", label: "Yoga" },
-                { src: "/class-kickboxing.png", label: "Kickboxing" },
-                { src: "/facility-sauna.png", label: "Recovery" },
-                { src: "/hero.png", label: "Gym Floor" },
-              ].map((p, i) => (
+              {["/class-zumba.png", "/facility-equipment.png", "/class-yoga.png", "/class-kickboxing.png", "/facility-sauna.png", "/hero.png"].map((src, i) => (
                 <a key={i} href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
                   className="relative aspect-square overflow-hidden group bg-gray-100">
-                  <img src={p.src} alt={p.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={src} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/30 transition-colors flex items-center justify-center">
                     <Instagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
@@ -813,7 +1135,7 @@ export default function Home() {
       <section id="location" className="border-t-2 border-gray-100">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* Form */}
-          <div id="contact" className="p-8 md:p-16 lg:p-20 bg-white">
+          <div id="contact" className="p-8 md:p-16 lg:p-20 bg-white pb-28 md:pb-16">
             <div className="max-w-md mx-auto lg:mx-0">
               <span className="text-primary font-black text-xs uppercase tracking-widest">Free Trial Available</span>
               <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
@@ -888,53 +1210,28 @@ export default function Home() {
           <div className="bg-gray-950 p-8 md:p-16 lg:p-20 text-white flex flex-col">
             <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-5">Find Us</h2>
             <div className="space-y-6 mb-8 flex-grow">
-              <div className="flex gap-4">
-                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5"><MapPin className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Address</div>
-                  <p className="text-white/75 font-medium text-sm leading-relaxed">136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045</p>
-                  <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">
-                    Open in Google Maps <ExternalLink className="w-3 h-3" />
-                  </a>
+              {[
+                { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
+                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <>Mon – Sat: 6:00 AM – 10:00 PM<br />Trainers from 5:30 AM<br /><span className="text-white/40">Sunday: Closed</span></> },
+                { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
+                { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">{item.icon}</div>
+                  <div>
+                    <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">{item.label}</div>
+                    <div className="text-white/75 font-medium text-sm leading-relaxed">{item.content}</div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Clock className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Timings</div>
-                  <p className="text-white/75 font-medium text-sm leading-relaxed">
-                    Mon – Sat: 6:00 AM – 10:00 PM<br />
-                    Trainers from 5:30 AM<br />
-                    <span className="text-white/40">Sunday: Closed</span>
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Phone className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Phone / WhatsApp</div>
-                  <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors block">+91 95272 37213</a>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0"><Mail className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">Email</div>
-                  <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors block">Support@dotfitfitness.in</a>
-                </div>
-              </div>
+              ))}
             </div>
             {/* Google Maps embed with red pin */}
             <div className="w-full h-72 border border-white/10 overflow-hidden">
               <iframe
                 title="Dotfit Fitness Location — Baner, Pune"
                 src="https://maps.google.com/maps?q=Dotfit+Fitness,+136+Srushti+Elegance,+Old+Baner-Balewadi+Road,+Baner,+Pune+411045&t=&z=17&ie=UTF8&iwloc=B&output=embed"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+                width="100%" height="100%" style={{ border: 0 }}
+                allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
           </div>
@@ -942,10 +1239,9 @@ export default function Home() {
       </section>
 
       {/* ════════════════════ FOOTER ════════════════════════════════════ */}
-      <footer className="bg-gray-950 text-white py-16 border-t border-white/10">
+      <footer className="bg-gray-950 text-white py-16 border-t border-white/10 pb-28 md:pb-16">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            {/* Brand */}
             <div className="md:col-span-2">
               <img src="/logo-text.png" alt="Dotfit Fitness" className="h-10 object-contain opacity-90 mb-5" />
               <p className="text-white/40 text-sm font-medium leading-relaxed max-w-xs mb-6">
@@ -961,26 +1257,15 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            {/* Contact */}
             <div>
-              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Contact Us</h4>
+              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Contact</h4>
               <div className="space-y-4">
-                <a href="tel:+919527237213" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium">
-                  <Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />+91 95272 37213
-                </a>
-                <a href="mailto:Support@dotfitfitness.in" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium">
-                  <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />Support@dotfitfitness.in
-                </a>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium">
-                  <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>136/1, 5th Floor, Srushti Elegance,<br />Baner, Pune 411045</span>
-                </div>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium">
-                  <Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" />Mon–Sat: 6 AM – 10 PM<br /><span className="text-white/25">Sunday: Closed</span>
-                </div>
+                <a href="tel:+919527237213" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />+91 95272 37213</a>
+                <a href="mailto:Support@dotfitfitness.in" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />Support@dotfitfitness.in</a>
+                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>136/1, 5th Floor, Srushti Elegance,<br />Baner, Pune 411045</span></div>
+                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Mon–Sat: 6 AM – 10 PM<br /><span className="text-white/25">Sunday: Closed</span></span></div>
               </div>
             </div>
-            {/* Social */}
             <div>
               <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Follow Dotfit</h4>
               <div className="space-y-3">
@@ -1004,7 +1289,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness Pvt. Ltd. · All Rights Reserved</p>
+            <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness · All Rights Reserved</p>
             <p className="text-white/20 text-xs font-medium">136/1 Srushti Elegance, Old Baner-Balewadi Rd, Pune 411045</p>
           </div>
         </div>
