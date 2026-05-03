@@ -33,3 +33,36 @@ export interface Contact {
 export interface ErrorResponse {
   error: string;
 }
+
+export interface OpenrouterConversation {
+  id: number;
+  title: string;
+  createdAt: string;
+}
+
+export interface OpenrouterMessage {
+  id: number;
+  conversationId: number;
+  role: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CreateOpenrouterConversationBody {
+  title: string;
+}
+
+export interface SendOpenrouterMessageBody {
+  content: string;
+}
+
+export interface OpenrouterConversationWithMessages {
+  id: number;
+  title: string;
+  createdAt: string;
+  messages: OpenrouterMessage[];
+}
+
+export interface OpenrouterError {
+  error: string;
+}

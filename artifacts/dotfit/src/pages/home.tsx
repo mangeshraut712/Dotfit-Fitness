@@ -65,6 +65,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import ChatWidget from "@/components/ChatWidget";
 
 const BASE_URL = import.meta.env.BASE_URL;
 
@@ -1073,13 +1074,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <button
-        type="button"
-        aria-label="Open chatbot"
-        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-gray-950 text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.35)] hover:scale-110 transition-transform"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </button>
+      <ChatWidget />
 
       {/* ── Desktop floating "Book Trial" left side tab ─────────────────── */}
       <button

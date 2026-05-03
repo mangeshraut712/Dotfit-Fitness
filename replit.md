@@ -77,6 +77,18 @@ Official website for Dotfit Fitness gym in Baner, Pune, India. Built as a pnpm m
 - `GET /api/contacts` — list all submissions (used by admin page)
 - `PATCH /api/contacts/:id/status` — update lead status (New / Contacted / Converted)
 
+### AI Chatbot (OpenRouter)
+
+- `POST /api/openrouter/conversations` — create a new chat session → `{ id, title, createdAt }`
+- `GET /api/openrouter/conversations/:id` — fetch conversation + message history
+- `POST /api/openrouter/conversations/:id/messages` — send user message; returns SSE stream (`text/event-stream`) of `{ content }` chunks ending with `{ done: true }`
+- `GET /api/openrouter/conversations/:id/messages` — list messages in a conversation
+- `DELETE /api/openrouter/conversations/:id` — delete a conversation
+
+**SSE format**: `data: {"content":"..."}` chunks, final `data: {"done":true}`. Errors: `data: {"error":"..."}`.
+
+**AI Integration**: Uses Replit-managed OpenRouter proxy (`AI_INTEGRATIONS_OPENROUTER_BASE_URL` + `AI_INTEGRATIONS_OPENROUTER_API_KEY`). Model: `meta-llama/llama-3.3-70b-instruct:free`. Conversations + messages persisted to PostgreSQL (`conversations`, `messages` tables).
+
 ## Pages
 
 | Route | File | Description |

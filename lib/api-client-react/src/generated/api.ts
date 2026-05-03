@@ -19,8 +19,14 @@ import type {
 import type {
   Contact,
   CreateContactBody,
+  CreateOpenrouterConversationBody,
   ErrorResponse,
   HealthStatus,
+  OpenrouterConversation,
+  OpenrouterConversationWithMessages,
+  OpenrouterError,
+  OpenrouterMessage,
+  SendOpenrouterMessageBody,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -268,3 +274,526 @@ export function useListContacts<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary List all conversations
+ */
+export const getListOpenrouterConversationsUrl = () => {
+  return `/api/openrouter/conversations`;
+};
+
+export const listOpenrouterConversations = async (
+  options?: RequestInit,
+): Promise<OpenrouterConversation[]> => {
+  return customFetch<OpenrouterConversation[]>(
+    getListOpenrouterConversationsUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListOpenrouterConversationsQueryKey = () => {
+  return [`/api/openrouter/conversations`] as const;
+};
+
+export const getListOpenrouterConversationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listOpenrouterConversations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listOpenrouterConversations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListOpenrouterConversationsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listOpenrouterConversations>>
+  > = ({ signal }) =>
+    listOpenrouterConversations({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listOpenrouterConversations>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListOpenrouterConversationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listOpenrouterConversations>>
+>;
+export type ListOpenrouterConversationsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all conversations
+ */
+
+export function useListOpenrouterConversations<
+  TData = Awaited<ReturnType<typeof listOpenrouterConversations>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listOpenrouterConversations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListOpenrouterConversationsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new conversation
+ */
+export const getCreateOpenrouterConversationUrl = () => {
+  return `/api/openrouter/conversations`;
+};
+
+export const createOpenrouterConversation = async (
+  createOpenrouterConversationBody: CreateOpenrouterConversationBody,
+  options?: RequestInit,
+): Promise<OpenrouterConversation> => {
+  return customFetch<OpenrouterConversation>(
+    getCreateOpenrouterConversationUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(createOpenrouterConversationBody),
+    },
+  );
+};
+
+export const getCreateOpenrouterConversationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createOpenrouterConversation>>,
+    TError,
+    { data: BodyType<CreateOpenrouterConversationBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createOpenrouterConversation>>,
+  TError,
+  { data: BodyType<CreateOpenrouterConversationBody> },
+  TContext
+> => {
+  const mutationKey = ["createOpenrouterConversation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createOpenrouterConversation>>,
+    { data: BodyType<CreateOpenrouterConversationBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createOpenrouterConversation(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateOpenrouterConversationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createOpenrouterConversation>>
+>;
+export type CreateOpenrouterConversationMutationBody =
+  BodyType<CreateOpenrouterConversationBody>;
+export type CreateOpenrouterConversationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new conversation
+ */
+export const useCreateOpenrouterConversation = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createOpenrouterConversation>>,
+    TError,
+    { data: BodyType<CreateOpenrouterConversationBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createOpenrouterConversation>>,
+  TError,
+  { data: BodyType<CreateOpenrouterConversationBody> },
+  TContext
+> => {
+  return useMutation(getCreateOpenrouterConversationMutationOptions(options));
+};
+
+/**
+ * @summary Get conversation with messages
+ */
+export const getGetOpenrouterConversationUrl = (id: number) => {
+  return `/api/openrouter/conversations/${id}`;
+};
+
+export const getOpenrouterConversation = async (
+  id: number,
+  options?: RequestInit,
+): Promise<OpenrouterConversationWithMessages> => {
+  return customFetch<OpenrouterConversationWithMessages>(
+    getGetOpenrouterConversationUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetOpenrouterConversationQueryKey = (id: number) => {
+  return [`/api/openrouter/conversations/${id}`] as const;
+};
+
+export const getGetOpenrouterConversationQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOpenrouterConversation>>,
+  TError = ErrorType<OpenrouterError>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getOpenrouterConversation>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetOpenrouterConversationQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOpenrouterConversation>>
+  > = ({ signal }) =>
+    getOpenrouterConversation(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOpenrouterConversation>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetOpenrouterConversationQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOpenrouterConversation>>
+>;
+export type GetOpenrouterConversationQueryError = ErrorType<OpenrouterError>;
+
+/**
+ * @summary Get conversation with messages
+ */
+
+export function useGetOpenrouterConversation<
+  TData = Awaited<ReturnType<typeof getOpenrouterConversation>>,
+  TError = ErrorType<OpenrouterError>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getOpenrouterConversation>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetOpenrouterConversationQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Delete a conversation
+ */
+export const getDeleteOpenrouterConversationUrl = (id: number) => {
+  return `/api/openrouter/conversations/${id}`;
+};
+
+export const deleteOpenrouterConversation = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteOpenrouterConversationUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteOpenrouterConversationMutationOptions = <
+  TError = ErrorType<OpenrouterError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOpenrouterConversation>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteOpenrouterConversation>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteOpenrouterConversation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteOpenrouterConversation>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteOpenrouterConversation(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteOpenrouterConversationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteOpenrouterConversation>>
+>;
+
+export type DeleteOpenrouterConversationMutationError =
+  ErrorType<OpenrouterError>;
+
+/**
+ * @summary Delete a conversation
+ */
+export const useDeleteOpenrouterConversation = <
+  TError = ErrorType<OpenrouterError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOpenrouterConversation>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteOpenrouterConversation>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteOpenrouterConversationMutationOptions(options));
+};
+
+/**
+ * @summary List messages in a conversation
+ */
+export const getListOpenrouterMessagesUrl = (id: number) => {
+  return `/api/openrouter/conversations/${id}/messages`;
+};
+
+export const listOpenrouterMessages = async (
+  id: number,
+  options?: RequestInit,
+): Promise<OpenrouterMessage[]> => {
+  return customFetch<OpenrouterMessage[]>(getListOpenrouterMessagesUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListOpenrouterMessagesQueryKey = (id: number) => {
+  return [`/api/openrouter/conversations/${id}/messages`] as const;
+};
+
+export const getListOpenrouterMessagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listOpenrouterMessages>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listOpenrouterMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListOpenrouterMessagesQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listOpenrouterMessages>>
+  > = ({ signal }) => listOpenrouterMessages(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listOpenrouterMessages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListOpenrouterMessagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listOpenrouterMessages>>
+>;
+export type ListOpenrouterMessagesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List messages in a conversation
+ */
+
+export function useListOpenrouterMessages<
+  TData = Awaited<ReturnType<typeof listOpenrouterMessages>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listOpenrouterMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListOpenrouterMessagesQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Send a message and receive an AI response (SSE stream)
+ */
+export const getSendOpenrouterMessageUrl = (id: number) => {
+  return `/api/openrouter/conversations/${id}/messages`;
+};
+
+export const sendOpenrouterMessage = async (
+  id: number,
+  sendOpenrouterMessageBody: SendOpenrouterMessageBody,
+  options?: RequestInit,
+): Promise<unknown> => {
+  return customFetch<unknown>(getSendOpenrouterMessageUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendOpenrouterMessageBody),
+  });
+};
+
+export const getSendOpenrouterMessageMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendOpenrouterMessage>>,
+    TError,
+    { id: number; data: BodyType<SendOpenrouterMessageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendOpenrouterMessage>>,
+  TError,
+  { id: number; data: BodyType<SendOpenrouterMessageBody> },
+  TContext
+> => {
+  const mutationKey = ["sendOpenrouterMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendOpenrouterMessage>>,
+    { id: number; data: BodyType<SendOpenrouterMessageBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return sendOpenrouterMessage(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendOpenrouterMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendOpenrouterMessage>>
+>;
+export type SendOpenrouterMessageMutationBody =
+  BodyType<SendOpenrouterMessageBody>;
+export type SendOpenrouterMessageMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Send a message and receive an AI response (SSE stream)
+ */
+export const useSendOpenrouterMessage = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendOpenrouterMessage>>,
+    TError,
+    { id: number; data: BodyType<SendOpenrouterMessageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendOpenrouterMessage>>,
+  TError,
+  { id: number; data: BodyType<SendOpenrouterMessageBody> },
+  TContext
+> => {
+  return useMutation(getSendOpenrouterMessageMutationOptions(options));
+};
