@@ -1263,7 +1263,7 @@ export default function Home() {
               { src: "/class-yoga.webp", label: "Yoga & Pilates", sub: "Mind & Body" },
               { src: "/class-kickboxing.webp", label: "Kickboxing", sub: "Combat Fitness" },
               { src: "/transformation-1.webp", label: "Male Transformation", sub: "Real Results" },
-              { src: "/transformation-female.webp.png", label: "Female Transformation", sub: "Real Results" },
+              { src: "/transformation-female.webp", label: "Female Transformation", sub: "Real Results" },
             ].map((photo, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.5 }}
                 whileHover={{ scale: 1.03, y: -3 }}
