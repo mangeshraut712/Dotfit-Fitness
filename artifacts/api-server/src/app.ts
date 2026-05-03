@@ -33,9 +33,9 @@ app.use(
     origin: isProduction
       ? [/\.replit\.app$/, /dotfitfitness\.in$/, /dotfit-fitness.*\.replit\.app$/]
       : true,
-    credentials: false,
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Accept"],
+    credentials: true,
+    methods: ["GET", "POST", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
   }),
 );
 

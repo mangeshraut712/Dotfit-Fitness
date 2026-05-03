@@ -1,5 +1,6 @@
-import { Router } from "express";
+import { Router, type Request, type Response, type NextFunction } from "express";
 import { eq } from "drizzle-orm";
+import rateLimit from "express-rate-limit";
 import { db, contactsTable } from "@workspace/db";
 import { CreateContactBody } from "@workspace/api-zod";
 
@@ -7,7 +8,30 @@ const contactsRouter = Router();
 
 const ALLOWED_STATUSES = ["New", "Contacted", "Converted"] as const;
 
-contactsRouter.post("/contacts", async (req, res) => {
+const submitLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many submissions. Please try again later." },
+  skip: () => process.env.NODE_ENV !== "production",
+});
+
+function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    next();
+    return;
+  }
+  const auth = req.headers["authorization"];
+  if (!auth || auth !== `Bearer ${adminPassword}`) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  next();
+}
+
+contactsRouter.post("/contacts", submitLimiter, async (req, res) => {
   const parsed = CreateContactBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
@@ -32,7 +56,7 @@ contactsRouter.post("/contacts", async (req, res) => {
   }
 });
 
-contactsRouter.get("/contacts", async (req, res) => {
+contactsRouter.get("/contacts", requireAdminAuth, async (req, res) => {
   try {
     const contacts = await db
       .select()
@@ -45,17 +69,20 @@ contactsRouter.get("/contacts", async (req, res) => {
   }
 });
 
-contactsRouter.patch("/contacts/:id/status", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
+contactsRouter.patch("/contacts/:id/status", requireAdminAuth, async (req, res) => {
+  const id = parseInt(String(req.params["id"]), 10);
   if (!id || isNaN(id)) {
     res.status(400).json({ error: "Invalid contact id" });
     return;
   }
-  const { status } = req.body as { status: string };
-  if (!ALLOWED_STATUSES.includes(status as typeof ALLOWED_STATUSES[number])) {
+
+  const rawStatus = (req.body as Record<string, unknown>)?.status;
+  if (typeof rawStatus !== "string" || !ALLOWED_STATUSES.includes(rawStatus as typeof ALLOWED_STATUSES[number])) {
     res.status(400).json({ error: `Status must be one of: ${ALLOWED_STATUSES.join(", ")}` });
     return;
   }
+  const status = rawStatus as typeof ALLOWED_STATUSES[number];
+
   try {
     const updated = await db
       .update(contactsTable)

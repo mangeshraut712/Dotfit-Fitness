@@ -3581,7 +3581,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6 py-10">
           <div className="flex justify-center">
             <p className="text-white/20 text-xs font-bold uppercase tracking-widest">
-              @2026 Dotfit Fitness All Rights Reserved
+              © 2026 Dotfit Fitness. All Rights Reserved.
             </p>
           </div>
         </div>

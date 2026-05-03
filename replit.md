@@ -118,10 +118,20 @@ pnpm --filter @workspace/db run push            # Push DB schema (dev only)
 
 ### API / Backend
 
-- CORS: restricted to `*.replit.app` and `dotfitfitness.in` in production; wildcard in development
+- CORS: restricted to `*.replit.app` and `dotfitfitness.in` in production; wildcard in development. Methods: GET, POST, PATCH, OPTIONS. Credentials: true.
 - Request body limit: 10 KB
 - Global 404 and error handler middleware in `app.ts`
 - All DB operations in routes have try/catch; errors logged via `req.log.error()`, user-friendly 500 messages returned
+- **Rate limiting**: POST /contacts limited to 5 submissions per 15 min per IP (production only)
+- **Admin auth**: Set `ADMIN_PASSWORD` env var to protect GET /contacts and PATCH /contacts/:id/status with Bearer token auth. If unset, endpoints are open (dev mode)
+- **Status validation**: PATCH /contacts/:id/status uses runtime type guard instead of `as` cast
+
+### Admin Dashboard (`/admin`)
+
+- Password gate on frontend: prompts for admin key, stores in localStorage, sends as `Authorization: Bearer` header
+- After successful status PATCH, updates query cache in-place (no extra round-trip) then clears override
+- Logout button clears stored key and returns to password gate
+- Set `ADMIN_PASSWORD` environment secret to enable authentication
 
 ### Frontend
 
