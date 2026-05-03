@@ -1,55 +1,60 @@
 # Dotfit Fitness
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-5-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+<p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-5.9-007ACC?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/Express.js-5-000000?style=for-the-badge&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+</p>
 
-[![Website](https://img.shields.io/badge/Website-Live-00C853?style=for-the-badge&logo=vercel&logoColor=white)](https://dotfitfitness.in)
-[![CI](https://github.com/mangeshraut712/Dotfit-Fitness/actions/workflows/ci.yml/badge.svg)](https://github.com/mangeshraut712/Dotfit-Fitness/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <img src="https://img.shields.io/badge/Website-Live-00C853?style=for-the-badge&logo=vercel&logoColor=white" />
+  <img src="https://github.com/mangeshraut712/Dotfit-Fitness/actions/workflows/ci.yml/badge.svg" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" />
+</p>
 
-> Official website for **Dotfit Fitness** — Baner, Pune's K11-certified gym since 2012. Built as a production-grade pnpm monorepo with a React/Vite frontend, Express API backend, PostgreSQL, and AI coach support.
-
----
-
-## ✨ Highlights
-
-- **Premium landing page** with strong visuals, motion, and conversion-focused CTAs
-- **Free trial booking** backed by PostgreSQL + Zod validation
-- **Admin dashboard** for lead tracking and status updates
-- **AI Health & Fitness Coach** with live streaming responses and offline fallback
-- **Fast, SEO-friendly builds** with modern image, font, and metadata optimization
+<p align="center"><strong>Official website for Dotfit Fitness — Baner, Pune.</strong></p>
+<p align="center">A premium gym website with a React/Vite frontend, Express API backend, PostgreSQL, and an AI Health & Fitness Coach.</p>
 
 ---
 
-## 📍 Dotfit Fitness
+## Why this project stands out
 
-| | |
+- Premium landing page with strong conversion-focused design
+- Real free-trial booking flow backed by PostgreSQL
+- AI Health & Fitness Coach with streaming + offline fallback
+- Lead management dashboard for gym staff
+- Polished SEO, metadata, and brand presentation
+
+---
+
+## Dotfit Fitness at a glance
+
+| Item | Details |
 |---|---|
-| **Address** | 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Rd, Balewadi Phata, Pune 411045 |
-| **Phone** | +91 95272 37213 |
-| **Email** | Support@dotfitfitness.in |
-| **Founded** | 2012 |
-| **Members** | 25,000+ |
-| **Rating** | 4.2/5 (726+ reviews) |
-| **Certification** | K11 Certified |
+| Address | 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Rd, Balewadi Phata, Pune 411045 |
+| Phone | +91 95272 37213 |
+| Email | Support@dotfitfitness.in |
+| Founded | 2012 |
+| Members | 25,000+ |
+| Rating | 4.2/5 (726+ reviews) |
+| Certification | K11 Certified |
 
 ### Timings
 
 | Day | Morning | Evening |
-|-----|---------|---------|
-| Mon – Sat | 6:00 AM – 12:00 PM | 4:00 PM – 10:00 PM |
+|---|---|---|
+| Mon–Sat | 6:00 AM – 12:00 PM | 4:00 PM – 10:00 PM |
 | Sunday | 6:00 AM – 12:00 PM | Closed |
 
 > 12 PM – 2 PM: rest period. 2 PM – 4 PM: trainer workout time.
 
-### Membership Pricing
+### Membership
 
-| Plan | Regular | Happy Hours (12 PM – 5 PM, Mon–Sat) |
-|------|---------|--------------------------------------|
+| Plan | Regular | Happy Hours |
+|---|---|---|
 | 1 Month | ₹3,500 | ₹3,000 |
 | 3 Months | ₹5,500 | ₹5,000 |
 | 6 Months | ₹7,500 | ₹7,000 |
@@ -57,76 +62,71 @@
 | 7-Day Trial | ₹1,500 | — |
 | Single Session | ₹500 | — |
 
-### Gym Details
+### Gym details
 
-- 2 cleaners handle the male and female locker rooms
-- Drinking water machine supports cold, normal, and hot water
+- 2 cleaners maintain the male and female locker rooms
+- Water machine supports cold, normal, and hot drinking water
 - Membership transfer fee: ₹1,500–₹2,000
-- Referral bonus: if an existing member brings a new client on a 6–12 month membership, the existing member gets a 1 month extension
-- All classes are free to join and follow first-come, first-served seating/space rules
-- Front desk is available for inquiries, holiday/closure updates, and general gym information
-- Trainers are helpful and always ready to guide members on what to do next
+- Referral bonus: 1 month extension for bringing a new client on a 6–12 month membership
+- All classes are free and first-come, first-served
+- Front desk helps with inquiries, holidays, closures, and information
+- Trainers are helpful and guide members on what to do next
 
 ---
 
-## 🎨 Design & Experience
+## Design system
 
-- Lime green brand accent: `#6aaa14`
-- Dark premium sections: `bg-gray-950`
-- Display font: **Oswald**
-- Body font: **Inter**
-- Floating phone / WhatsApp / AI coach actions for quick access
-- Motion-powered hero, cards, and buttons for a polished feel
+- Brand green: `#6aaa14`
+- Premium dark sections: `bg-gray-950`
+- Display font: Oswald
+- Body font: Inter
+- Floating quick actions for call, WhatsApp, and AI coach
 
 ---
 
-## 🧠 AI Coach
+## AI Coach
 
-The chatbot is designed as a **world-class fitness consultant** focused on:
+The chatbot focuses on:
 
-- Hypertrophy and strength training
-- Nutrition and calorie management
-- Gym equipment selection and exercise execution
-- Injury-aware training modifications
-- Dotfit-specific gym information
+- Strength and muscle gain
+- Fat loss and calorie control
+- Exercise selection and form
+- Gym policies and Dotfit details
+- Safe training guidance
 
 It supports:
 
 - Streaming SSE responses
 - Session memory
-- Offline smart replies when the model is unavailable
+- Offline smart replies
 
 ---
 
-## 🧰 Tech Stack
+## Tech stack
 
 ### Frontend — `artifacts/dotfit`
 
-| Technology | Purpose |
-|------------|---------|
-| React 19 | UI framework |
-| Vite 7 | Build tool & dev server |
-| TypeScript 5.9 | Type safety |
-| Tailwind CSS 4 | Styling |
-| Framer Motion 12 | Animations |
-| Lucide React | Icons |
-| React Hook Form + Zod | Form validation |
-| @tanstack/react-query | Server state |
+- React 19
+- Vite 7
+- TypeScript 5.9
+- Tailwind CSS 4
+- Framer Motion 12
+- Lucide React
+- React Hook Form + Zod
+- @tanstack/react-query
 
 ### Backend — `artifacts/api-server`
 
-| Technology | Purpose |
-|------------|---------|
-| Express 5 | HTTP server |
-| PostgreSQL | Database |
-| Drizzle ORM | Type-safe DB queries |
-| Zod | Runtime validation |
-| Pino | Structured logging |
-| OpenRouter via Replit AI Integrations | AI chat streaming |
+- Express 5
+- PostgreSQL
+- Drizzle ORM
+- Zod
+- Pino
+- OpenRouter via Replit AI Integrations
 
 ---
 
-## 📦 Project Structure
+## Project structure
 
 ```text
 artifacts/
@@ -141,7 +141,7 @@ lib/
 
 ---
 
-## 🚀 Quick Start
+## Quick start
 
 ```bash
 pnpm install
@@ -152,7 +152,7 @@ pnpm --filter @workspace/dotfit run dev
 
 ---
 
-## 🔌 API
+## API
 
 Base path: `/api`
 
@@ -166,7 +166,7 @@ Base path: `/api`
 
 ---
 
-## ✅ CI / CD
+## CI / CD
 
 GitHub Actions runs on push and pull request:
 
@@ -179,14 +179,12 @@ GitHub Actions runs on push and pull request:
 
 ---
 
-## 🔗 Live Links
+## Live links
 
-- **Website:** https://dotfitfitness.in
-- **Replit:** https://dotfit-fitness--mbr63.replit.app/
-- **GitHub:** https://github.com/mangeshraut712/Dotfit-Fitness
+- Website: https://dotfitfitness.in
+- Replit: https://dotfit-fitness--mbr63.replit.app/
+- GitHub: https://github.com/mangeshraut712/Dotfit-Fitness
 
 ---
 
-<p align="center">
-  Built with care for <strong>Dotfit Fitness</strong> — Baner, Pune
-</p>
+<p align="center">Built with care for <strong>Dotfit Fitness</strong> — Baner, Pune.</p>
