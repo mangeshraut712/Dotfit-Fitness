@@ -878,7 +878,7 @@ export default function Home() {
         className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/98 backdrop-blur-md border-b border-gray-100 py-3 shadow-sm top-0" : "bg-transparent py-5"}`}
         style={{ top: isScrolled ? "3px" : "35px" }}
       >
-        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+        <div className="container mx-auto px-4 md:px-6 flex items-center gap-4 md:gap-8">
           <button
             type="button"
             className="cursor-pointer bg-transparent border-0 p-0 flex items-center shrink-0"
@@ -893,7 +893,7 @@ export default function Home() {
               className="h-11 w-11 md:h-12 md:w-12 object-contain drop-shadow-md"
             />
           </button>
-          <div className="hidden md:flex items-center gap-6" role="menubar">
+          <div className="hidden md:flex items-center gap-6 ml-auto" role="menubar">
             {[
               "About",
               "Classes",
