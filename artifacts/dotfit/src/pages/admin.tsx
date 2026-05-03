@@ -143,7 +143,7 @@ function PasswordGate({ onUnlock }: { onUnlock: (key: string) => void }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/contacts", {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/contacts`, {
         headers: key ? { Authorization: `Bearer ${key}` } : {},
         credentials: "include",
       });

@@ -801,7 +801,7 @@ export default function Home() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await fetch("/api/contacts", {
+      const res = await fetch(`${BASE_URL}api/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
