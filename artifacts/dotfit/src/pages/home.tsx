@@ -1367,6 +1367,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ════════════════════ YOUR FIRST SESSION IS FREE ═════════════════ */}
+      <section className="py-28 bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-white" />
+          <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-white" />
+        </div>
+        <div className="container relative mx-auto px-4 md:px-6 text-center">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <p className="text-white/70 font-black uppercase tracking-[0.3em] text-xs mb-5">Baner's #1 Gym Since 2012</p>
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter text-white leading-none mb-6">
+              Your First<br />Session Is <span className="text-gray-950">Free.</span>
+            </h2>
+            <p className="text-white/75 font-medium text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+              No commitment. No payment. Walk in, meet our trainers, experience the facility — and decide if Dotfit is right for you.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button onClick={() => scrollTo("contact")}
+                className="h-16 px-12 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-2xl">
+                Book My Free Trial
+              </button>
+              <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
+                className="h-16 px-12 bg-white/15 hover:bg-white/25 border-2 border-white/30 text-white font-black uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-3">
+                <MessageCircle className="w-5 h-5" /> WhatsApp Now
+              </a>
+            </div>
+            <div className="flex flex-wrap justify-center gap-8 mt-12">
+              {[
+                { val: "Free", label: "Trial Session" },
+                { val: "30 min", label: "Response Time" },
+                { val: "₹10,000", label: "Annual Plan" },
+                { val: "6–10 PM", label: "Evening Hours" },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <div className="text-2xl font-display font-black text-white">{s.val}</div>
+                  <div className="text-white/50 text-xs font-bold uppercase tracking-widest mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ════════════════════ FIND US ════════════════════════════════════ */}
       <section id="location" className="bg-gray-950 text-white">
         <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -1536,48 +1578,6 @@ export default function Home() {
             </Form>
             )}
           </div>
-        </div>
-      </section>
-
-      {/* ════════════════════ YOUR FIRST SESSION IS FREE ═════════════════ */}
-      <section className="py-28 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-white" />
-          <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-white" />
-        </div>
-        <div className="container relative mx-auto px-4 md:px-6 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <p className="text-white/70 font-black uppercase tracking-[0.3em] text-xs mb-5">Baner's #1 Gym Since 2012</p>
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter text-white leading-none mb-6">
-              Your First<br />Session Is <span className="text-gray-950">Free.</span>
-            </h2>
-            <p className="text-white/75 font-medium text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-              No commitment. No payment. Walk in, meet our trainers, experience the facility — and decide if Dotfit is right for you.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button onClick={() => scrollTo("contact")}
-                className="h-16 px-12 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-2xl">
-                Book My Free Trial
-              </button>
-              <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
-                className="h-16 px-12 bg-white/15 hover:bg-white/25 border-2 border-white/30 text-white font-black uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-3">
-                <MessageCircle className="w-5 h-5" /> WhatsApp Now
-              </a>
-            </div>
-            <div className="flex flex-wrap justify-center gap-8 mt-12">
-              {[
-                { val: "Free", label: "Trial Session" },
-                { val: "30 min", label: "Response Time" },
-                { val: "₹10,000", label: "Annual Plan" },
-                { val: "6–10 PM", label: "Evening Hours" },
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <div className="text-2xl font-display font-black text-white">{s.val}</div>
-                  <div className="text-white/50 text-xs font-bold uppercase tracking-widest mt-0.5">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </section>
 
