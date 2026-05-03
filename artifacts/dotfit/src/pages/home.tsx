@@ -880,17 +880,21 @@ export default function Home() {
       >
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
           <button
-            className="cursor-pointer bg-transparent border-0 p-0"
+            type="button"
+            className="cursor-pointer bg-transparent border-0 p-0 flex items-center shrink-0"
             onClick={() => scrollTo("hero")}
             aria-label="Go to top — Dotfit Fitness"
           >
             <img
-              src="/logo-text.webp"
+              src="/logo-icon.png"
               alt="Dotfit Fitness"
-              width={160}
-              height={40}
-              className={`h-10 w-auto object-contain transition-all ${isScrolled ? "brightness-100" : "brightness-0 invert"}`}
+              width={44}
+              height={44}
+              className="h-11 w-11 md:h-12 md:w-12 object-contain drop-shadow-md"
             />
+            <span className={`ml-3 hidden sm:block text-lg md:text-xl font-display font-black uppercase tracking-tight ${isScrolled ? "text-gray-900" : "text-white"}`}>
+              Dotfit Fitness
+            </span>
           </button>
           <div className="hidden md:flex items-center gap-6" role="menubar">
             {[
@@ -956,13 +960,23 @@ export default function Home() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-6 md:hidden"
           >
-            <img
-              src="/logo-text.webp"
-              alt="Dotfit Fitness"
-              width={160}
-              height={48}
-              className="h-12 mb-2"
-            />
+            <button
+              type="button"
+              onClick={() => scrollTo("hero")}
+              aria-label="Go to top — Dotfit Fitness"
+              className="flex items-center gap-3 mb-2"
+            >
+              <img
+                src="/logo-icon.png"
+                alt="Dotfit Fitness"
+                width={48}
+                height={48}
+                className="h-12 w-12 object-contain drop-shadow-md"
+              />
+              <span className="text-2xl font-display font-black uppercase tracking-tight text-gray-900">
+                Dotfit Fitness
+              </span>
+            </button>
             {[
               "About",
               "Classes",
