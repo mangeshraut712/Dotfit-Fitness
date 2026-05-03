@@ -1548,53 +1548,6 @@ export default function Home() {
       {/* ════════════════════ FOOTER ════════════════════════════════════ */}
       <footer className="bg-gray-950 text-white py-16 border-t border-white/10 pb-28 md:pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            <div className="md:col-span-2">
-              <img src="/logo-text.png" alt="Dotfit Fitness" className="h-10 object-contain opacity-90 mb-5" />
-              <p className="text-white/40 text-sm font-medium leading-relaxed max-w-xs mb-6">
-                Baner's premier K11 Certified fitness destination since 2012. 25,000+ happy members. Professional coaching. Real results.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: "Google 4.2★", href: "https://g.page/r/CXQjnMYrSoMTEBM/review" },
-                  { label: "JustDial ✓", href: "https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET" },
-                  { label: "K11 Certified", href: "#" },
-                ].map((b) => (
-                  <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 border border-white/15 text-white/50 hover:border-primary hover:text-primary text-xs font-black uppercase tracking-widest transition-all">{b.label}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Contact</h4>
-              <div className="space-y-4">
-                <a href="tel:+919527237213" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />+91 95272 37213</a>
-                <a href="mailto:Support@dotfitfitness.in" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />Support@dotfitfitness.in</a>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Baner, Pune 411045</span></div>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Mon–Sat: 6 AM–12 PM &amp; 4–10 PM<br /><span className="text-white/25">Sun: 6–12 AM only</span></span></div>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-black uppercase tracking-widest text-xs text-primary mb-5">Follow Dotfit</h4>
-              <div className="space-y-3">
-                {[
-                  { href: "https://www.instagram.com/dotfitfitness/", label: "Instagram", icon: <Instagram className="w-4 h-4" />, handle: "@dotfitfitness" },
-                  { href: "https://www.facebook.com/DotfitFitness/", label: "Facebook", icon: <Facebook className="w-4 h-4" />, handle: "DotfitFitness" },
-                  { href: "https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session.", label: "WhatsApp", icon: <MessageCircle className="w-4 h-4" />, handle: "+91 95272 37213" },
-                  { href: "https://www.linkedin.com/company/dotfit-fitness/", label: "LinkedIn", icon: <Linkedin className="w-4 h-4" />, handle: "dotfit-fitness" },
-                  { href: "https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET", label: "JustDial", icon: <ExternalLink className="w-4 h-4" />, handle: "Verified Listing" },
-                  { href: "https://maps.app.goo.gl/kCSULHGjGmG2Nb44r", label: "Google Maps", icon: <MapPin className="w-4 h-4" />, handle: "Get Directions" },
-                ].map((s) => (
-                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-white/50 hover:text-primary transition-colors group">
-                    <span className="w-8 h-8 bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/30 transition-all">{s.icon}</span>
-                    <div>
-                      <div className="text-xs font-black uppercase tracking-wider leading-none">{s.label}</div>
-                      <div className="text-xs text-white/30 font-medium mt-0.5">{s.handle}</div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness · All Rights Reserved</p>
             <div className="flex items-center gap-6">
