@@ -1353,177 +1353,124 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ════════════════════ CONTACT & LOCATION ════════════════════════ */}
-      <section id="location" className="border-t-2 border-gray-100">
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Form */}
-          <div id="contact" className="p-8 md:p-16 lg:p-20 bg-white pb-28 md:pb-16">
-            <div className="max-w-md mx-auto lg:mx-0">
-              <span className="text-primary font-black text-xs uppercase tracking-widest">Free Trial Available</span>
-              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
-                Start Your <span className="text-primary">Journey</span>
-              </h2>
-              <p className="text-gray-500 mb-8 font-medium text-sm leading-relaxed">
-                Fill the form below — our team responds within 30 minutes. Or WhatsApp/call +91 95272 37213 directly.
-              </p>
-              {formDone ? (
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-[#f8fbf3] border-2 border-primary/20 p-8">
-                  <div className="w-14 h-14 bg-primary flex items-center justify-center mb-5">
-                    <Check className="w-7 h-7 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-display font-black uppercase tracking-tight text-gray-900 mb-1">
-                    You're In{submittedName ? `, ${submittedName}` : ""}!
-                  </h3>
-                  <p className="text-gray-500 text-sm font-medium mb-1">
-                    Request received for <span className="font-black text-gray-900">{submittedPlan || "Free Trial"}</span>.
-                  </p>
-                  <p className="text-primary font-black text-xs uppercase tracking-widest mb-6">
-                    We'll call you within 30 minutes.
-                  </p>
-                  <div className="space-y-3 mb-6">
-                    {[
-                      "Our team will call to confirm your trial slot",
-                      "You'll get a WhatsApp with directions & what to bring",
-                      "Walk in, meet the trainers — no payment needed",
-                    ].map((step, i) => (
-                      <div key={i} className="flex items-start gap-3">
-                        <div className="w-5 h-5 bg-primary text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
-                        <p className="text-gray-600 text-sm font-medium leading-snug">{step}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-3">
-                    <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%20just%20submitted%20the%20form%20and%20I%27d%20like%20to%20connect%20for%20my%20free%20trial."
-                      target="_blank" rel="noopener noreferrer"
-                      className="flex-1 h-12 bg-[#25D366] text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors">
-                      <MessageCircle className="w-4 h-4" /> WhatsApp Now
-                    </a>
-                    <a href="tel:+919527237213"
-                      className="flex-1 h-12 bg-gray-900 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
-                      <Phone className="w-4 h-4" /> Call Us
-                    </a>
-                  </div>
-                  <button onClick={() => setFormDone(false)} className="mt-4 text-xs text-gray-400 hover:text-gray-600 font-medium underline underline-offset-2 w-full text-center">
-                    Submit another request
-                  </button>
-                </motion.div>
-              ) : (
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                  <FormField control={form.control} name="name" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Full Name</FormLabel>
-                      <FormControl><Input placeholder="Your Full Name" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <FormField control={form.control} name="phone" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Phone / WhatsApp</FormLabel>
-                        <FormControl><Input placeholder="+91 98765 43210" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={form.control} name="email" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Email</FormLabel>
-                        <FormControl><Input placeholder="you@example.com" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
-                  <FormField control={form.control} name="plan" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">I'm Interested In</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl><SelectTrigger className="rounded-none border-gray-200 focus:ring-primary h-12 bg-white text-gray-900"><SelectValue placeholder="Select a plan or inquiry" /></SelectTrigger></FormControl>
-                        <SelectContent className="rounded-none border-gray-200">
-                          {["Free Trial", "1 Month", "3 Months", "6 Months", "1 Year", "Personal Training", "Zumba / Yoga Classes", "General Inquiry"].map((v) => (
-                            <SelectItem key={v} value={v}>{v === "Free Trial" ? "Free Trial (No payment required)" : v}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="message" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Message (Optional)</FormLabel>
-                      <FormControl><Textarea placeholder="Goals, preferred batch timing, any health conditions..." className="rounded-none border-gray-200 focus-visible:ring-primary min-h-[90px] resize-none bg-white text-gray-900" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <Button type="submit" className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-black text-sm shadow-lg shadow-primary/20" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? "Sending..." : "Submit — Get Callback Within 30 Mins"}
-                  </Button>
-                  <div className="flex gap-3 pt-2">
-                    <a href="tel:+919527237213" className="flex-1 h-11 border-2 border-gray-200 hover:border-primary flex items-center justify-center gap-2 text-gray-600 hover:text-primary transition-all font-black uppercase tracking-widest text-xs">
-                      <Phone className="w-3.5 h-3.5" /> Call Now
-                    </a>
-                    <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer" className="flex-1 h-11 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs transition-all">
-                      <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                    </a>
-                  </div>
-                </form>
-              </Form>
-              )}
-            </div>
-          </div>
-
-          {/* Location info + map */}
-          <div className="bg-gray-950 p-8 md:p-16 lg:p-20 text-white flex flex-col">
-            <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-5">Find Us</h2>
-            <div className="space-y-6 mb-8 flex-grow">
-              {[
-                { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
-                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <><strong>Mon – Sat:</strong> 6:00 AM – 12:00 PM &amp; 4:00 PM – 10:00 PM<br />12:00–2:00 PM Rest · 2:00–4:00 PM Trainer Workout<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM only</span></> },
-                { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
-                { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">{item.icon}</div>
-                  <div>
-                    <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">{item.label}</div>
-                    <div className="text-white/75 font-medium text-sm leading-relaxed">{item.content}</div>
-                  </div>
+      {/* ════════════════════ CONTACT FORM ══════════════════════════════ */}
+      <section id="contact" className="border-t-2 border-gray-100 bg-white py-20 md:py-28">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-2xl mx-auto">
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Free Trial Available</span>
+            <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
+              Start Your <span className="text-primary">Journey</span>
+            </h2>
+            <p className="text-gray-500 mb-8 font-medium text-sm leading-relaxed">
+              Fill the form below — our team responds within 30 minutes. Or WhatsApp/call +91 95272 37213 directly.
+            </p>
+            {formDone ? (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-[#f8fbf3] border-2 border-primary/20 p-8">
+                <div className="w-14 h-14 bg-primary flex items-center justify-center mb-5">
+                  <Check className="w-7 h-7 text-white" />
                 </div>
-              ))}
-            </div>
-            <div className="border-t border-white/10 pt-6">
-              <div className="text-primary font-black text-xs uppercase tracking-widest mb-3">Social Links</div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <MessageCircle className="w-4 h-4" />
-                </a>
-                <a href="https://www.linkedin.com/company/dotfit-fitness/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <Linkedin className="w-4 h-4" />
-                </a>
-                <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" aria-label="Google Maps" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <MapPin className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-            {/* Google Maps embed with red pin */}
-            <div className="w-full h-72 border border-white/10 overflow-hidden">
-              <iframe
-                title="Dotfit Fitness Location — Baner, Pune"
-                src="https://maps.google.com/maps?q=Dotfit+Fitness,+136+Srushti+Elegance,+Old+Baner-Balewadi+Road,+Baner,+Pune+411045&t=&z=17&ie=UTF8&iwloc=B&output=embed"
-                width="100%" height="100%" style={{ border: 0 }}
-                allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
+                <h3 className="text-2xl font-display font-black uppercase tracking-tight text-gray-900 mb-1">
+                  You're In{submittedName ? `, ${submittedName}` : ""}!
+                </h3>
+                <p className="text-gray-500 text-sm font-medium mb-1">
+                  Request received for <span className="font-black text-gray-900">{submittedPlan || "Free Trial"}</span>.
+                </p>
+                <p className="text-primary font-black text-xs uppercase tracking-widest mb-6">
+                  We'll call you within 30 minutes.
+                </p>
+                <div className="space-y-3 mb-6">
+                  {[
+                    "Our team will call to confirm your trial slot",
+                    "You'll get a WhatsApp with directions & what to bring",
+                    "Walk in, meet the trainers — no payment needed",
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="w-5 h-5 bg-primary text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
+                      <p className="text-gray-600 text-sm font-medium leading-snug">{step}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-3">
+                  <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%20just%20submitted%20the%20form%20and%20I%27d%20like%20to%20connect%20for%20my%20free%20trial."
+                    target="_blank" rel="noopener noreferrer"
+                    className="flex-1 h-12 bg-[#25D366] text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors">
+                    <MessageCircle className="w-4 h-4" /> WhatsApp Now
+                  </a>
+                  <a href="tel:+919527237213"
+                    className="flex-1 h-12 bg-gray-900 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+                    <Phone className="w-4 h-4" /> Call Us
+                  </a>
+                </div>
+                <button onClick={() => setFormDone(false)} className="mt-4 text-xs text-gray-400 hover:text-gray-600 font-medium underline underline-offset-2 w-full text-center">
+                  Submit another request
+                </button>
+              </motion.div>
+            ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Full Name</FormLabel>
+                    <FormControl><Input placeholder="Your Full Name" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <FormField control={form.control} name="phone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Phone / WhatsApp</FormLabel>
+                      <FormControl><Input placeholder="+91 98765 43210" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Email</FormLabel>
+                      <FormControl><Input placeholder="you@example.com" className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="plan" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">I'm Interested In</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger className="rounded-none border-gray-200 focus:ring-primary h-12 bg-white text-gray-900"><SelectValue placeholder="Select a plan or inquiry" /></SelectTrigger></FormControl>
+                      <SelectContent className="rounded-none border-gray-200">
+                        {["Free Trial", "1 Month", "3 Months", "6 Months", "1 Year", "Personal Training", "Zumba / Yoga Classes", "General Inquiry"].map((v) => (
+                          <SelectItem key={v} value={v}>{v === "Free Trial" ? "Free Trial (No payment required)" : v}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="message" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase tracking-widest text-xs font-black text-gray-700">Message (Optional)</FormLabel>
+                    <FormControl><Textarea placeholder="Goals, preferred batch timing, any health conditions..." className="rounded-none border-gray-200 focus-visible:ring-primary min-h-[90px] resize-none bg-white text-gray-900" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <Button type="submit" className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-none uppercase tracking-widest font-black text-sm shadow-lg shadow-primary/20" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? "Sending..." : "Submit — Get Callback Within 30 Mins"}
+                </Button>
+                <div className="flex gap-3 pt-2">
+                  <a href="tel:+919527237213" className="flex-1 h-11 border-2 border-gray-200 hover:border-primary flex items-center justify-center gap-2 text-gray-600 hover:text-primary transition-all font-black uppercase tracking-widest text-xs">
+                    <Phone className="w-3.5 h-3.5" /> Call Now
+                  </a>
+                  <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer" className="flex-1 h-11 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs transition-all">
+                    <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                  </a>
+                </div>
+              </form>
+            </Form>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ════════════════════ PRE-FOOTER CTA ════════════════════════════ */}
+      {/* ════════════════════ YOUR FIRST SESSION IS FREE ═════════════════ */}
       <section className="py-28 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-white" />
@@ -1562,6 +1509,61 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* ════════════════════ FIND US ════════════════════════════════════ */}
+      <section id="location" className="bg-gray-950 text-white">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* Info panel */}
+          <div className="p-8 md:p-16 lg:p-20 flex flex-col">
+            <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-5">Find Us</h2>
+            <div className="space-y-6 mb-8 flex-grow">
+              {[
+                { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
+                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <><strong>Mon – Sat:</strong> 6:00 AM – 12:00 PM &amp; 4:00 PM – 10:00 PM<br />12:00–2:00 PM Rest · 2:00–4:00 PM Trainer Workout<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM only</span></> },
+                { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
+                { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">{item.icon}</div>
+                  <div>
+                    <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">{item.label}</div>
+                    <div className="text-white/75 font-medium text-sm leading-relaxed">{item.content}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/10 pt-6">
+              <div className="text-primary font-black text-xs uppercase tracking-widest mb-3">Follow Us</div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <MessageCircle className="w-4 h-4" />
+                </a>
+                <a href="https://www.linkedin.com/company/dotfit-fitness/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" aria-label="Google Maps" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <MapPin className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+          {/* Map */}
+          <div className="h-[400px] lg:h-auto min-h-[400px] border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5">
+            <iframe
+              title="Dotfit Fitness Location — Baner, Pune"
+              src="https://maps.google.com/maps?q=Dotfit+Fitness,+136+Srushti+Elegance,+Old+Baner-Balewadi+Road,+Baner,+Pune+411045&t=&z=17&ie=UTF8&iwloc=B&output=embed"
+              width="100%" height="100%" style={{ border: 0 }}
+              allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
       </section>
 
