@@ -8,7 +8,7 @@ import {
   ArrowRight, Star, MessageCircle, Linkedin, ChevronDown, Shield,
   Users, Trophy, Activity, Zap, HeartPulse, Timer, Dumbbell,
   ExternalLink, Flame, Wind, Brain, Apple, CalendarCheck, ChevronRight,
-  Target, Sparkles, BookOpen, BarChart2, Heart, Bike, Layers3, Dumbbell as DumbbellIcon,
+  Target, Sparkles, BookOpen, BarChart2, Heart, Bike,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,48 +172,6 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
   );
 }
 
-function ComparisonTable() {
-  const rows = [
-    { feature: "Personal Attention", values: ["1:4", "1:4", "1:4", "1:4"] },
-    { feature: "Group Classes", values: [true, true, true, true] },
-    { feature: "Nutrition Guidance", values: [false, true, true, true] },
-    { feature: "Sauna & Steam", values: [false, false, true, true] },
-    { feature: "Progress Check-ins", values: [false, true, true, true] },
-    { feature: "Guest Pass", values: [false, false, false, true] },
-    { feature: "PT Sessions Included", values: [false, false, false, "2 Free"] },
-  ];
-  return (
-    <div className="bg-white border-2 border-gray-100 overflow-x-auto">
-      <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-2">
-        <Layers3 className="w-5 h-5 text-primary" />
-        <h3 className="font-display font-black uppercase tracking-widest text-gray-900 text-sm">Membership Feature Comparison</h3>
-      </div>
-      <table className="w-full min-w-[680px] border-collapse text-sm">
-        <thead>
-          <tr className="bg-[#f8fbf3]">
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-widest font-black text-gray-500">Feature</th>
-            {["1 Month", "3 Months", "6 Months", "1 Year"].map((p) => (
-              <th key={p} className="px-4 py-3 text-center text-xs uppercase tracking-widest font-black text-gray-900">{p}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={row.feature} className={i % 2 === 0 ? "bg-white" : "bg-[#fbfdf8]"}>
-              <td className="px-4 py-3 font-bold text-gray-700 text-xs">{row.feature}</td>
-              {row.values.map((v, j) => (
-                <td key={j} className="px-4 py-3 text-center">
-                  {v === true ? <Check className="w-4 h-4 text-primary mx-auto" /> : v === false ? <X className="w-4 h-4 text-gray-300 mx-auto" /> : <span className="text-xs font-black text-primary uppercase tracking-widest">{v}</span>}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 /* ─── Schema ─────────────────────────────────────────────────────────────── */
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -353,6 +311,14 @@ export default function Home() {
         className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform">
         <Phone className="w-6 h-6" />
       </a>
+
+      {/* ── Desktop floating "Book Trial" left side tab ─────────────────── */}
+      <button onClick={() => scrollTo("contact")}
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex items-center gap-2 bg-primary text-white font-black uppercase tracking-widest text-[11px] px-3 py-4 shadow-xl shadow-primary/30 hover:bg-primary/90 transition-all"
+        style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "translateY(-50%) rotate(180deg)" }}>
+        <CalendarCheck className="w-4 h-4 shrink-0" />
+        Book Free Trial
+      </button>
 
       {/* ── Mobile sticky bottom bar ───────────────────────────────────── */}
       <div className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden border-t border-gray-200 shadow-2xl">
@@ -507,68 +473,6 @@ export default function Home() {
             <StatBox value={13} suffix="+" label="Years Running" icon={<Trophy className="w-7 h-7 text-primary mx-auto" />} />
             <StatBox value={4} suffix=":1" label="Member Trainer Ratio" icon={<Activity className="w-7 h-7 text-primary mx-auto" />} />
             <StatBox value={726} suffix="+" label="Google Reviews" icon={<Star className="w-7 h-7 text-amber-400 mx-auto" />} />
-          </div>
-        </div>
-      </section>
-
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <span className="text-primary font-black text-xs uppercase tracking-widest">Premium Benchmark</span>
-            <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-gray-900">
-              Built Like a <span className="text-primary">Top Gym</span>
-            </h2>
-            <p className="text-gray-500 font-medium mt-4 max-w-2xl mx-auto">Matched to the features people expect from the best fitness brands in Pune.</p>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <ComparisonTable />
-            <div className="bg-[#f8fbf3] border-2 border-gray-100 p-8 md:p-10">
-              <span className="text-primary font-black text-xs uppercase tracking-widest">What Competitor Sites Usually Miss</span>
-              <div className="mt-5 space-y-4">
-                {[
-                  "Real staff roster with role-based grouping",
-                  "Direct Google Maps embed with exact pin",
-                  "Modern mobile bottom bar for call / WhatsApp / booking",
-                  "Trust strip with certifications and rating",
-                  "Plan comparison instead of simple price cards",
-                  "Useful tools like BMI calculator and fitness tips",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <div className="w-5 h-5 bg-primary/10 border border-primary/25 flex items-center justify-center mt-0.5"><Check className="w-3 h-3 text-primary" /></div>
-                    <p className="text-sm font-medium text-gray-700 leading-relaxed">{item}</p>
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => scrollTo("contact")} className="mt-8 h-12 px-6 bg-primary text-white font-black uppercase tracking-widest text-xs">
-                Book a Trial
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-24 bg-[#f8fbf3]">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <span className="text-primary font-black text-xs uppercase tracking-widest">Quick Access</span>
-            <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 text-gray-900">
-              Fast <span className="text-primary">Actions</span>
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { href: "https://www.instagram.com/dotfitfitness/", icon: <Instagram className="w-5 h-5" />, label: "Instagram", sub: "See updates & reels" },
-              { href: "https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET", icon: <ExternalLink className="w-5 h-5" />, label: "JustDial", sub: "Verified business listing" },
-              { href: "https://www.linkedin.com/company/dotfit-fitness/", icon: <Linkedin className="w-5 h-5" />, label: "LinkedIn", sub: "Professional presence" },
-            ].map((item) => (
-              <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="p-6 bg-white border-2 border-gray-100 hover:border-primary/30 transition-all flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">{item.icon}</div>
-                <div>
-                  <div className="font-black uppercase tracking-widest text-gray-900 text-sm">{item.label}</div>
-                  <div className="text-xs text-gray-500 font-medium mt-1">{item.sub}</div>
-                </div>
-              </a>
-            ))}
           </div>
         </div>
       </section>
@@ -854,6 +758,24 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ════════════════════ URGENCY STRIP ═════════════════════════════ */}
+      <div className="bg-gray-950 border-y border-white/5 py-6">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <p className="text-white/80 font-black uppercase tracking-widest text-sm">
+                Happy Hours slots are limited — <span className="text-primary">Annual plan at ₹8,500</span> valid while slots last
+              </p>
+            </div>
+            <button onClick={() => scrollTo("contact")}
+              className="shrink-0 h-10 px-7 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs transition-colors">
+              Claim Your Spot →
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* ════════════════════ TRANSFORMATIONS ═══════════════════════════ */}
       <section className="py-32 bg-[#f8fbf3] border-y border-gray-100">
@@ -1339,6 +1261,48 @@ export default function Home() {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ PRE-FOOTER CTA ════════════════════════════ */}
+      <section className="py-28 bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-white" />
+          <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-white" />
+        </div>
+        <div className="container relative mx-auto px-4 md:px-6 text-center">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <p className="text-white/70 font-black uppercase tracking-[0.3em] text-xs mb-5">Baner's #1 Gym Since 2012</p>
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black uppercase tracking-tighter text-white leading-none mb-6">
+              Your First<br />Session Is <span className="text-gray-950">Free.</span>
+            </h2>
+            <p className="text-white/75 font-medium text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+              No commitment. No payment. Walk in, meet our trainers, experience the facility — and decide if Dotfit is right for you.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button onClick={() => scrollTo("contact")}
+                className="h-16 px-12 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-2xl">
+                Book My Free Trial
+              </button>
+              <a href="https://wa.me/919527237213?text=Hi%20Dotfit!%20I%20want%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
+                className="h-16 px-12 bg-white/15 hover:bg-white/25 border-2 border-white/30 text-white font-black uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-3">
+                <MessageCircle className="w-5 h-5" /> WhatsApp Now
+              </a>
+            </div>
+            <div className="flex flex-wrap justify-center gap-8 mt-12">
+              {[
+                { val: "Free", label: "Trial Session" },
+                { val: "30 min", label: "Response Time" },
+                { val: "₹8,500", label: "Annual Plan" },
+                { val: "Mon–Sat", label: "6 AM – 10 PM" },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <div className="text-2xl font-display font-black text-white">{s.val}</div>
+                  <div className="text-white/50 text-xs font-bold uppercase tracking-widest mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
