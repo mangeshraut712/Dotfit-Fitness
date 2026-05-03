@@ -528,7 +528,7 @@ export default function GuidePage() {
               Level {n}
             </button>
           ))}
-          <a href="/#contact" className="ml-auto shrink-0 px-4 py-2 text-xs font-black uppercase tracking-widest bg-gray-950 text-white">
+          <a href={`${import.meta.env.BASE_URL}#contact`} className="ml-auto shrink-0 px-4 py-2 text-xs font-black uppercase tracking-widest bg-gray-950 text-white">
             Start Free Trial
           </a>
         </div>
@@ -562,7 +562,7 @@ export default function GuidePage() {
             <p className="text-primary font-black text-xs uppercase tracking-widest mb-1">Quick Switch</p>
             <p className="text-sm text-white/70">Use the tabs above to switch levels without scrolling through a long page.</p>
           </div>
-          <a href="/#contact" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest">
+          <a href={`${import.meta.env.BASE_URL}#contact`} className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest">
             Start Now <ArrowRight className="w-3 h-3" />
           </a>
         </div>
