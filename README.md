@@ -19,9 +19,12 @@ Copy `.env.example` to `.env` and set values for local development.
 - `pnpm run typecheck`
 - `pnpm --filter @workspace/dotfit run build`
 - `pnpm --filter @workspace/api-server run build`
+- `pnpm --filter @workspace/dotfit run dev`
+- `pnpm --filter @workspace/api-server run dev`
 
 ## Notes
 
 - Frontend base path is handled through Vite `BASE_PATH`.
 - API routes are served under `/api`.
 - Production JSON-LD, schedule, pricing, trainers, trial booking, and SEO are already in the app.
+- CI runs in GitHub Actions on push and pull request.
