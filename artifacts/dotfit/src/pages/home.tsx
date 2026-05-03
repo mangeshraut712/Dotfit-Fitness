@@ -106,76 +106,146 @@ function StatBox({ value, suffix, label, icon }: { value: number; suffix: string
 function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
   const [weight, setWeight] = useState("");
   const [heightCm, setHeightCm] = useState("");
-  const [bmi, setBmi] = useState<number | null>(null);
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState<"male" | "female">("male");
+  const [result, setResult] = useState<{
+    bmi: number; category: string; color: string; plan: string; tip: string;
+    idealMin: number; idealMax: number; bmr: number; tdee: number; bodyFat: number;
+  } | null>(null);
 
   const calculate = () => {
     const w = parseFloat(weight);
     const h = parseFloat(heightCm) / 100;
-    if (w > 0 && h > 0) setBmi(parseFloat((w / (h * h)).toFixed(1)));
+    const a = parseInt(age) || 25;
+    if (w <= 0 || h <= 0) return;
+    const bmi = parseFloat((w / (h * h)).toFixed(1));
+    const hCm = parseFloat(heightCm);
+    const idealMin = gender === "male" ? parseFloat((48.0 + 2.7 * ((hCm - 152.4) / 2.54)).toFixed(1)) : parseFloat((45.5 + 2.2 * ((hCm - 152.4) / 2.54)).toFixed(1));
+    const idealMax = parseFloat((idealMin + 5).toFixed(1));
+    const bmr = gender === "male"
+      ? parseFloat((10 * w + 6.25 * hCm - 5 * a + 5).toFixed(0))
+      : parseFloat((10 * w + 6.25 * hCm - 5 * a - 161).toFixed(0));
+    const tdee = parseFloat((bmr * 1.375).toFixed(0));
+    const bodyFat = gender === "male"
+      ? parseFloat((1.20 * bmi + 0.23 * a - 16.2).toFixed(1))
+      : parseFloat((1.20 * bmi + 0.23 * a - 5.4).toFixed(1));
+    const { category, color, plan, tip } = bmi < 18.5
+      ? { category: "Underweight", color: "text-blue-500", plan: "3 Months", tip: "Focus on progressive strength training + calorie surplus to build lean muscle." }
+      : bmi < 25
+      ? { category: "Normal Weight", color: "text-primary", plan: "1 Year", tip: "Maintain your fitness with group classes, toning sessions, and active recovery." }
+      : bmi < 30
+      ? { category: "Overweight", color: "text-amber-500", plan: "6 Months", tip: "Combine daily cardio, HIIT circuits, and a calorie-managed nutrition plan." }
+      : { category: "Obese", color: "text-red-500", plan: "1 Year", tip: "Structured fat-loss program with dedicated personal trainer and nutritionist support." };
+    setResult({ bmi, category, color, plan, tip, idealMin, idealMax, bmr, tdee, bodyFat });
   };
 
-  const category = bmi
-    ? bmi < 18.5 ? { label: "Underweight", color: "text-blue-500", plan: "3 Months", tip: "Focus on strength training + nutrition for healthy weight gain." }
-    : bmi < 25 ? { label: "Normal Weight", color: "text-primary", plan: "1 Year", tip: "Maintain your fitness with group classes + toning sessions." }
-    : bmi < 30 ? { label: "Overweight", color: "text-amber-500", plan: "6 Months", tip: "Combine cardio, HIIT circuits, and a calorie-managed meal plan." }
-    : { label: "Obese", color: "text-red-500", plan: "1 Year", tip: "Medically supervised fat-loss program with dedicated personal trainer." }
-    : null;
+  const bmiPercent = result ? Math.min(100, Math.max(0, ((result.bmi - 10) / (45 - 10)) * 100)) : 0;
 
   return (
     <div className="bg-white border-2 border-gray-100 p-8 md:p-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         <div>
-          <span className="text-primary font-black text-xs uppercase tracking-widest">Free Tool</span>
+          <span className="text-primary font-black text-xs uppercase tracking-widest">Free Health Tool</span>
           <h3 className="text-3xl md:text-4xl font-display font-black uppercase tracking-tighter text-gray-900 mt-2 mb-3">
             Check Your <span className="text-primary">BMI</span>
           </h3>
           <p className="text-gray-500 font-medium text-sm mb-6 leading-relaxed">
-            Calculate your Body Mass Index instantly and get a personalised Dotfit program recommendation.
+            Get your BMI, ideal weight range, daily calorie needs, and a personalised Dotfit program — instantly.
           </p>
-          <div className="flex gap-4 mb-4">
-            <div className="flex-1">
+
+          <div className="flex gap-3 mb-4">
+            {(["male", "female"] as const).map((g) => (
+              <button key={g} onClick={() => setGender(g)}
+                className={`flex-1 h-10 font-black uppercase tracking-widest text-xs border-2 transition-all ${gender === g ? "bg-primary text-white border-primary" : "bg-white text-gray-500 border-gray-200 hover:border-primary"}`}>
+                {g === "male" ? "♂ Male" : "♀ Female"}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div>
               <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Weight (kg)</label>
-              <input value={weight} onChange={e => setWeight(e.target.value)} type="number" placeholder="e.g. 75"
-                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-4 text-gray-900 font-bold text-sm transition-colors" />
+              <input value={weight} onChange={e => setWeight(e.target.value)} type="number" placeholder="75"
+                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-3 text-gray-900 font-bold text-sm transition-colors" />
             </div>
-            <div className="flex-1">
+            <div>
               <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Height (cm)</label>
-              <input value={heightCm} onChange={e => setHeightCm(e.target.value)} type="number" placeholder="e.g. 170"
-                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-4 text-gray-900 font-bold text-sm transition-colors" />
+              <input value={heightCm} onChange={e => setHeightCm(e.target.value)} type="number" placeholder="170"
+                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-3 text-gray-900 font-bold text-sm transition-colors" />
+            </div>
+            <div>
+              <label className="text-xs font-black uppercase tracking-widest text-gray-500 mb-1 block">Age</label>
+              <input value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="25"
+                className="w-full h-12 border-2 border-gray-200 focus:border-primary outline-none px-3 text-gray-900 font-bold text-sm transition-colors" />
             </div>
           </div>
+
           <button onClick={calculate}
             className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-sm transition-colors">
             Calculate My BMI
           </button>
+
+          <div className="mt-6 border-t border-gray-100 pt-5">
+            <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">BMI Scale Reference</div>
+            <div className="relative h-3 rounded-full overflow-hidden mb-2" style={{ background: "linear-gradient(to right, #3b82f6 0%, #3b82f6 22%, #86c443 22%, #86c443 50%, #f59e0b 50%, #f59e0b 70%, #ef4444 70%, #ef4444 100%)" }}>
+              {result && (
+                <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-gray-800 rounded-full shadow" style={{ left: `calc(${bmiPercent}% - 6px)` }} />
+              )}
+            </div>
+            <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-400">
+              <span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span>
+            </div>
+          </div>
         </div>
 
         <div>
-          {!bmi ? (
-            <div className="border-2 border-dashed border-gray-200 p-10 text-center">
+          {!result ? (
+            <div className="border-2 border-dashed border-gray-200 p-10 text-center h-full flex flex-col items-center justify-center min-h-[300px]">
               <BarChart2 className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-              <p className="text-gray-400 font-medium text-sm">Your BMI result will appear here</p>
-              <div className="mt-6 space-y-2">
-                {[["< 18.5", "Underweight"], ["18.5 – 24.9", "Normal"], ["25 – 29.9", "Overweight"], ["≥ 30", "Obese"]].map(([r, l]) => (
-                  <div key={l} className="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    <span>{r}</span><span>{l}</span>
-                  </div>
-                ))}
-              </div>
+              <p className="text-gray-400 font-medium text-sm mb-2">Your full health analysis appears here</p>
+              <p className="text-gray-300 text-xs font-medium">BMI · Ideal Weight · Calories · Body Fat %</p>
             </div>
           ) : (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="border-2 border-primary/30 bg-[#f8fbf3] p-8">
-              <div className="text-6xl font-display font-black mb-1 text-gray-900">{bmi}</div>
-              <div className={`text-xl font-display font-black uppercase tracking-wider mb-4 ${category?.color}`}>{category?.label}</div>
-              <p className="text-gray-600 font-medium text-sm mb-6 leading-relaxed">{category?.tip}</p>
-              <div className="bg-white border border-primary/20 p-4 mb-5">
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-1">Recommended Plan</div>
-                <div className="text-lg font-display font-black text-gray-900">{category?.plan} Membership</div>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-3">
+              <div className="border-2 border-primary/30 bg-[#f8fbf3] p-6">
+                <div className="flex items-end gap-3 mb-1">
+                  <div className="text-6xl font-display font-black text-gray-900">{result.bmi}</div>
+                  <div className={`text-lg font-display font-black uppercase tracking-wider pb-1 ${result.color}`}>{result.category}</div>
+                </div>
+                <p className="text-gray-600 font-medium text-sm leading-relaxed">{result.tip}</p>
               </div>
-              <button onClick={() => onBook(category?.plan ?? "")}
-                className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-colors">
-                Book Free Trial <ArrowRight className="w-4 h-4" />
-              </button>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white border-2 border-gray-100 p-4">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Ideal Weight Range</div>
+                  <div className="text-lg font-display font-black text-gray-900">{result.idealMin}–{result.idealMax} kg</div>
+                  <div className="text-xs text-gray-400 font-medium mt-0.5">Hamwi Formula</div>
+                </div>
+                <div className="bg-white border-2 border-gray-100 p-4">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Est. Body Fat</div>
+                  <div className="text-lg font-display font-black text-gray-900">{result.bodyFat}%</div>
+                  <div className="text-xs text-gray-400 font-medium mt-0.5">BMI-based estimate</div>
+                </div>
+                <div className="bg-white border-2 border-gray-100 p-4">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Basal Metabolic Rate</div>
+                  <div className="text-lg font-display font-black text-gray-900">{result.bmr} kcal</div>
+                  <div className="text-xs text-gray-400 font-medium mt-0.5">Calories at rest/day</div>
+                </div>
+                <div className="bg-white border-2 border-gray-100 p-4">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Daily Calorie Need</div>
+                  <div className="text-lg font-display font-black text-gray-900">{result.tdee} kcal</div>
+                  <div className="text-xs text-gray-400 font-medium mt-0.5">Light activity TDEE</div>
+                </div>
+              </div>
+
+              <div className="bg-white border-2 border-primary/20 p-4">
+                <div className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-1">Recommended Dotfit Plan</div>
+                <div className="text-xl font-display font-black text-gray-900 mb-3">{result.plan} Membership</div>
+                <button onClick={() => onBook(result.plan)}
+                  className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-colors">
+                  Book Free Trial <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </motion.div>
           )}
         </div>
@@ -702,7 +772,6 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: <Shield className="w-8 h-8 text-primary" />, title: "K11 Certified Facility", desc: "Internationally recognized certification ensuring world-class training standards, safety protocols, and equipment quality." },
-              { icon: <Users className="w-8 h-8 text-primary" />, title: "1:4 Trainer Ratio", desc: "Every 4 members get one dedicated certified trainer — not the industry-standard 1:30. Your form, your progress, always monitored." },
               { icon: <Timer className="w-8 h-8 text-primary" />, title: "Happy Hours 12–5 PM", desc: "Train between 12 PM and 5 PM and unlock massively discounted memberships. Annual plan starts at just ₹10,000." },
               { icon: <Wind className="w-8 h-8 text-primary" />, title: "Fully Air-Conditioned", desc: "5th floor, 100% air-conditioned facility with premium lighting, ventilation, sauna, steam room, and spacious locker rooms." },
               { icon: <Apple className="w-8 h-8 text-primary" />, title: "Nutrition Counseling", desc: "Certified nutritionists craft personalized meal plans for fat loss, muscle gain, or sports performance — included with membership." },
@@ -1054,7 +1123,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
             className="text-center mb-16">
-            <span className="text-primary font-black text-xs uppercase tracking-widest">1:4 Trainer Ratio</span>
+            <span className="text-primary font-black text-xs uppercase tracking-widest">Certified Professionals</span>
             <h2 className="text-4xl md:text-6xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
               The <span className="text-primary">Experts</span>
             </h2>
@@ -1070,7 +1139,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <StaffCard name="Ganesh" role="Floor Manager" img="/trainer-ganesh.png" cert="K11 Certified" />
-              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-1.png" cert="K11 Certified" />
+              <StaffCard name="Yogesh" role="Floor Manager" img="/trainer-sikandar.png" cert="K11 Certified" />
             </div>
           </div>
 
@@ -1083,9 +1152,9 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <StaffCard name="Poonam" role="Yoga Expert" img="/trainer-poonam.png" cert="Yoga Alliance" />
-              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-2.png" cert="Certified Yoga" />
+              <StaffCard name="Kale" role="Yoga Instructor" img="/trainer-ganesh.png" cert="Certified Yoga" />
               <StaffCard name="Sikandar" role="Zumba & Bollywood Beats" img="/trainer-sikandar.png" cert="Zumba Licensed" />
-              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-1.png" cert="Dance Certified" />
+              <StaffCard name="Gajendra" role="Bollywood Beats" img="/trainer-sikandar.png" cert="Dance Certified" />
               <StaffCard name="Rupali" role="Ladies' Trainer" img="/trainer-rupali.png" cert="K11 Certified" />
             </div>
           </div>
@@ -1099,8 +1168,8 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <StaffCard name="Dinesh" role="Personal Trainer" img="/trainer-ganesh.png" cert="CPT Certified" />
-              <StaffCard name="Rajesh" role="Personal Trainer" img="/trainer-1.png" cert="K11 Certified" />
-              <StaffCard name="Mayur" role="Personal Trainer" img="/trainer-2.png" cert="Strength Coach" />
+              <StaffCard name="Rajesh" role="Personal Trainer" img="/trainer-sikandar.png" cert="K11 Certified" />
+              <StaffCard name="Mayur" role="Personal Trainer" img="/trainer-ganesh.png" cert="Strength Coach" />
               <StaffCard name="Tukaram" role="Personal Trainer" img="/trainer-sikandar.png" cert="K11 Certified" />
             </div>
           </div>
@@ -1170,13 +1239,13 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
-          {/* Row 2: 4-col strip */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Row 2: 5-col strip */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
               { src: "/class-zumba.png", label: "Zumba & Dance", sub: "Group Class" },
               { src: "/class-yoga.png", label: "Yoga & Pilates", sub: "Mind & Body" },
               { src: "/class-kickboxing.png", label: "Kickboxing", sub: "Combat Fitness" },
-              { src: "/transformation-1.png", label: "Transformations", sub: "Real Results" },
+              { src: "/transformation-1.png", label: "Male Transformation", sub: "Real Results" },
             ].map((photo, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.5 }}
                 whileHover={{ scale: 1.03, y: -3 }}
@@ -1190,6 +1259,21 @@ export default function Home() {
                 </div>
               </motion.div>
             ))}
+            {/* Female transformation placeholder — replace src with real photo when available */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.36, duration: 0.5 }}
+              whileHover={{ scale: 1.03, y: -3 }}
+              className="group relative overflow-hidden aspect-square cursor-default"
+              style={{ background: "linear-gradient(135deg, hsl(82,60%,18%) 0%, hsl(82,60%,32%) 100%)" }}>
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                <div className="w-10 h-10 rounded-full border-2 border-primary/40 flex items-center justify-center mb-2">
+                  <HeartPulse className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-primary font-black uppercase tracking-widest text-[9px] block mb-1">Real Results</span>
+                <span className="text-white font-black uppercase tracking-widest text-[10px] leading-tight">Female Transformation</span>
+                <span className="text-white/40 text-[8px] font-medium mt-1 uppercase tracking-widest">Photo Coming Soon</span>
+              </div>
+              <div className="absolute inset-0 border-2 border-white/0 group-hover:border-primary/40 transition-all duration-500" />
+            </motion.div>
           </div>
           <div className="text-center mt-10">
             <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer"
@@ -1268,9 +1352,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ════════════════════ FITNESS GOALS ═════════════════════════════ */}
-      <section className="py-24 bg-gray-950 text-white">
-        <div className="container mx-auto px-4 md:px-6">
+      {/* ════════════════════ GOALS + TIPS (MERGED) ═════════════════════ */}
+      <section className="bg-gray-950 text-white">
+        {/* Top: Goal Cards */}
+        <div className="container mx-auto px-4 md:px-6 pt-24 pb-16">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
             className="text-center mb-14">
             <span className="text-primary font-black text-xs uppercase tracking-widest">Choose Your Path</span>
@@ -1280,76 +1365,99 @@ export default function Home() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { icon: <Flame className="w-8 h-8" />, title: "Fat Loss", desc: "Cardio-focused programs, HIIT circuits, and calorie-deficit nutrition plans. Visible results in 8–12 weeks.", plan: "1 Month", cta: "Start Burning" },
-              { icon: <Dumbbell className="w-8 h-8" />, title: "Muscle Gain", desc: "Progressive overload strength training, protein-rich meal plans, and dedicated personal trainer sessions.", plan: "3 Months", cta: "Start Building" },
-              { icon: <HeartPulse className="w-8 h-8" />, title: "Overall Fitness", desc: "Balanced mix of cardio, strength, yoga, and group classes. Improve stamina, flexibility, and energy levels.", plan: "6 Months", cta: "Start Today" },
+              {
+                icon: <Flame className="w-8 h-8" />, title: "Fat Loss",
+                desc: "Cardio-focused programs, HIIT circuits, and calorie-deficit nutrition plans. Visible results in 8–12 weeks.",
+                tips: ["Fasted morning cardio boosts fat burn by up to 20%", "HIIT 3× / week + calorie-managed meal plan", "Target 500 kcal daily deficit for steady loss"],
+                plan: "1 Month", cta: "Start Burning",
+              },
+              {
+                icon: <Dumbbell className="w-8 h-8" />, title: "Muscle Gain",
+                desc: "Progressive overload strength training, protein-rich meal plans, and dedicated personal trainer sessions.",
+                tips: ["Aim for 1.6–2.2 g protein per kg bodyweight", "Compound lifts 4–5× / week with progressive load", "Sleep 7–9 hrs — muscles rebuild during rest"],
+                plan: "3 Months", cta: "Start Building",
+              },
+              {
+                icon: <HeartPulse className="w-8 h-8" />, title: "Overall Fitness",
+                desc: "Balanced mix of cardio, strength, yoga, and group classes. Improve stamina, flexibility, and energy levels.",
+                tips: ["Mix cardio + strength + flexibility each week", "Group classes keep motivation and consistency high", "1–2 rest days per week accelerate recovery"],
+                plan: "6 Months", cta: "Start Today",
+              },
             ].map((g, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="p-8 bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all group">
-                <div className="w-14 h-14 bg-primary/10 border border-primary/30 flex items-center justify-center mb-5 text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                className="flex flex-col p-8 bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all group">
+                <div className="w-14 h-14 bg-primary/10 border border-primary/30 flex items-center justify-center mb-5 text-primary group-hover:bg-primary group-hover:text-white transition-all shrink-0">
                   {g.icon}
                 </div>
                 <h3 className="text-xl font-display font-black uppercase tracking-wider text-white mb-3">{g.title}</h3>
-                <p className="text-white/55 font-medium text-sm leading-relaxed mb-6">{g.desc}</p>
+                <p className="text-white/55 font-medium text-sm leading-relaxed mb-5">{g.desc}</p>
+                <div className="space-y-2 mb-6 flex-grow">
+                  {g.tips.map((tip, j) => (
+                    <div key={j} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-primary mt-2 shrink-0" />
+                      <p className="text-white/45 text-xs font-medium leading-relaxed">{tip}</p>
+                    </div>
+                  ))}
+                </div>
                 <button onClick={() => bookPlan(g.plan)}
-                  className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-3 transition-all">
+                  className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-3 transition-all mt-auto">
                   {g.cta} <ChevronRight className="w-3 h-3" />
                 </button>
               </motion.div>
             ))}
           </div>
         </div>
-      </section>
 
-      {/* ════════════════════ FITNESS TIPS / BLOG ═══════════════════════ */}
-      <section className="py-32 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-14">
-            <span className="text-primary font-black text-xs uppercase tracking-widest">Expert Advice</span>
-            <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tighter mt-2 mb-4 text-gray-900">
-              Fitness <span className="text-primary">Tips</span>
-            </h2>
-            <p className="text-gray-500 max-w-xl mx-auto font-medium">Curated insights from Dotfit's certified trainers and nutritionists.</p>
+        {/* Divider */}
+        <div className="border-t border-white/5" />
+
+        {/* Bottom: Expert Tips */}
+        <div className="container mx-auto px-4 md:px-6 py-16">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+            <div>
+              <span className="text-primary font-black text-xs uppercase tracking-widest">Expert Advice</span>
+              <h2 className="text-3xl md:text-4xl font-display font-black uppercase tracking-tighter mt-1 text-white">
+                Trainer <span className="text-primary">Tips</span>
+              </h2>
+            </div>
+            <p className="text-white/40 font-medium text-sm max-w-xs">Curated insights from Dotfit's K11-certified trainers and nutritionists.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
-                icon: <Flame className="w-6 h-6 text-primary" />,
-                tag: "Fat Loss",
+                icon: <Flame className="w-5 h-5" />, tag: "Fat Loss",
                 title: "5 Ways to Maximise Your Morning Workout",
                 excerpt: "Early morning workouts on an empty stomach (fasted cardio) can boost fat oxidation by up to 20%. Combine it with HIIT and a protein-rich breakfast for maximum results.",
-                read: "3 min read",
+                read: "3 min",
               },
               {
-                icon: <Dumbbell className="w-6 h-6 text-primary" />,
-                tag: "Muscle Gain",
+                icon: <Dumbbell className="w-5 h-5" />, tag: "Muscle Gain",
                 title: "The Right Protein Intake for Your Goal",
-                excerpt: "Aim for 1.6–2.2g of protein per kg of body weight daily. Spread intake across 4–5 meals for optimal muscle protein synthesis. Our nutritionists can personalise this for you.",
-                read: "4 min read",
+                excerpt: "Aim for 1.6–2.2 g of protein per kg of body weight daily. Spread intake across 4–5 meals for optimal muscle protein synthesis. Our nutritionists can personalise this for you.",
+                read: "4 min",
               },
               {
-                icon: <HeartPulse className="w-6 h-6 text-primary" />,
-                tag: "Recovery",
+                icon: <HeartPulse className="w-5 h-5" />, tag: "Recovery",
                 title: "Why Rest Days are the Secret to Faster Progress",
                 excerpt: "Muscles grow during rest, not during training. Our sauna and steam room accelerate recovery by improving circulation and reducing DOMS. 1–2 rest days per week is optimal.",
-                read: "3 min read",
+                read: "3 min",
               },
             ].map((tip, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="border-2 border-gray-100 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all group bg-white flex flex-col">
-                <div className="relative overflow-hidden aspect-video bg-[#f8fbf3] flex items-center justify-center border-b border-gray-100">
-                  <div className="w-16 h-16 bg-primary/10 border border-primary/20 flex items-center justify-center">{tip.icon}</div>
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest">{tip.tag}</div>
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="font-display font-black uppercase tracking-wider text-gray-900 mb-3 text-base leading-tight group-hover:text-primary transition-colors">{tip.title}</h3>
-                  <p className="text-gray-500 font-medium text-sm leading-relaxed flex-grow">{tip.excerpt}</p>
-                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-                    <span className="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1"><BookOpen className="w-3 h-3" />{tip.read}</span>
-                    <button onClick={() => scrollTo("contact")} className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
-                      Ask Our Trainers <ChevronRight className="w-3 h-3" />
-                    </button>
+              <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="border border-white/10 hover:border-primary/40 transition-all group bg-white/5 hover:bg-primary/5 flex flex-col p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 bg-primary/10 border border-primary/30 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shrink-0">
+                    {tip.icon}
                   </div>
+                  <span className="text-primary font-black text-[10px] uppercase tracking-widest">{tip.tag}</span>
+                </div>
+                <h3 className="font-display font-black uppercase tracking-wider text-white mb-3 text-sm leading-tight group-hover:text-primary transition-colors flex-grow">{tip.title}</h3>
+                <p className="text-white/40 font-medium text-xs leading-relaxed mb-5">{tip.excerpt}</p>
+                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest flex items-center gap-1"><BookOpen className="w-3 h-3" />{tip.read}</span>
+                  <button onClick={() => scrollTo("contact")} className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+                    Ask Our Trainers <ChevronRight className="w-3 h-3" />
+                  </button>
                 </div>
               </motion.div>
             ))}
