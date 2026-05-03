@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   Search, Download, Users, Calendar, TrendingUp, Phone, Mail,
-  RefreshCw, ChevronDown, ChevronUp, X, Dumbbell,
+  RefreshCw, ChevronDown, ChevronUp, X, Dumbbell, MessageCircle,
+  CheckCircle2, PhoneCall, Loader2,
 } from "lucide-react";
 
 interface Contact {
@@ -13,10 +14,26 @@ interface Contact {
   email: string;
   plan: string;
   message: string | null;
+  status: string;
   createdAt: string;
 }
 
 type SortKey = keyof Contact;
+
+const STATUSES = ["New", "Contacted", "Converted"] as const;
+type Status = typeof STATUSES[number];
+
+const STATUS_STYLES: Record<Status, string> = {
+  New: "bg-blue-50 text-blue-700 border border-blue-200",
+  Contacted: "bg-amber-50 text-amber-700 border border-amber-200",
+  Converted: "bg-green-50 text-green-700 border border-green-200",
+};
+
+const STATUS_DOTS: Record<Status, string> = {
+  New: "bg-blue-500",
+  Contacted: "bg-amber-500",
+  Converted: "bg-green-500",
+};
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -44,13 +61,14 @@ function isToday(iso: string) {
 }
 
 function exportCSV(contacts: Contact[]) {
-  const headers = ["ID", "Name", "Phone", "Email", "Plan", "Message", "Submitted At"];
+  const headers = ["ID", "Name", "Phone", "Email", "Plan", "Status", "Message", "Submitted At"];
   const rows = contacts.map(c => [
     c.id,
     `"${c.name}"`,
     c.phone,
     c.email,
     `"${c.plan}"`,
+    c.status,
     `"${(c.message ?? "").replace(/"/g, '""')}"`,
     formatDate(c.createdAt),
   ]);
@@ -66,11 +84,14 @@ function exportCSV(contacts: Contact[]) {
 
 const PLAN_COLORS: Record<string, string> = {
   "Trial": "bg-gray-100 text-gray-600",
+  "Free Trial": "bg-gray-100 text-gray-600",
   "1 Month": "bg-blue-50 text-blue-700",
   "3 Months": "bg-purple-50 text-purple-700",
   "6 Months": "bg-amber-50 text-amber-700",
   "1 Year": "bg-green-50 text-green-700",
   "Happy Hours Annual": "bg-lime-50 text-lime-700",
+  "Personal Training": "bg-rose-50 text-rose-700",
+  "Zumba": "bg-pink-50 text-pink-700",
 };
 
 function planColor(plan: string) {
@@ -80,12 +101,22 @@ function planColor(plan: string) {
   return "bg-gray-100 text-gray-600";
 }
 
+function waLink(phone: string, name: string) {
+  const msg = encodeURIComponent(`Hi ${name}! This is Dotfit Fitness. We received your enquiry and would love to help you get started. When would be a good time to visit?`);
+  const clean = phone.replace(/\D/g, "");
+  const num = clean.startsWith("91") ? clean : `91${clean}`;
+  return `https://wa.me/${num}?text=${msg}`;
+}
+
 export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [sortKey, setSortKey] = useState<SortKey>("createdAt");
   const [sortAsc, setSortAsc] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [statusMap, setStatusMap] = useState<Record<number, Status>>({});
+  const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
 
   const { data: contacts = [], isLoading, isError, refetch, isFetching } = useQuery<Contact[]>({
     queryKey: ["contacts"],
@@ -96,6 +127,29 @@ export default function AdminPage() {
     },
     refetchInterval: 30000,
   });
+
+  function getStatus(c: Contact): Status {
+    return (statusMap[c.id] ?? c.status ?? "New") as Status;
+  }
+
+  async function cycleStatus(c: Contact) {
+    const curr = getStatus(c);
+    const idx = STATUSES.indexOf(curr);
+    const next = STATUSES[(idx + 1) % STATUSES.length];
+    setStatusMap(prev => ({ ...prev, [c.id]: next }));
+    setUpdatingIds(prev => new Set(prev).add(c.id));
+    try {
+      await fetch(`/api/contacts/${c.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+    } catch {
+      setStatusMap(prev => ({ ...prev, [c.id]: curr }));
+    } finally {
+      setUpdatingIds(prev => { const s = new Set(prev); s.delete(c.id); return s; });
+    }
+  }
 
   const plans = useMemo(() => {
     const set = new Set(contacts.map(c => c.plan));
@@ -109,11 +163,16 @@ export default function AdminPage() {
     return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
   }, [contacts]);
 
+  const convertedCount = useMemo(() => {
+    return contacts.filter(c => getStatus(c) === "Converted").length;
+  }, [contacts, statusMap]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return contacts
       .filter(c =>
         (planFilter === "All" || c.plan === planFilter) &&
+        (statusFilter === "All" || getStatus(c) === statusFilter) &&
         (!q || c.name.toLowerCase().includes(q) || c.phone.includes(q) ||
           c.email.toLowerCase().includes(q) || c.plan.toLowerCase().includes(q))
       )
@@ -122,7 +181,7 @@ export default function AdminPage() {
         const bv = String(b[sortKey] ?? "");
         return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
       });
-  }, [contacts, search, planFilter, sortKey, sortAsc]);
+  }, [contacts, search, planFilter, statusFilter, sortKey, sortAsc, statusMap]);
 
   const todayCount = useMemo(() => contacts.filter(c => isToday(c.createdAt)).length, [contacts]);
 
@@ -151,6 +210,7 @@ export default function AdminPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <a href="/" className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">← Website</a>
           <button onClick={() => refetch()}
             className={`flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white transition-colors px-3 py-1.5 border border-white/10 hover:border-white/30 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
@@ -171,7 +231,7 @@ export default function AdminPage() {
           {[
             { label: "Total Leads", value: contacts.length, icon: <Users className="w-5 h-5" />, color: "text-primary" },
             { label: "Today", value: todayCount, icon: <Calendar className="w-5 h-5" />, color: "text-blue-500" },
-            { label: "Showing", value: filtered.length, icon: <Search className="w-5 h-5" />, color: "text-amber-500" },
+            { label: "Converted", value: convertedCount, icon: <CheckCircle2 className="w-5 h-5" />, color: "text-green-500" },
             { label: "Top Plan", value: topPlan, icon: <TrendingUp className="w-5 h-5" />, color: "text-purple-500" },
           ].map((s) => (
             <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -186,7 +246,7 @@ export default function AdminPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white border border-gray-100 p-4 mb-4 shadow-sm flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="bg-white border border-gray-100 p-4 mb-2 shadow-sm flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -201,14 +261,35 @@ export default function AdminPage() {
               </button>
             )}
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {plans.map(p => (
-              <button key={p} onClick={() => setPlanFilter(p)}
-                className={`text-xs font-black uppercase tracking-widest px-3 py-2 transition-colors border ${planFilter === p ? "bg-primary text-white border-primary" : "bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary"}`}>
-                {p}
-              </button>
-            ))}
-          </div>
+        </div>
+
+        {/* Status filter */}
+        <div className="bg-white border border-gray-100 border-t-0 px-4 pb-4 shadow-sm mb-2 flex gap-2 flex-wrap">
+          <span className="text-xs font-black uppercase tracking-widest text-gray-400 self-center mr-1">Status:</span>
+          {["All", ...STATUSES].map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)}
+              className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${statusFilter === s ? "bg-primary text-white border-primary" : "bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary"}`}>
+              {s}
+            </button>
+          ))}
+          <span className="text-xs font-black uppercase tracking-widest text-gray-400 self-center mr-1 ml-4">Plan:</span>
+          {plans.map(p => (
+            <button key={p} onClick={() => setPlanFilter(p)}
+              className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${planFilter === p ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-gray-700"}`}>
+              {p}
+            </button>
+          ))}
+        </div>
+
+        {/* Legend */}
+        <div className="flex gap-4 mb-4 px-1">
+          {STATUSES.map(s => (
+            <div key={s} className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+              <div className={`w-2 h-2 rounded-full ${STATUS_DOTS[s]}`} />
+              {s}
+            </div>
+          ))}
+          <span className="text-gray-300 text-xs ml-1">· Click status badge to cycle</span>
         </div>
 
         {/* Table */}
@@ -234,78 +315,138 @@ export default function AdminPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-950 text-white">
                   <tr>
-                    {(["id","name","phone","email","plan","createdAt"] as SortKey[]).map(col => (
+                    {(["id","name","phone","email","plan"] as SortKey[]).map(col => (
                       <th key={col} onClick={() => handleSort(col)}
                         className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none">
                         <span className="flex items-center gap-1 whitespace-nowrap">
-                          {col === "createdAt" ? "Submitted" : col}
+                          {col}
                           <SortIcon col={col} />
                         </span>
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Message</th>
+                    <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Status</th>
+                    <th onClick={() => handleSort("createdAt")}
+                      className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none">
+                      <span className="flex items-center gap-1">Submitted <SortIcon col="createdAt" /></span>
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c, i) => (
-                    <tr key={c.id} className={`border-t border-gray-50 hover:bg-[#f8fbf3] transition-colors ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
-                      <td className="px-4 py-3 text-gray-400 font-mono text-xs">#{c.id}</td>
-                      <td className="px-4 py-3 font-bold text-gray-900 whitespace-nowrap">{c.name}</td>
-                      <td className="px-4 py-3">
-                        <a href={`tel:${c.phone}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium whitespace-nowrap">
-                          <Phone className="w-3 h-3" />{c.phone}
-                        </a>
-                      </td>
-                      <td className="px-4 py-3">
-                        <a href={`mailto:${c.email}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium truncate max-w-[180px]">
-                          <Mail className="w-3 h-3 shrink-0" />{c.email}
-                        </a>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs font-black uppercase tracking-wide px-2.5 py-1 ${planColor(c.plan)}`}>{c.plan}</span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs font-medium whitespace-nowrap" title={formatDate(c.createdAt)}>
-                        {timeAgo(c.createdAt)}
-                        <div className="text-gray-300">{formatDate(c.createdAt)}</div>
-                      </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs max-w-[200px] truncate">{c.message ?? <span className="text-gray-200">—</span>}</td>
-                    </tr>
-                  ))}
+                  {filtered.map((c, i) => {
+                    const status = getStatus(c);
+                    const isUpdating = updatingIds.has(c.id);
+                    return (
+                      <tr key={c.id} className={`border-t border-gray-50 hover:bg-[#f8fbf3] transition-colors ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                        <td className="px-4 py-3 text-gray-400 font-mono text-xs">#{c.id}</td>
+                        <td className="px-4 py-3 font-bold text-gray-900 whitespace-nowrap">{c.name}</td>
+                        <td className="px-4 py-3">
+                          <a href={`tel:${c.phone}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium whitespace-nowrap">
+                            <Phone className="w-3 h-3" />{c.phone}
+                          </a>
+                        </td>
+                        <td className="px-4 py-3">
+                          <a href={`mailto:${c.email}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium truncate max-w-[160px]">
+                            <Mail className="w-3 h-3 shrink-0" />{c.email}
+                          </a>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-xs font-black uppercase tracking-wide px-2.5 py-1 ${planColor(c.plan)}`}>{c.plan}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => cycleStatus(c)}
+                            disabled={isUpdating}
+                            title="Click to cycle: New → Contacted → Converted"
+                            className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-sm transition-all hover:opacity-80 ${STATUS_STYLES[status]} ${isUpdating ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
+                          >
+                            {isUpdating
+                              ? <Loader2 className="w-3 h-3 animate-spin" />
+                              : <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
+                            }
+                            {status}
+                          </button>
+                        </td>
+                        <td className="px-4 py-3 text-gray-400 text-xs font-medium whitespace-nowrap" title={formatDate(c.createdAt)}>
+                          <div>{timeAgo(c.createdAt)}</div>
+                          <div className="text-gray-300">{formatDate(c.createdAt)}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <a href={waLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer"
+                              title="WhatsApp this lead"
+                              className="w-8 h-8 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center text-white transition-colors">
+                              <MessageCircle className="w-3.5 h-3.5" />
+                            </a>
+                            <a href={`tel:${c.phone}`}
+                              title="Call this lead"
+                              className="w-8 h-8 bg-gray-100 hover:bg-primary flex items-center justify-center text-gray-500 hover:text-white transition-colors">
+                              <PhoneCall className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile cards */}
             <div className="md:hidden divide-y divide-gray-100">
-              {filtered.map(c => (
-                <div key={c.id} className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <span className="font-bold text-gray-900">{c.name}</span>
-                      <span className="text-gray-300 text-xs font-mono ml-2">#{c.id}</span>
+              {filtered.map(c => {
+                const status = getStatus(c);
+                const isUpdating = updatingIds.has(c.id);
+                return (
+                  <div key={c.id} className="p-4">
+                    <div className="flex items-start justify-between mb-2 gap-2">
+                      <div>
+                        <span className="font-bold text-gray-900">{c.name}</span>
+                        <span className="text-gray-300 text-xs font-mono ml-2">#{c.id}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => cycleStatus(c)}
+                          disabled={isUpdating}
+                          className={`flex items-center gap-1 text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-sm ${STATUS_STYLES[status]}`}>
+                          {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />}
+                          {status}
+                        </button>
+                        <span className={`text-xs font-black uppercase tracking-wide px-2 py-0.5 ${planColor(c.plan)}`}>{c.plan}</span>
+                      </div>
                     </div>
-                    <span className={`text-xs font-black uppercase tracking-wide px-2 py-0.5 ${planColor(c.plan)}`}>{c.plan}</span>
+                    <div className="flex flex-col gap-1 text-sm">
+                      <a href={`tel:${c.phone}`} className="flex items-center gap-2 text-gray-600 font-medium">
+                        <Phone className="w-3.5 h-3.5 text-primary" />{c.phone}
+                      </a>
+                      <a href={`mailto:${c.email}`} className="flex items-center gap-2 text-gray-600 font-medium truncate">
+                        <Mail className="w-3.5 h-3.5 text-primary" />{c.email}
+                      </a>
+                      <div className="flex items-center gap-2 mt-2">
+                        <a href={waLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs font-black bg-[#25D366] text-white px-3 py-1.5 hover:bg-[#22c55e] transition-colors">
+                          <MessageCircle className="w-3 h-3" /> WhatsApp
+                        </a>
+                        <a href={`tel:${c.phone}`}
+                          className="flex items-center gap-1.5 text-xs font-black bg-gray-900 text-white px-3 py-1.5 hover:bg-gray-800 transition-colors">
+                          <PhoneCall className="w-3 h-3" /> Call
+                        </a>
+                      </div>
+                      <div className="text-gray-400 text-xs mt-1">{formatDate(c.createdAt)}</div>
+                      {c.message && (
+                        <button onClick={() => setExpandedId(expandedId === c.id ? null : c.id)} className="text-left">
+                          <p className={`text-gray-400 text-xs mt-1 ${expandedId === c.id ? "" : "line-clamp-1"}`}>{c.message}</p>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1 text-sm">
-                    <a href={`tel:${c.phone}`} className="flex items-center gap-2 text-gray-600 font-medium">
-                      <Phone className="w-3.5 h-3.5 text-primary" />{c.phone}
-                    </a>
-                    <a href={`mailto:${c.email}`} className="flex items-center gap-2 text-gray-600 font-medium truncate">
-                      <Mail className="w-3.5 h-3.5 text-primary" />{c.email}
-                    </a>
-                    <div className="text-gray-400 text-xs mt-1">{formatDate(c.createdAt)}</div>
-                    {c.message && (
-                      <button onClick={() => setExpandedId(expandedId === c.id ? null : c.id)} className="text-left">
-                        <p className={`text-gray-400 text-xs mt-1 ${expandedId === c.id ? "" : "line-clamp-1"}`}>{c.message}</p>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-400 font-medium">
-              Showing {filtered.length} of {contacts.length} leads
+            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-400 font-medium flex items-center justify-between">
+              <span>Showing {filtered.length} of {contacts.length} leads</span>
+              <span className="text-gray-300">{convertedCount} converted</span>
             </div>
           </div>
         )}

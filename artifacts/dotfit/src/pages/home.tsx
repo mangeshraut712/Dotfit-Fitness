@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 /* ─── Animated count-up hook ────────────────────────────────────────────── */
 function useCountUp(target: number, duration = 1800) {
@@ -172,6 +171,54 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
   );
 }
 
+/* ─── Offer Popup ────────────────────────────────────────────────────────── */
+function OfferPopup({ onClose, onBook }: { onClose: () => void; onBook: () => void }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}>
+      <motion.div initial={{ scale: 0.92, y: 24 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 24 }}
+        transition={{ type: "spring", stiffness: 320, damping: 28 }}
+        onClick={e => e.stopPropagation()}
+        className="relative bg-white max-w-sm w-full">
+        <button onClick={onClose} className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+          <X className="w-4 h-4" />
+        </button>
+        <div className="bg-primary px-8 py-7 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-3">
+            <Sparkles className="w-3 h-3" /> Special Offer
+          </div>
+          <h3 className="text-3xl font-display font-black uppercase tracking-tighter text-white leading-tight">
+            Your First<br />Session Is Free
+          </h3>
+        </div>
+        <div className="p-8">
+          <p className="text-gray-500 font-medium text-sm leading-relaxed mb-5">
+            Walk in, meet our K11-certified trainers, and experience the full 5th-floor facility — completely free. No payment, no commitment.
+          </p>
+          <div className="bg-[#f8fbf3] border-2 border-primary/20 p-4 mb-5 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">Happy Hours Annual</div>
+              <div className="text-3xl font-display font-black text-gray-900">₹8,500</div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest line-through mb-0.5">₹15,000</div>
+              <div className="text-xs font-black text-green-600 uppercase tracking-widest">Save ₹6,500</div>
+            </div>
+          </div>
+          <button onClick={onBook}
+            className="w-full h-13 py-4 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-sm mb-3 transition-colors flex items-center justify-center gap-2">
+            Book My Free Trial <ArrowRight className="w-4 h-4" />
+          </button>
+          <button onClick={onClose} className="w-full text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors py-1">
+            No thanks
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 /* ─── Happy Hours countdown ──────────────────────────────────────────────── */
 function getIST() {
   const ist = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
@@ -238,7 +285,17 @@ export default function Home() {
   const [formDone, setFormDone] = useState(false);
   const [submittedName, setSubmittedName] = useState("");
   const [submittedPlan, setSubmittedPlan] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
   const happyHoursLabel = useHappyHoursLabel();
+
+  useEffect(() => {
+    if (sessionStorage.getItem("df_popup")) return;
+    const t = setTimeout(() => {
+      setShowPopup(true);
+      sessionStorage.setItem("df_popup", "1");
+    }, 20000);
+    return () => clearTimeout(t);
+  }, []);
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, 160]);
 
@@ -288,6 +345,16 @@ export default function Home() {
   /* ─── RENDER ──────────────────────────────────────────────────────────── */
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden selection:bg-primary selection:text-white">
+
+      {/* ── Offer popup ────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showPopup && (
+          <OfferPopup
+            onClose={() => setShowPopup(false)}
+            onBook={() => { setShowPopup(false); scrollTo("contact"); }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── Scroll progress bar ────────────────────────────────────────── */}
       <div className="fixed top-0 left-0 z-[70] h-[3px] bg-primary transition-all duration-75 shadow-[0_0_8px_rgba(125,181,32,0.8)]"
@@ -1015,30 +1082,30 @@ export default function Home() {
               <span className="text-gray-400 text-sm font-medium">· 726+ Reviews on Google & JustDial</span>
             </div>
           </div>
-          <Carousel className="max-w-4xl mx-auto cursor-grab active:cursor-grabbing">
-            <CarouselContent>
-              {[
-                { text: "Trainers are very friendly and professional. They give personal attention to each member. The equipment is well-maintained and the facility is top-notch.", author: "Rahul S.", source: "Google Review", goal: "Fat Loss" },
-                { text: "Great gym with well-maintained equipment. The Zumba classes with Sikandar sir are amazing — full energy! Highly recommend for anyone in Baner.", author: "Priya M.", source: "JustDial Review", goal: "Fitness" },
-                { text: "Affordable pricing and excellent facilities. The sauna and steam room are a great add-on. Happy hours deal is absolutely unbeatable in Pune.", author: "Aakash P.", source: "Google Review", goal: "Overall Fitness" },
-                { text: "Best gym in Baner. Ganesh sir and the entire team are very motivating. Lost 15kg in 6 months! The nutrition guidance made all the difference.", author: "Sneha R.", source: "Google Review", goal: "Fat Loss — 15kg in 6 months" },
-                { text: "The personal training by Dinesh sir transformed my body completely. The 1:4 trainer ratio is real — I always get personal attention. Worth every rupee.", author: "Vikram D.", source: "JustDial Review", goal: "Muscle Gain" },
-                { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after long office hours. The facility is extremely clean and well-managed.", author: "Anita K.", source: "Google Review", goal: "Yoga & Flexibility" },
-              ].map((r, i) => (
-                <CarouselItem key={i}>
-                  <div className="p-8 md:p-14 text-center bg-[#f8fbf3] border-2 border-gray-100 mx-4">
-                    <div className="flex justify-center mb-4 gap-1">{[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 text-amber-400 fill-amber-400" />)}</div>
-                    <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-black uppercase tracking-widest mb-5">{r.goal}</div>
-                    <p className="text-lg md:text-2xl font-display font-bold leading-snug mb-6 text-gray-800 italic">"{r.text}"</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { text: "Trainers are very friendly and professional. They give personal attention to each member. The equipment is well-maintained and the facility is top-notch.", author: "Rahul S.", source: "Google Review", goal: "Fat Loss" },
+              { text: "Great gym with well-maintained equipment. The Zumba classes with Sikandar sir are amazing — full energy! Highly recommend for anyone in Baner.", author: "Priya M.", source: "JustDial Review", goal: "Fitness" },
+              { text: "Affordable pricing and excellent facilities. The sauna and steam room are a great add-on. Happy hours deal is absolutely unbeatable in Pune.", author: "Aakash P.", source: "Google Review", goal: "Overall Fitness" },
+              { text: "Best gym in Baner. Ganesh sir and the entire team are very motivating. Lost 15kg in 6 months! The nutrition guidance made all the difference.", author: "Sneha R.", source: "Google Review", goal: "Fat Loss — 15kg" },
+              { text: "The personal training by Dinesh sir transformed my body completely. The 1:4 trainer ratio is real — I always get personal attention. Worth every rupee.", author: "Vikram D.", source: "JustDial Review", goal: "Muscle Gain" },
+              { text: "Yoga classes by Poonam ma'am are excellent. Perfect for stress relief after long office hours. The facility is extremely clean and well-managed.", author: "Anita K.", source: "Google Review", goal: "Yoga & Flexibility" },
+            ].map((r, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+                className="p-7 bg-[#f8fbf3] border-2 border-gray-100 hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all flex flex-col">
+                <div className="flex gap-1 mb-3">{[...Array(5)].map((_, j) => <Star key={j} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />)}</div>
+                <span className="self-start px-2 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">{r.goal}</span>
+                <p className="text-gray-700 font-medium text-sm leading-relaxed flex-grow italic mb-5">"{r.text}"</p>
+                <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
+                  <div>
                     <div className="text-sm font-black text-gray-900">{r.author}</div>
-                    <div className="text-xs uppercase tracking-widest font-bold text-primary mt-1">{r.source}</div>
+                    <div className="text-xs text-primary font-bold uppercase tracking-widest mt-0.5">{r.source}</div>
                   </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 bg-white border-2 border-gray-100 hover:bg-[#f8fbf3] text-gray-700 shadow-md" />
-            <CarouselNext className="hidden md:flex -right-12 bg-white border-2 border-gray-100 hover:bg-[#f8fbf3] text-gray-700 shadow-md" />
-          </Carousel>
+                  <Star className="w-4 h-4 text-amber-300 fill-amber-300 shrink-0" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
           <div className="flex justify-center gap-4 mt-10 flex-wrap">
             <a href="https://g.page/r/CXQjnMYrSoMTEBM/review" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 text-gray-600 font-black uppercase tracking-widest text-xs hover:border-primary hover:text-primary transition-all">
@@ -1389,7 +1456,7 @@ export default function Home() {
                 className="h-16 px-12 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-2xl">
                 Book My Free Trial
               </button>
-              <a href="https://wa.me/919527237213?text=Hi%20Dotfit!%20I%20want%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
+              <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
                 className="h-16 px-12 bg-white/15 hover:bg-white/25 border-2 border-white/30 text-white font-black uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-3">
                 <MessageCircle className="w-5 h-5" /> WhatsApp Now
               </a>
