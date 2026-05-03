@@ -316,7 +316,7 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         <div>
           <span className="text-primary font-black text-xs uppercase tracking-widest">
-            Free Health Tool
+            Free Trial
           </span>
           <h3 className="text-3xl md:text-4xl font-display font-black uppercase tracking-tighter text-gray-900 mt-2 mb-3">
             Check Your <span className="text-primary">BMI</span>
