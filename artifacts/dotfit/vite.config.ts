@@ -5,17 +5,8 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { compression } from "vite-plugin-compression2";
 
-const rawPort = process.env.PORT;
-const port = rawPort ? Number(rawPort) : 4173;
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
 export default defineConfig({
-  base: basePath ?? "/",
+  base: process.env.BASE_PATH ?? "/",
   plugins: [
     react(),
     tailwindcss(),
@@ -82,8 +73,8 @@ export default defineConfig({
     },
   },
   server: {
-    port,
-    strictPort: true,
+    port: Number(process.env.PORT ?? 4173),
+    strictPort: false,
     host: "0.0.0.0",
     allowedHosts: true,
     fs: {
@@ -91,7 +82,7 @@ export default defineConfig({
     },
   },
   preview: {
-    port,
+    port: Number(process.env.PORT ?? 4173),
     host: "0.0.0.0",
     allowedHosts: true,
   },
