@@ -206,11 +206,11 @@ export default function AdminPage() {
           </div>
           <div>
             <div className="font-black uppercase tracking-widest text-sm">Dotfit Fitness</div>
-            <div className="text-white/40 text-xs font-medium tracking-wide">Lead Management</div>
+            <div className="text-white/40 text-xs font-medium tracking-wide">Lead Dashboard</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <a href="/" className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">← Website</a>
+          <a href="/" className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">← Back to Website</a>
           <button onClick={() => refetch()}
             className={`flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white transition-colors px-3 py-1.5 border border-white/10 hover:border-white/30 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />

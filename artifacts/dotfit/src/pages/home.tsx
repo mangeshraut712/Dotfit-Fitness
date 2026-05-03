@@ -1413,7 +1413,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button onClick={() => scrollTo("contact")}
                 className="h-16 px-12 bg-gray-950 hover:bg-gray-900 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-2xl">
-                Book My Free Trial
+                Book Your Free Trial
               </button>
               <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
                 className="h-16 px-12 bg-white/15 hover:bg-white/25 border-2 border-white/30 text-white font-black uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-3">
@@ -1466,7 +1466,7 @@ export default function Home() {
           <div className="flex justify-center mt-10">
             <button onClick={() => scrollTo("contact")}
               className="h-14 px-12 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-sm transition-colors shadow-lg shadow-primary/20">
-              Book My Free Trial →
+              Get Started →
             </button>
           </div>
         </div>
@@ -1495,7 +1495,7 @@ export default function Home() {
               ))}
             </div>
             <div className="border-t border-white/10 pt-6">
-              <div className="text-primary font-black text-xs uppercase tracking-widest mb-3">Follow Us</div>
+              <div className="text-primary font-black text-xs uppercase tracking-widest mb-3">Follow Dotfit</div>
               <div className="flex items-center gap-3 flex-wrap">
                 <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
                   <Instagram className="w-4 h-4" />
