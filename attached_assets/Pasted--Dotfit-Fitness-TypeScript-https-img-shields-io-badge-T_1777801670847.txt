@@ -305,3 +305,37 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes and add tests
 4. Ensure code quality: `pnpm run lint && pnpm run format`
+5. Commit changes (`git commit -m 'Add amazing feature'`)
+6. Push to branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Development Guidelines
+
+- Use TypeScript for all new code
+- Follow existing code style and patterns (ESLint + Prettier)
+- Add tests for new features
+- Update documentation as needed
+- Ensure accessibility compliance (WCAG 2.1 AA)
+- Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
+
+### Issue Reporting
+
+- 🐛 **Bug Reports**: Use the [bug report template](../../issues/new?template=bug_report.md)
+- ✨ **Feature Requests**: Use the [feature request template](../../issues/new?template=feature_request.md)
+- 📝 **Questions**: Check existing issues or create a discussion
+
+## 🔒 Security
+
+If you discover a security vulnerability, please report it to us as described in our [Security Policy](SECURITY.md).
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with modern web technologies and 2026 fitness industry trends
+- Powered by OpenAI for intelligent workout coaching
+- Special thanks to the Replit platform for collaborative development
+- **Live deployment**: Available at https://dotfit-fitness--mbr63.replit.app/
+- Inspired by the evolving digital fitness ecosystem and wearable technology advancements
