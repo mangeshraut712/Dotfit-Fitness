@@ -1496,61 +1496,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ════════════════════ FIND US ════════════════════════════════════ */}
-      <section id="location" className="bg-gray-950 text-white">
-        <div className="grid grid-cols-1 lg:grid-cols-2">
-          {/* Info panel */}
-          <div className="p-8 md:p-16 lg:p-20 flex flex-col">
-            <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-5">Find Us</h2>
-            <div className="space-y-6 mb-8 flex-grow">
-              {[
-                { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
-                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <><strong>Mon – Sat:</strong> 6:00 AM – 12:00 PM &amp; 4:00 PM – 10:00 PM<br />12:00–2:00 PM Rest · 2:00–4:00 PM Trainer Workout<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM only</span></> },
-                { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
-                { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">{item.icon}</div>
-                  <div>
-                    <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">{item.label}</div>
-                    <div className="text-white/75 font-medium text-sm leading-relaxed">{item.content}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="border-t border-white/10 pt-6">
-              <div className="text-primary font-black text-xs uppercase tracking-widest mb-3">Follow Dotfit</div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <MessageCircle className="w-4 h-4" />
-                </a>
-                <a href="https://www.linkedin.com/company/dotfit-fitness/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <Linkedin className="w-4 h-4" />
-                </a>
-                <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" aria-label="Google Maps" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
-                  <MapPin className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-          {/* Map */}
-          <div className="h-[400px] lg:h-auto min-h-[400px] border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5">
-            <iframe
-              title="Dotfit Fitness Location — Baner, Pune"
-              src="https://maps.google.com/maps?q=Dotfit+Fitness,+136+Srushti+Elegance,+Old+Baner-Balewadi+Road,+Baner,+Pune+411045&t=&z=17&ie=UTF8&iwloc=B&output=embed"
-              width="100%" height="100%" style={{ border: 0 }}
-              allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-        </div>
-      </section>
-
       {/* ════════════════════ CONTACT FORM ══════════════════════════════ */}
       <section id="contact" className="border-t-2 border-gray-100 bg-white py-20 md:py-28">
         <div className="container mx-auto px-4 md:px-6">
@@ -1664,6 +1609,67 @@ export default function Home() {
               </form>
             </Form>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ MAP ═══════════════════════════════════════ */}
+      <section className="bg-gray-950 text-white">
+        <div className="h-[420px] border-y border-white/5">
+          <iframe
+            title="Dotfit Fitness Location — Baner, Pune"
+            src="https://maps.google.com/maps?q=Dotfit+Fitness,+136+Srushti+Elegance,+Old+Baner-Balewadi+Road,+Baner,+Pune+411045&t=&z=17&ie=UTF8&iwloc=B&output=embed"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
+
+      {/* ════════════════════ FIND US ════════════════════════════════════ */}
+      <section id="location" className="bg-gray-950 text-white">
+        <div className="container mx-auto px-4 md:px-6 py-16">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-display font-black uppercase tracking-wider mb-8 border-b border-white/10 pb-5">Find Us</h2>
+            <div className="space-y-6 mb-8">
+              {[
+                { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
+                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <><strong>Mon – Sat:</strong> 6:00 AM – 12:00 PM &amp; 4:00 PM – 10:00 PM<br />12:00–2:00 PM Rest · 2:00–4:00 PM Trainer Workout<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM only</span></> },
+                { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
+                { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="w-8 h-8 bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">{item.icon}</div>
+                  <div>
+                    <div className="text-primary font-black text-xs uppercase tracking-widest mb-2">{item.label}</div>
+                    <div className="text-white/75 font-medium text-sm leading-relaxed">{item.content}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/10 pt-6">
+              <div className="text-primary font-black text-xs uppercase tracking-widest mb-3">Follow Dotfit</div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <MessageCircle className="w-4 h-4" />
+                </a>
+                <a href="https://www.linkedin.com/company/dotfit-fitness/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" aria-label="Google Maps" className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                  <MapPin className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
