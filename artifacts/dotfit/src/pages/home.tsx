@@ -586,7 +586,7 @@ function OfferPopup({
           <div className="bg-[#f8fbf3] border-2 border-primary/20 p-4 mb-5 flex items-center justify-between">
             <div>
               <div className="text-[10px] font-black text-primary uppercase tracking-widest mb-0.5">
-                Happy Hours Annual
+                Annual Membership
               </div>
               <div className="text-3xl font-display font-black text-gray-900">
                 ₹10,000
@@ -654,36 +654,26 @@ function useGymStatus() {
   return status;
 }
 
-/* ─── Happy Hours countdown ──────────────────────────────────────────────── */
+/* ─── Daily status label ─────────────────────────────────────────────────── */
 function getIST() {
   const ist = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
   return new Date(ist);
 }
 
-function useHappyHoursLabel() {
+function useDailyLabel() {
   const compute = () => {
     const d = getIST();
     const day = d.getDay();
     const h = d.getHours();
     const m = d.getMinutes();
     const s = d.getSeconds();
-    const totalSec = h * 3600 + m * 60 + s;
-    const startSec = 12 * 3600;
-    const endSec = 17 * 3600;
-    if (day === 0) return "🔥 Happy Hours Mon–Sat 12PM–5PM · Annual ₹10,000";
-    if (totalSec >= startSec && totalSec < endSec) {
-      const rem = endSec - totalSec;
-      const rh = Math.floor(rem / 3600);
-      const rm = Math.floor((rem % 3600) / 60);
-      const rs = rem % 60;
-      return `🟢 HAPPY HOURS LIVE — ${rh > 0 ? rh + "h " : ""}${String(rm).padStart(2, "0")}m ${String(rs).padStart(2, "0")}s remaining · Annual ₹10,000`;
-    } else if (totalSec < startSec) {
-      const rem = startSec - totalSec;
-      const rh = Math.floor(rem / 3600);
-      const rm2 = Math.floor((rem % 3600) / 60);
-      return `⏰ Happy Hours starts in ${rh}h ${String(rm2).padStart(2, "0")}m · Annual ₹10,000`;
-    }
-    return "🔥 Happy Hours: 12 PM – 5 PM Daily · Annual Membership ₹10,000";
+    const openNow = (day !== 0 && h >= 6 && h < 22) || (day === 0 && h >= 6 && h < 12);
+    if (openNow) return "Open daily 6 AM – 10 PM | Book Free Trial →";
+    if (day === 0) return "Open Sunday 6 AM – 12 PM | Book Free Trial →";
+    if (h < 6) return "Open daily 6 AM – 10 PM | Opens today at 6 AM";
+    if (h >= 22) return "Open daily 6 AM – 10 PM | Opens tomorrow at 6 AM";
+    if (h >= 12 && h < 16) return "Open daily 6 AM – 10 PM | Break 12 PM – 4 PM";
+    return "Open daily 6 AM – 10 PM | Book Free Trial →";
   };
   const [label, setLabel] = useState(compute);
   useEffect(() => {
@@ -742,12 +732,12 @@ const schedule = [
   },
   {
     time: "4:00 – 6:00 PM",
-    mon: "Happy Hours",
-    tue: "Happy Hours",
-    wed: "Happy Hours",
-    thu: "Happy Hours",
-    fri: "Happy Hours",
-    sat: "Happy Hours",
+    mon: "Open Gym",
+    tue: "Open Gym",
+    wed: "Open Gym",
+    thu: "Open Gym",
+    fri: "Open Gym",
+    sat: "Open Gym",
   },
   {
     time: "6:00 – 10:00 PM",
@@ -770,7 +760,7 @@ export default function Home() {
   const [submittedName, setSubmittedName] = useState("");
   const [submittedPlan, setSubmittedPlan] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  const happyHoursLabel = useHappyHoursLabel();
+  const dailyLabel = useDailyLabel();
   const gymStatus = useGymStatus();
 
   useEffect(() => {
@@ -870,10 +860,10 @@ export default function Home() {
 
       {/* ── Promo announcement bar ─────────────────────────────────────── */}
       <div
-        className={`text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative transition-colors duration-700 ${happyHoursLabel.startsWith("🟢") ? "bg-green-600" : "bg-primary"}`}
+        className="text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative transition-colors duration-700 bg-primary"
         style={{ marginTop: "3px" }}
       >
-        {happyHoursLabel} &nbsp;|&nbsp;
+        {dailyLabel} &nbsp;|&nbsp;
         <button
           onClick={() => scrollTo("contact")}
           className="underline underline-offset-2 hover:no-underline"
@@ -1265,7 +1255,7 @@ export default function Home() {
             },
             {
               icon: <Flame className="w-4.5 h-4.5 text-primary" />,
-              label: "Happy Hours 12–5 PM",
+              label: "Open Gym",
               sub: "Annual from ₹10,000",
             },
             {
@@ -1310,7 +1300,7 @@ export default function Home() {
             },
             {
               icon: <Flame className="w-4.5 h-4.5 text-primary" />,
-              label: "Happy Hours 12–5 PM",
+              label: "Open Gym",
               sub: "Annual from ₹10,000",
             },
             {
@@ -1561,7 +1551,7 @@ export default function Home() {
               },
               {
                 icon: <Timer className="w-8 h-8 text-primary" />,
-                title: "Happy Hours 12–5 PM",
+                title: "Open Gym",
                 desc: "Train between 12 PM and 5 PM and unlock massively discounted memberships. Annual plan starts at just ₹10,000.",
               },
               {
@@ -1781,7 +1771,7 @@ export default function Home() {
                     color: "border-primary",
                   },
                   {
-                    label: "Happy Hours",
+                    label: "Open Gym",
                     time: "12:00 PM – 5:00 PM",
                     color: "border-primary/40",
                     note: "Discounted Membership",
@@ -1959,7 +1949,7 @@ export default function Home() {
               Transparent <span className="text-primary">Pricing</span>
             </h2>
             <p className="text-gray-500 text-lg font-medium">
-              Train 12 PM – 5 PM (Happy Hours) for massively discounted rates.
+              Train during the day for premium access and steady progress.
             </p>
           </motion.div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-16">
@@ -2010,7 +2000,7 @@ export default function Home() {
                   </div>
                   <div className="p-4 border-2 border-primary/25 bg-[#f8fbf3] text-center">
                     <div className="text-xs text-primary uppercase font-black tracking-widest mb-1 flex items-center justify-center gap-1">
-                      <Clock className="w-3 h-3" /> Happy Hours (12–5 PM)
+                      <Clock className="w-3 h-3" /> Daily Access
                     </div>
                     <div className="text-3xl font-display font-black text-gray-900">
                       ₹{plan.happy.toLocaleString()}
@@ -2149,7 +2139,7 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <p className="text-white/80 font-black uppercase tracking-widest text-sm">
-                Happy Hours slots are limited —{" "}
+                Daily slots fill fast —{" "}
                 <span className="text-primary">Annual plan at ₹10,000</span>{" "}
                 valid while slots last
               </p>
@@ -3013,8 +3003,8 @@ export default function Home() {
                 a: "Yes! Book a free trial session via the form below, WhatsApp, or call +91 95272 37213. No commitment or payment required for the trial.",
               },
               {
-                q: "What is the Happy Hours discount?",
-                a: "Members who train between 12 PM and 5 PM (Happy Hours) get discounted memberships. Annual plan: ₹10,000 (Happy Hours) vs ₹12,000 regular — saving ₹2,000!",
+                q: "What are the membership options?",
+                a: "We offer multiple membership durations and a free trial. Please contact the front desk for the latest plans and pricing.",
               },
               {
                 q: "Can I join for a single day or short trial?",

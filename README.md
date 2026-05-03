@@ -53,7 +53,7 @@
 
 ### Membership
 
-| Plan | Regular | Happy Hours |
+| Plan | Regular | Discounted |
 |---|---|---|
 | 1 Month | ₹3,500 | ₹3,000 |
 | 3 Months | ₹5,500 | ₹5,000 |
