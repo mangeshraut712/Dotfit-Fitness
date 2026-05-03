@@ -57,6 +57,16 @@
 | 7-Day Trial | ₹1,500 | — |
 | Single Session | ₹500 | — |
 
+### Gym Details
+
+- 2 cleaners handle the male and female locker rooms
+- Drinking water machine supports cold, normal, and hot water
+- Membership transfer fee: ₹1,500–₹2,000
+- Referral bonus: if an existing member brings a new client on a 6–12 month membership, the existing member gets a 1 month extension
+- All classes are free to join and follow first-come, first-served seating/space rules
+- Front desk is available for inquiries, holiday/closure updates, and general gym information
+- Trainers are helpful and always ready to guide members on what to do next
+
 ---
 
 ## 🎨 Design & Experience

@@ -23,6 +23,14 @@ const OFFLINE_KNOWLEDGE = {
     "I'm Dotfit AI Coach — your gym-side fitness assistant for training, nutrition, equipment selection, and safe progress.",
   gym:
     "Dotfit Fitness is the Baner, Pune gym shown on this site. Use the website for gym timing, location, trial, and contact details.",
+  amenities:
+    "Dotfit has 2 cleaners for the male and female locker rooms, plus a water machine with cold, normal, and hot drinking water.",
+  policies:
+    "Membership transfer fee is ₹1,500–₹2,000. If an existing member refers a new client who joins a 6–12 month membership, the existing member gets a 1 month extension.",
+  classes:
+    "All classes are free to join and work on a first-come, first-served basis when space is available.",
+  staff:
+    "The front desk is helpful for gym inquiries, holiday or closure updates, and general information. Trainers are also approachable and ready to help with what to do next.",
   training:
     "For muscle gain: prioritize progressive overload, 10-20 hard sets per muscle per week, 1-3 RIR on key lifts, and track performance weekly.",
     nutrition:
@@ -54,7 +62,7 @@ const OFFLINE_KNOWLEDGE = {
 function getOfflineReply(userText: string): string {
   const text = userText.toLowerCase();
   if (text.includes("dotfit") || text.includes("gym timing") || text.includes("timings")) {
-    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.gym}\n\nFor exact membership, timing, or location details, the website contact section is the safest source.`;
+    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.gym}\n${OFFLINE_KNOWLEDGE.amenities}\n${OFFLINE_KNOWLEDGE.policies}\n${OFFLINE_KNOWLEDGE.classes}\n${OFFLINE_KNOWLEDGE.staff}\n\nFor exact membership, timing, or location details, the website contact section is the safest source.`;
   }
   if (
     text.includes("squat") ||
