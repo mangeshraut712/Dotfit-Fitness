@@ -8,7 +8,7 @@ import {
   ArrowRight, Star, MessageCircle, Linkedin, ChevronDown, Shield,
   Users, Trophy, Activity, Zap, HeartPulse, Timer, Dumbbell,
   ExternalLink, Flame, Wind, Brain, Apple, CalendarCheck, ChevronRight,
-  Target, Sparkles, BookOpen, BarChart2, Heart, Bike,
+  Target, Sparkles, BookOpen, BarChart2, Heart, Bike, ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,6 +172,45 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
   );
 }
 
+/* ─── Happy Hours countdown ──────────────────────────────────────────────── */
+function getIST() {
+  const ist = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+  return new Date(ist);
+}
+
+function useHappyHoursLabel() {
+  const compute = () => {
+    const d = getIST();
+    const day = d.getDay();
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const s = d.getSeconds();
+    const totalSec = h * 3600 + m * 60 + s;
+    const startSec = 12 * 3600;
+    const endSec = 17 * 3600;
+    if (day === 0) return "🔥 Happy Hours Mon–Sat 12PM–5PM · Annual ₹8,500";
+    if (totalSec >= startSec && totalSec < endSec) {
+      const rem = endSec - totalSec;
+      const rh = Math.floor(rem / 3600);
+      const rm = Math.floor((rem % 3600) / 60);
+      const rs = rem % 60;
+      return `🟢 HAPPY HOURS LIVE — ${rh > 0 ? rh + "h " : ""}${String(rm).padStart(2, "0")}m ${String(rs).padStart(2, "0")}s remaining · Annual ₹8,500`;
+    } else if (totalSec < startSec) {
+      const rem = startSec - totalSec;
+      const rh = Math.floor(rem / 3600);
+      const rm2 = Math.floor((rem % 3600) / 60);
+      return `⏰ Happy Hours starts in ${rh}h ${String(rm2).padStart(2, "0")}m · Annual ₹8,500`;
+    }
+    return "🔥 Happy Hours: 12 PM – 5 PM Daily · Annual Membership ₹8,500";
+  };
+  const [label, setLabel] = useState(compute);
+  useEffect(() => {
+    const id = setInterval(() => setLabel(compute()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return label;
+}
+
 /* ─── Schema ─────────────────────────────────────────────────────────────── */
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -196,6 +235,10 @@ export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
+  const [formDone, setFormDone] = useState(false);
+  const [submittedName, setSubmittedName] = useState("");
+  const [submittedPlan, setSubmittedPlan] = useState("");
+  const happyHoursLabel = useHappyHoursLabel();
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, 160]);
 
@@ -222,7 +265,9 @@ export default function Home() {
         body: JSON.stringify(values),
       });
       if (res.ok) {
-        toast({ title: "Request Submitted! ✅", description: "Our team will call you back shortly." });
+        setSubmittedName(values.name.split(" ")[0]);
+        setSubmittedPlan(values.plan);
+        setFormDone(true);
         form.reset();
       } else throw new Error();
     } catch {
@@ -249,8 +294,8 @@ export default function Home() {
         style={{ width: `${scrollPct}%` }} />
 
       {/* ── Promo announcement bar ─────────────────────────────────────── */}
-      <div className="bg-primary text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative" style={{ marginTop: "3px" }}>
-        🔥 Happy Hours: Annual Membership from ₹8,500 &nbsp;|&nbsp; 12 PM – 5 PM &nbsp;
+      <div className={`text-white text-center py-2 px-4 text-xs font-black uppercase tracking-widest z-[60] relative transition-colors duration-700 ${happyHoursLabel.startsWith("🟢") ? "bg-green-600" : "bg-primary"}`} style={{ marginTop: "3px" }}>
+        {happyHoursLabel} &nbsp;|&nbsp;
         <button onClick={() => scrollTo("contact")} className="underline underline-offset-2 hover:no-underline">Book Free Trial →</button>
       </div>
 
@@ -293,7 +338,7 @@ export default function Home() {
             <div className="flex gap-4 mt-4">
               {[
                 { href: "https://www.instagram.com/dotfitfitness/", icon: <Instagram className="w-6 h-6" /> },
-                { href: "https://wa.me/919527237213", icon: <MessageCircle className="w-6 h-6" /> },
+                { href: "https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session.", icon: <MessageCircle className="w-6 h-6" /> },
                 { href: "https://www.facebook.com/DotfitFitness/", icon: <Facebook className="w-6 h-6" /> },
                 { href: "https://www.linkedin.com/company/dotfit-fitness/", icon: <Linkedin className="w-6 h-6" /> },
               ].map((s, i) => <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary">{s.icon}</a>)}
@@ -303,7 +348,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ── Desktop floating buttons ───────────────────────────────────── */}
-      <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
+      <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Dotfit Fitness"
         className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.5)] hover:scale-110 transition-transform">
         <MessageCircle className="w-7 h-7" />
       </a>
@@ -311,6 +356,23 @@ export default function Home() {
         className="fixed bottom-5 right-5 z-50 w-14 h-14 bg-primary text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform">
         <Phone className="w-6 h-6" />
       </a>
+
+      {/* ── Scroll to top ────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {scrollPct > 8 && (
+          <motion.button
+            key="scroll-top"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.7 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Scroll to top"
+            className="fixed bottom-40 right-5 z-50 w-11 h-11 bg-gray-900 text-white hidden md:flex items-center justify-center shadow-xl hover:bg-primary transition-colors">
+            <ChevronUp className="w-5 h-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* ── Desktop floating "Book Trial" left side tab ─────────────────── */}
       <button onClick={() => scrollTo("contact")}
@@ -325,7 +387,7 @@ export default function Home() {
         <a href="tel:+919527237213" className="flex-1 h-14 bg-gray-900 text-white flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs">
           <Phone className="w-4 h-4 text-primary" /> Call Now
         </a>
-        <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
+        <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
           className="flex-1 h-14 bg-[#25D366] text-white flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs">
           <MessageCircle className="w-4 h-4" /> WhatsApp
         </a>
@@ -1136,7 +1198,7 @@ export default function Home() {
                   className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity">
                   <Instagram className="w-5 h-5" /> Follow on Instagram
                 </a>
-                <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer"
+                <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#25D366] text-white font-black uppercase tracking-widest text-sm hover:opacity-90 transition-opacity">
                   <MessageCircle className="w-5 h-5" /> WhatsApp Us
                 </a>
@@ -1170,6 +1232,48 @@ export default function Home() {
               <p className="text-gray-500 mb-8 font-medium text-sm leading-relaxed">
                 Fill the form below — our team responds within 30 minutes. Or WhatsApp/call +91 95272 37213 directly.
               </p>
+              {formDone ? (
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-[#f8fbf3] border-2 border-primary/20 p-8">
+                  <div className="w-14 h-14 bg-primary flex items-center justify-center mb-5">
+                    <Check className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-display font-black uppercase tracking-tight text-gray-900 mb-1">
+                    You're In{submittedName ? `, ${submittedName}` : ""}!
+                  </h3>
+                  <p className="text-gray-500 text-sm font-medium mb-1">
+                    Request received for <span className="font-black text-gray-900">{submittedPlan || "Free Trial"}</span>.
+                  </p>
+                  <p className="text-primary font-black text-xs uppercase tracking-widest mb-6">
+                    We'll call you within 30 minutes.
+                  </p>
+                  <div className="space-y-3 mb-6">
+                    {[
+                      "Our team will call to confirm your trial slot",
+                      "You'll get a WhatsApp with directions & what to bring",
+                      "Walk in, meet the trainers — no payment needed",
+                    ].map((step, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-5 h-5 bg-primary text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
+                        <p className="text-gray-600 text-sm font-medium leading-snug">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%20just%20submitted%20the%20form%20and%20I%27d%20like%20to%20connect%20for%20my%20free%20trial."
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex-1 h-12 bg-[#25D366] text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors">
+                      <MessageCircle className="w-4 h-4" /> WhatsApp Now
+                    </a>
+                    <a href="tel:+919527237213"
+                      className="flex-1 h-12 bg-gray-900 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+                      <Phone className="w-4 h-4" /> Call Us
+                    </a>
+                  </div>
+                  <button onClick={() => setFormDone(false)} className="mt-4 text-xs text-gray-400 hover:text-gray-600 font-medium underline underline-offset-2 w-full text-center">
+                    Submit another request
+                  </button>
+                </motion.div>
+              ) : (
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                   <FormField control={form.control} name="name" render={({ field }) => (
@@ -1223,12 +1327,13 @@ export default function Home() {
                     <a href="tel:+919527237213" className="flex-1 h-11 border-2 border-gray-200 hover:border-primary flex items-center justify-center gap-2 text-gray-600 hover:text-primary transition-all font-black uppercase tracking-widest text-xs">
                       <Phone className="w-3.5 h-3.5" /> Call Now
                     </a>
-                    <a href="https://wa.me/919527237213" target="_blank" rel="noopener noreferrer" className="flex-1 h-11 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs transition-all">
+                    <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer" className="flex-1 h-11 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs transition-all">
                       <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                     </a>
                   </div>
                 </form>
               </Form>
+              )}
             </div>
           </div>
 
@@ -1340,7 +1445,7 @@ export default function Home() {
                 {[
                   { href: "https://www.instagram.com/dotfitfitness/", label: "Instagram", icon: <Instagram className="w-4 h-4" />, handle: "@dotfitfitness" },
                   { href: "https://www.facebook.com/DotfitFitness/", label: "Facebook", icon: <Facebook className="w-4 h-4" />, handle: "DotfitFitness" },
-                  { href: "https://wa.me/919527237213", label: "WhatsApp", icon: <MessageCircle className="w-4 h-4" />, handle: "+91 95272 37213" },
+                  { href: "https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session.", label: "WhatsApp", icon: <MessageCircle className="w-4 h-4" />, handle: "+91 95272 37213" },
                   { href: "https://www.linkedin.com/company/dotfit-fitness/", label: "LinkedIn", icon: <Linkedin className="w-4 h-4" />, handle: "dotfit-fitness" },
                   { href: "https://www.justdial.com/Pune/Dot-Fit-Fitness-Baner/020PXX20-XX20-200618142717-H5T6_BZDET", label: "JustDial", icon: <ExternalLink className="w-4 h-4" />, handle: "Verified Listing" },
                   { href: "https://maps.app.goo.gl/kCSULHGjGmG2Nb44r", label: "Google Maps", icon: <MapPin className="w-4 h-4" />, handle: "Get Directions" },
@@ -1358,7 +1463,10 @@ export default function Home() {
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness · All Rights Reserved</p>
-            <p className="text-white/20 text-xs font-medium">136/1 Srushti Elegance, Old Baner-Balewadi Rd, Pune 411045</p>
+            <div className="flex items-center gap-6">
+              <p className="text-white/20 text-xs font-medium">136/1 Srushti Elegance, Old Baner-Balewadi Rd, Pune 411045</p>
+              <a href="/admin" className="text-white/10 hover:text-white/30 text-xs font-medium transition-colors select-none">Admin</a>
+            </div>
           </div>
         </div>
       </footer>
