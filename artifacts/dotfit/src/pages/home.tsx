@@ -603,7 +603,7 @@ export default function Home() {
       <section className="py-20 bg-[#f8fbf3]">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatBox value={50000} suffix="+" label="Happy Members" icon={<Users className="w-7 h-7 text-primary mx-auto" />} />
+            <StatBox value={25000} suffix="+" label="Happy Members" icon={<Users className="w-7 h-7 text-primary mx-auto" />} />
             <StatBox value={13} suffix="+" label="Years Running" icon={<Trophy className="w-7 h-7 text-primary mx-auto" />} />
             <StatBox value={4} suffix=":1" label="Member Trainer Ratio" icon={<Activity className="w-7 h-7 text-primary mx-auto" />} />
             <StatBox value={726} suffix="+" label="Google Reviews" icon={<Star className="w-7 h-7 text-amber-400 mx-auto" />} />
@@ -1546,12 +1546,34 @@ export default function Home() {
       </section>
 
       {/* ════════════════════ FOOTER ════════════════════════════════════ */}
-      <footer className="bg-gray-950 text-white py-16 border-t border-white/10 pb-28 md:pb-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness · All Rights Reserved</p>
-            <div className="flex items-center gap-6">
-              <p className="text-white/20 text-xs font-medium">Baner, Pune 411045</p>
+      <footer className="bg-gray-950 text-white border-t border-white/5 pb-28 md:pb-0">
+        <div className="container mx-auto px-4 md:px-6 py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <img src="/logo-text.png" alt="Dotfit Fitness" className="h-8 object-contain opacity-60" />
+            <div className="flex items-center gap-3">
+              <a href="https://www.instagram.com/dotfitfitness/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="https://www.facebook.com/DotfitFitness/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
+                className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
+                className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                <MessageCircle className="w-4 h-4" />
+              </a>
+              <a href="https://www.linkedin.com/company/dotfit-fitness/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
+                className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                <Linkedin className="w-4 h-4" />
+              </a>
+              <a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" aria-label="Google Maps"
+                className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all">
+                <MapPin className="w-4 h-4" />
+              </a>
+            </div>
+            <div className="flex items-center gap-5">
+              <p className="text-white/20 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness</p>
               <a href="/admin" className="text-white/10 hover:text-white/30 text-xs font-medium transition-colors select-none">Admin</a>
             </div>
           </div>

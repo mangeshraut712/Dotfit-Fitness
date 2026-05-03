@@ -24,17 +24,38 @@ World-class fitness website for Dotfit Fitness gym in Baner, Pune, India. Built 
 - Address: 136/1, 5th Floor, Srushti Elegance, Old Baner-Balewadi Rd, Baner, Pune 411045
 - Phone: +91 95272 37213
 - Email: Support@dotfitfitness.in
-- Established: 2012, 50,000+ members, 4.2/5 rating (726 reviews)
-- Timings: Mon–Sat 6AM–10PM, Sunday Closed
-- Happy Hours: 12PM–5PM daily (discounted annual plan ₹8,500)
+- Established: 2012, 25,000+ members, 4.2/5 rating (726+ reviews)
+- Timings: Mon–Sat 6AM–12PM & 4PM–10PM (12–2PM rest, 2–4PM trainer workout); Sunday 6AM–12PM only
+- Happy Hours: 12PM–5PM Mon–Sat (discounted membership — Annual ₹10,000, regular ₹12,000)
+
+## Pricing
+- 1 Month: ₹3,500 regular / ₹3,000 Happy Hours
+- 3 Months: ₹5,500 regular / ₹5,000 Happy Hours
+- 6 Months: ₹7,500 regular / ₹7,000 Happy Hours
+- 1 Year: ₹12,000 regular / ₹10,000 Happy Hours
+- Single session: ₹500 · 7-day trial: ₹1,500
+
+## Team
+- Floor Managers: Ganesh, Yogesh (K11 Certified)
+- Specialized Instructors: Poonam (Yoga), Kale (Yoga), Sikandar (Zumba/Bollywood Beats), Gajendra (Bollywood Beats)
+- Personal Trainers: Dinesh, Rajesh, Mayur, Tukaram
+- Trainers: Dnyaneshwar, Aryan, Sunil, Mayur, Pravin, Rupali
+- Front Desk: Prateek
 
 ## Database Schema
 - `contacts` table — lead/contact form submissions (name, phone, email, plan, message, createdAt)
+- `status` field added: allowed values ["New","Contacted","Converted"]
 
 ## API Endpoints
 - `GET /api/healthz` — health check
 - `POST /api/contacts` — submit contact/join form (Zod validated, try/catch DB error handling)
 - `GET /api/contacts` — list contact submissions
+- `PATCH /api/contacts/:id/status` — update lead status (allowed: "New","Contacted","Converted")
+
+## Pages
+- `/` — Main single-page site (home.tsx, 1580+ lines)
+- `/guide` — 5-level fitness progression guide (tabbed interface, Level 1 default)
+- `/admin` — Lead management: list submissions, cycle status, CSV export
 
 ## Key Commands
 
