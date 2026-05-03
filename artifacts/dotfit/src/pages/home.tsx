@@ -1003,17 +1003,6 @@ export default function Home() {
           </div>
 
           {/* Personal Trainers */}
-          <div className="mb-14">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-px flex-1 bg-gray-100" />
-              <h3 className="text-xs font-black text-primary uppercase tracking-widest whitespace-nowrap">Personal Trainers</h3>
-              <div className="h-px flex-1 bg-gray-100" />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <StaffCard name="Rupali" role="Personal Trainer" img="/trainer-rupali.png" cert="CPT Certified" />
-            </div>
-          </div>
-
           {/* Full roster */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#f8fbf3] p-8 border-2 border-gray-100">
             {[
