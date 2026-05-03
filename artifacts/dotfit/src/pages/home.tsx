@@ -490,7 +490,7 @@ export default function Home() {
               Baner's Most Trusted Gym Since 2012
             </p>
             <p className="text-base text-white/60 mb-10 max-w-xl font-medium leading-relaxed">
-              Join 50,000+ members who chose excellence. Expert coaches, premium equipment, and real transformations — 5th floor, fully air-conditioned.
+              Join 25,000+ members who chose excellence. Expert coaches, premium equipment, and real transformations — 5th floor, fully air-conditioned.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pb-20 md:pb-0">
               <Button onClick={() => scrollTo("contact")} size="lg"
@@ -522,7 +522,7 @@ export default function Home() {
             {[
               { icon: <Star className="w-5 h-5 text-amber-400 fill-amber-400" />, label: "4.2/5 Google Rating", sub: "726+ Reviews" },
               { icon: <Shield className="w-5 h-5 text-primary" />, label: "K11 Certified Facility", sub: "International Standard" },
-              { icon: <Users className="w-5 h-5 text-primary" />, label: "50,000+ Members", sub: "Since 2012" },
+              { icon: <Users className="w-5 h-5 text-primary" />, label: "25,000+ Members", sub: "Since 2012" },
               { icon: <Check className="w-5 h-5 text-green-600" />, label: "JustDial Verified", sub: "Trusted Business" },
               { icon: <Trophy className="w-5 h-5 text-primary" />, label: "1:4 Trainer Ratio", sub: "Unmatched Attention" },
             ].map((t, i) => (
@@ -551,14 +551,14 @@ export default function Home() {
                 Dotfit Fitness was founded in 2012 with a single vision: make world-class fitness accessible to every person in Baner, Pune. Starting from a modest setup, we invested aggressively in equipment, trainer certification, and member experience.
               </p>
               <p className="text-gray-600 font-medium leading-relaxed mb-8">
-                Today, from our 5th-floor facility at Srushti Elegance, we serve 50,000+ members — backed by a K11 Certified team, a strict 1:4 trainer-to-member ratio, and a relentless focus on delivering real, measurable results.
+                Today, from our 5th-floor facility at Srushti Elegance, we serve 25,000+ members — backed by a K11 Certified team, a strict 1:4 trainer-to-member ratio, and a relentless focus on delivering real, measurable results.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { icon: <Target className="w-5 h-5 text-primary" />, label: "Mission", text: "Results for every member, every day" },
                   { icon: <Sparkles className="w-5 h-5 text-primary" />, label: "Vision", text: "Pune's most trusted fitness brand" },
                   { icon: <Shield className="w-5 h-5 text-primary" />, label: "Certified", text: "K11 International Standard" },
-                  { icon: <Heart className="w-5 h-5 text-primary" />, label: "Community", text: "50,000+ happy members" },
+                  { icon: <Heart className="w-5 h-5 text-primary" />, label: "Community", text: "25,000+ happy members" },
                 ].map((item) => (
                   <div key={item.label} className="flex gap-3 p-4 bg-[#f8fbf3] border border-gray-100">
                     {item.icon}
@@ -582,7 +582,7 @@ export default function Home() {
                   { year: "2018", event: "10,000 Member Milestone", detail: "Hit 10,000 members and launched our dedicated nutrition counseling program." },
                   { year: "2020", event: "Recovery Zone Launch", detail: "Added professional sauna, steam room, and post-workout recovery facilities." },
                   { year: "2022", event: "25,000 Members Strong", detail: "Expanded personal training programs and launched Bollywood Beats classes." },
-                  { year: "2026", event: "50,000+ Members Today", detail: "Baner's #1 gym — still growing, still delivering real results every day." },
+                  { year: "2026", event: "25,000+ Members Today", detail: "Baner's #1 gym — still growing, still delivering real results every day." },
                 ].map((m, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
                     className="relative pb-7 last:pb-0">
@@ -768,7 +768,7 @@ export default function Home() {
               <div className="overflow-x-auto">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-display font-black uppercase tracking-widest text-primary">Weekly Schedule</h3>
-                  <span className="text-white/30 text-xs font-medium">Sunday: Closed</span>
+                  <span className="text-white/30 text-xs font-medium">Sunday: 6:00 AM – 12:00 PM</span>
                 </div>
                 <table className="w-full text-xs border-collapse min-w-[500px]">
                   <thead>
@@ -814,7 +814,7 @@ export default function Home() {
               { duration: "1 Month", regular: 3000, happy: 2000 },
               { duration: "3 Months", regular: 5500, happy: 4000 },
               { duration: "6 Months", regular: 7500, happy: 6000 },
-              { duration: "1 Year", regular: 15000, happy: 8500, popular: true },
+              { duration: "1 Year", regular: 12000, happy: 10000, popular: true },
             ].map((plan, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className={`relative p-8 bg-white flex flex-col transition-all hover:shadow-xl ${plan.popular ? "border-2 border-primary shadow-xl shadow-primary/10 scale-[1.02] z-10" : "border-2 border-gray-100 hover:border-primary/30"}`}>
@@ -1446,7 +1446,7 @@ export default function Home() {
             <div className="space-y-6 mb-8 flex-grow">
               {[
                 { icon: <MapPin className="w-4 h-4 text-primary" />, label: "Address", content: <>136/1, 5th Floor, Srushti Elegance<br />Old Baner-Balewadi Rd, near Salt Hotel<br />Balewadi Phata, Baner, Pune – 411045<br /><a href="https://maps.app.goo.gl/kCSULHGjGmG2Nb44r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-primary text-xs font-bold hover:underline">Open in Google Maps <ExternalLink className="w-3 h-3" /></a></> },
-                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <>Mon – Sat: 6:00 AM – 10:00 PM<br />Trainers from 5:30 AM<br /><span className="text-white/40">Sunday: Closed</span></> },
+                { icon: <Clock className="w-4 h-4 text-primary" />, label: "Timings", content: <>Mon – Sat: 6:00 AM – 10:00 PM<br />Trainers from 5:30 AM<br /><span className="text-white/40">Sunday: 6:00 AM – 12:00 PM</span></> },
                 { icon: <Phone className="w-4 h-4 text-primary" />, label: "Phone / WhatsApp", content: <a href="tel:+919527237213" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">+91 95272 37213</a> },
                 { icon: <Mail className="w-4 h-4 text-primary" />, label: "Email", content: <a href="mailto:Support@dotfitfitness.in" className="text-white/75 font-medium text-sm hover:text-primary transition-colors">Support@dotfitfitness.in</a> },
               ].map((item, i) => (
@@ -1501,7 +1501,7 @@ export default function Home() {
               {[
                 { val: "Free", label: "Trial Session" },
                 { val: "30 min", label: "Response Time" },
-                { val: "₹8,500", label: "Annual Plan" },
+                { val: "₹10,000", label: "Annual Plan" },
                 { val: "Mon–Sat", label: "6 AM – 10 PM" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
@@ -1521,7 +1521,7 @@ export default function Home() {
             <div className="md:col-span-2">
               <img src="/logo-text.png" alt="Dotfit Fitness" className="h-10 object-contain opacity-90 mb-5" />
               <p className="text-white/40 text-sm font-medium leading-relaxed max-w-xs mb-6">
-                Baner's premier K11 Certified fitness destination since 2012. 50,000+ happy members. Professional coaching. Real results.
+                Baner's premier K11 Certified fitness destination since 2012. 25,000+ happy members. Professional coaching. Real results.
               </p>
               <div className="flex flex-wrap gap-2">
                 {[
@@ -1538,8 +1538,8 @@ export default function Home() {
               <div className="space-y-4">
                 <a href="tel:+919527237213" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Phone className="w-4 h-4 text-primary shrink-0 mt-0.5" />+91 95272 37213</a>
                 <a href="mailto:Support@dotfitfitness.in" className="flex items-start gap-3 text-white/50 hover:text-white transition-colors text-sm font-medium"><Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />Support@dotfitfitness.in</a>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>136/1, 5th Floor, Srushti Elegance,<br />Baner, Pune 411045</span></div>
-                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Mon–Sat: 6 AM – 10 PM<br /><span className="text-white/25">Sunday: Closed</span></span></div>
+                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Baner, Pune 411045</span></div>
+                <div className="flex items-start gap-3 text-white/50 text-sm font-medium"><Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" /><span>Mon–Sat: 6 AM – 10 PM<br /><span className="text-white/25">Sunday: 6:00 AM – 12:00 PM</span></span></div>
               </div>
             </div>
             <div>
@@ -1567,7 +1567,7 @@ export default function Home() {
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-white/25 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} Dotfit Fitness · All Rights Reserved</p>
             <div className="flex items-center gap-6">
-              <p className="text-white/20 text-xs font-medium">136/1 Srushti Elegance, Old Baner-Balewadi Rd, Pune 411045</p>
+              <p className="text-white/20 text-xs font-medium">Baner, Pune 411045</p>
               <a href="/admin" className="text-white/10 hover:text-white/30 text-xs font-medium transition-colors select-none">Admin</a>
             </div>
           </div>
