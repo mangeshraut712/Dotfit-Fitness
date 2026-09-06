@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Website-Live-00C853?style=for-the-badge&logo=vercel&logoColor=white" />
+  <img src="https://img.shields.io/badge/Website-Live-00C853?style=for-the-badge&logo=github&logoColor=white" />
   <img src="https://github.com/mangeshraut712/Dotfit-Fitness/actions/workflows/ci.yml/badge.svg" />
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" />
 </p>
@@ -173,15 +173,18 @@ GitHub Actions runs on push and pull request:
 1. Install dependencies
 2. Typecheck all packages
 3. Security audit
-4. Build frontend
+4. Build frontend (`BASE_PATH=/Dotfit-Fitness/`)
 5. Build API server
 6. GitHub client check
+
+On push to `main`, a separate **Deploy GitHub Pages** workflow builds the Vite app and publishes it to GitHub Pages.
 
 ---
 
 ## Live links
 
-- Website: https://dotfitfitness.in
+- Website (GitHub Pages): https://mangeshraut712.github.io/Dotfit-Fitness/
+- Custom domain: https://dotfitfitness.in
 - Replit: https://dotfit-fitness--mbr63.replit.app/
 - GitHub: https://github.com/mangeshraut712/Dotfit-Fitness
 

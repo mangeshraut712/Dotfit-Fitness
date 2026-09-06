@@ -66,8 +66,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import ChatWidget from "@/components/ChatWidget";
-
-const BASE_URL = import.meta.env.BASE_URL;
+import { BASE_URL, assetUrl } from "@/lib/paths";
 
 /* ─── Animated count-up hook ────────────────────────────────────────────── */
 function useCountUp(target: number, duration = 1800) {
@@ -886,7 +885,7 @@ export default function Home() {
             aria-label="Go to top — Dotfit Fitness"
           >
             <img
-              src="/logo-icon.png"
+              src={assetUrl("logo-icon.png")}
               alt="Dotfit Fitness"
               width={44}
               height={44}
@@ -964,7 +963,7 @@ export default function Home() {
               className="flex items-center gap-3 mb-2"
             >
               <img
-                src="/logo-icon.png"
+                src={assetUrl("logo-icon.png")}
                 alt="Dotfit Fitness"
                 width={48}
                 height={48}
@@ -1118,7 +1117,7 @@ export default function Home() {
       >
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY }}>
           <img
-            src="/hero.webp"
+            src={assetUrl("hero.webp")}
             alt="Dotfit Fitness Gym Floor — 5th Floor, Baner Pune"
             fetchPriority="high"
             decoding="async"
@@ -1638,7 +1637,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative aspect-[16/9] md:aspect-auto md:row-span-2 overflow-hidden group bg-gray-900">
               <img
-                src="/facility-equipment.webp"
+                src={assetUrl("facility-equipment.webp")}
                 alt="Dotfit Fitness Power Station — premium gym equipment floor"
                 loading="lazy"
                 decoding="async"
@@ -1661,7 +1660,7 @@ export default function Home() {
             </div>
             <div className="relative aspect-[16/9] overflow-hidden group bg-gray-900">
               <img
-                src="/facility-sauna.webp"
+                src={assetUrl("facility-sauna.webp")}
                 alt="Dotfit Fitness Recovery Zone — sauna and steam room"
                 loading="lazy"
                 decoding="async"
@@ -1830,22 +1829,22 @@ export default function Home() {
                 {[
                   {
                     title: "Zumba & Bollywood Beats",
-                    img: "/class-zumba.webp",
+                    img: assetUrl("class-zumba.webp"),
                     inst: "Sikandar & Gajendra",
                   },
                   {
                     title: "Kickboxing & Boxing",
-                    img: "/class-kickboxing.webp",
+                    img: assetUrl("class-kickboxing.webp"),
                     inst: "Certified Trainers",
                   },
                   {
                     title: "Power Yoga & Pilates",
-                    img: "/class-yoga.webp",
+                    img: assetUrl("class-yoga.webp"),
                     inst: "Poonam & Kale",
                   },
                   {
                     title: "Circuit & Body Building",
-                    img: "/facility-equipment.webp",
+                    img: assetUrl("facility-equipment.webp"),
                     inst: "Floor Managers",
                   },
                 ].map((cls, i) => (
@@ -2210,7 +2209,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="relative aspect-square md:aspect-[4/3] bg-gray-100 group overflow-hidden border-2 border-gray-200">
               <img
-                src="/transformation-1.webp"
+                src={assetUrl("transformation-1.webp")}
                 alt="Dotfit Fitness member transformation — real results"
                 loading="lazy"
                 decoding="async"
@@ -2299,13 +2298,13 @@ export default function Home() {
               <StaffCard
                 name="Ganesh"
                 role="Floor Manager"
-                img="/trainer-ganesh.webp"
+                img={assetUrl("trainer-ganesh.webp")}
                 cert="K11 Certified"
               />
               <StaffCard
                 name="Yogesh"
                 role="Floor Manager"
-                img="/trainer-sikandar.webp"
+                img={assetUrl("trainer-sikandar.webp")}
                 cert="K11 Certified"
               />
             </div>
@@ -2324,31 +2323,31 @@ export default function Home() {
               <StaffCard
                 name="Poonam"
                 role="Yoga Expert"
-                img="/trainer-poonam.webp"
+                img={assetUrl("trainer-poonam.webp")}
                 cert="Yoga Alliance"
               />
               <StaffCard
                 name="Kale"
                 role="Yoga Instructor"
-                img="/trainer-ganesh.webp"
+                img={assetUrl("trainer-ganesh.webp")}
                 cert="Certified Yoga"
               />
               <StaffCard
                 name="Sikandar"
                 role="Zumba & Bollywood Beats"
-                img="/trainer-sikandar.webp"
+                img={assetUrl("trainer-sikandar.webp")}
                 cert="Zumba Licensed"
               />
               <StaffCard
                 name="Gajendra"
                 role="Bollywood Beats"
-                img="/trainer-sikandar.webp"
+                img={assetUrl("trainer-sikandar.webp")}
                 cert="Dance Certified"
               />
               <StaffCard
                 name="Rupali"
                 role="Ladies' Trainer"
-                img="/trainer-rupali.webp"
+                img={assetUrl("trainer-rupali.webp")}
                 cert="K11 Certified"
               />
             </div>
@@ -2367,25 +2366,25 @@ export default function Home() {
               <StaffCard
                 name="Dinesh"
                 role="Personal Trainer"
-                img="/trainer-ganesh.webp"
+                img={assetUrl("trainer-ganesh.webp")}
                 cert="CPT Certified"
               />
               <StaffCard
                 name="Rajesh"
                 role="Personal Trainer"
-                img="/trainer-sikandar.webp"
+                img={assetUrl("trainer-sikandar.webp")}
                 cert="K11 Certified"
               />
               <StaffCard
                 name="Mayur"
                 role="Personal Trainer"
-                img="/trainer-ganesh.webp"
+                img={assetUrl("trainer-ganesh.webp")}
                 cert="Strength Coach"
               />
               <StaffCard
                 name="Tukaram"
                 role="Personal Trainer"
-                img="/trainer-sikandar.webp"
+                img={assetUrl("trainer-sikandar.webp")}
                 cert="K11 Certified"
               />
             </div>
@@ -2462,7 +2461,7 @@ export default function Home() {
             >
               <div className="relative h-64 md:h-full min-h-[320px] overflow-hidden">
                 <img
-                  src="/hero.webp"
+                  src={assetUrl("hero.webp")}
                   alt="Main Gym Floor — Dotfit Fitness Baner"
                   loading="lazy"
                   decoding="async"
@@ -2486,12 +2485,12 @@ export default function Home() {
             </motion.div>
             {[
               {
-                src: "/facility-equipment.webp",
+                src: assetUrl("facility-equipment.webp"),
                 label: "Power Station",
                 sub: "Premium Equipment",
               },
               {
-                src: "/facility-sauna.webp",
+                src: assetUrl("facility-sauna.webp"),
                 label: "Recovery & Sauna",
                 sub: "Relax & Recover",
               },
@@ -2531,27 +2530,27 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
               {
-                src: "/class-zumba.webp",
+                src: assetUrl("class-zumba.webp"),
                 label: "Zumba & Dance",
                 sub: "Group Class",
               },
               {
-                src: "/class-yoga.webp",
+                src: assetUrl("class-yoga.webp"),
                 label: "Yoga & Pilates",
                 sub: "Mind & Body",
               },
               {
-                src: "/class-kickboxing.webp",
+                src: assetUrl("class-kickboxing.webp"),
                 label: "Kickboxing",
                 sub: "Combat Fitness",
               },
               {
-                src: "/transformation-1.webp",
+                src: assetUrl("transformation-1.webp"),
                 label: "Male Transformation",
                 sub: "Real Results",
               },
               {
-                src: "/transformation-female.webp",
+                src: assetUrl("transformation-female.webp"),
                 label: "Female Transformation",
                 sub: "Real Results",
               },

@@ -117,8 +117,8 @@ pnpm --filter @workspace/db run push            # Push DB schema (dev only)
 
 ## Live URLs
 
+- GitHub Pages: https://mangeshraut712.github.io/Dotfit-Fitness/
 - Replit: https://dotfit-fitness--mbr63.replit.app/
-- Vercel: https://dotfit-fitness.vercel.app
 - Custom domain: https://dotfitfitness.in
 
 ## GitHub
