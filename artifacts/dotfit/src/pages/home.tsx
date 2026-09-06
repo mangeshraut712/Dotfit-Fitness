@@ -562,10 +562,12 @@ function OfferPopup({
         className="relative bg-white max-w-sm w-full"
       >
         <button
+          type="button"
           onClick={onClose}
+          aria-label="Close special offer"
           className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
         <div className="bg-primary px-8 py-7 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-3">
