@@ -46,7 +46,8 @@ function buildHeaders(adminKey: string): Record<string, string> {
 }
 
 async function apiFetch(url: string, adminKey: string, init: RequestInit = {}): Promise<Response> {
-  return fetch(url, {
+  const path = url.startsWith("/") ? url.slice(1) : url;
+  return fetch(`${import.meta.env.BASE_URL}${path}`, {
     ...init,
     credentials: "include",
     headers: { ...buildHeaders(adminKey), ...(init.headers as Record<string, string> | undefined) },
@@ -330,7 +331,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <a href="/" className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">
+          <a href={import.meta.env.BASE_URL} className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">
             ← Back to Website
           </a>
           <button

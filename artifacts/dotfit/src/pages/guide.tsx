@@ -468,7 +468,7 @@ export default function GuidePage() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <div className="bg-gray-950 text-white px-4 py-3 flex items-center justify-between gap-4">
-        <a href="/" className="flex items-center gap-2 text-sm font-bold text-white/60 hover:text-white">
+        <a href={import.meta.env.BASE_URL} className="flex items-center gap-2 text-sm font-bold text-white/60 hover:text-white">
           <ArrowLeft className="w-4 h-4" /> Back to Dotfit Fitness
         </a>
         <div className="flex items-center gap-3 text-xs font-black">

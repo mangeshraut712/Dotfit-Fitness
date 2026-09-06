@@ -17,7 +17,7 @@ export default function NotFound() {
           The page you're looking for doesn't exist. Head back to the main site to explore our programs, pricing, and team.
         </p>
         <a
-          href="/"
+          href={import.meta.env.BASE_URL}
           className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs px-6 py-3 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
