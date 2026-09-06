@@ -546,7 +546,7 @@ export default function GuidePage() {
             <p className="text-sm text-gray-600 mt-2 max-w-2xl">{level.goal} {level.notes}</p>
           </div>
             <div className="text-sm font-bold text-gray-500 bg-white border border-gray-200 px-4 py-3">
-            Viewing Level {active} by default
+            Currently viewing Level {active}
           </div>
         </div>
       </section>

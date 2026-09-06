@@ -18,6 +18,16 @@
 <p align="center"><strong>Official website for Dotfit Fitness — Baner, Pune.</strong></p>
 <p align="center">A premium gym website with a React/Vite frontend, Express API backend, PostgreSQL, and an AI Health & Fitness Coach.</p>
 
+<p align="center">
+  <a href="https://mangeshraut712.github.io/Dotfit-Fitness/"><strong>Live site</strong></a>
+  ·
+  <a href="https://dotfitfitness.in">dotfitfitness.in</a>
+</p>
+
+![Dotfit Fitness homepage](docs/screenshots/01-home.png)
+
+![Fitness Progression Guide](docs/screenshots/02-feature.png)
+
 ---
 
 ## Why this project stands out
