@@ -31,8 +31,8 @@ app.use(
 app.use(
   cors({
     origin: isProduction
-      ? [/\.replit\.app$/, /dotfitfitness\.in$/, /dotfit-fitness.*\.replit\.app$/]
-      : true,
+      ? ["https://dotfitfitness.in", "https://www.dotfitfitness.in"]
+      : ["http://localhost:3000", "http://127.0.0.1:3000"],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Accept", "Authorization"],
