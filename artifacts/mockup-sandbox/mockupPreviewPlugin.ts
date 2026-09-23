@@ -1,8 +1,4 @@
 
-function isSafeGeneratedPath(value: string): boolean {
-  return /^[A-Za-z0-9_./-]+$/.test(value) && !value.includes("..");
-}
-
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 import glob from "fast-glob";
@@ -59,12 +55,8 @@ export function mockupPreviewPlugin(): Plugin {
   function generateSource(components: Array<DiscoveredComponent>): string {
     const entries = components
       .map(
-        (c) => {
-          if (!isSafeGeneratedPath(c.globKey) || !isSafeGeneratedPath(c.importPath)) {
-            throw new Error("Refusing to generate an import for an unexpected path");
-          }
-          return `  ${JSON.stringify(c.globKey)}: () => import(${JSON.stringify(c.importPath)})`;
-        },
+        (c) =>
+          `  ${JSON.stringify(c.globKey)}: () => import(${JSON.stringify(c.importPath)})`,
       )
       .join(",\n");
 
