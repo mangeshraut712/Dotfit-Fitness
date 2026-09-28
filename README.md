@@ -24,9 +24,21 @@
   <a href="https://dotfitfitness.in">dotfitfitness.in</a>
 </p>
 
-![Dotfit Fitness homepage](docs/screenshots/01-home.png)
+## Screenshots
 
-![Fitness Progression Guide](docs/screenshots/02-feature.png)
+Framed captures of the live site (current UI).
+
+<div align="center">
+
+<img src="docs/screenshots/01-home.webp" alt="Dotfit Fitness homepage: train in Baner today" width="720" />
+
+<img src="docs/screenshots/02-pricing.webp" alt="Membership plans with transparent gym pricing" width="720" />
+
+<img src="docs/screenshots/03-guide.webp" alt="Fitness Progression Guide with five training levels" width="720" />
+
+<img src="docs/screenshots/04-coach.webp" alt="Dotfit AI Coach chat on the gym homepage" width="720" />
+
+</div>
 
 ---
 
