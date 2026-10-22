@@ -50,3 +50,6 @@ Thumbs.db
 
 # Pasted/attached dev notes (not part of the source)
 attached_assets/Pasted-*.txt
+# Local agent tooling
+.agents/
+skills-lock.json
