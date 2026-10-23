@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import { Dumbbell, ArrowLeft } from "lucide-react";
+import { applyPageMeta, NOT_FOUND_PAGE_META } from "@/lib/page-meta";
 
 export default function NotFound() {
+  useEffect(() => {
+    applyPageMeta(NOT_FOUND_PAGE_META);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className="w-16 h-16 bg-primary/10 border-2 border-primary/20 flex items-center justify-center mx-auto mb-6">
           <Dumbbell className="w-8 h-8 text-primary" />
@@ -23,10 +29,10 @@ export default function NotFound() {
           <ArrowLeft className="w-4 h-4" />
           Back to Dotfit Fitness
         </a>
-        <div className="mt-10 text-xs font-bold text-gray-300 uppercase tracking-widest">
+        <div className="mt-10 text-xs font-bold text-gray-600 uppercase tracking-widest">
           Dotfit Fitness · Baner, Pune
         </div>
       </div>
-    </div>
+    </main>
   );
 }
