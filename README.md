@@ -98,7 +98,7 @@ Framed captures of the live site (current UI).
 
 ## Design system
 
-- Brand green: `#6aaa14`
+- Brand green: `#5c7e20` (hue 82, darkened so white text meets WCAG AA)
 - Premium dark sections: `bg-gray-950`
 - Display font: Oswald
 - Body font: Inter
@@ -179,12 +179,24 @@ pnpm --filter @workspace/dotfit run dev
 Base path: `/api`
 
 - `GET /api/healthz`
-- `POST /api/contacts`
-- `GET /api/contacts`
-- `PATCH /api/contacts/:id/status`
-- `POST /api/openrouter/conversations`
-- `GET /api/openrouter/conversations/:id`
-- `POST /api/openrouter/conversations/:id/messages` (SSE)
+- `POST /api/contacts` — validated lead (name, 10–15 digit phone, email, known plan)
+- `GET /api/contacts` — staff only. Requires `Authorization: Bearer $ADMIN_PASSWORD`. Returns 503 when that password is not configured.
+- `PATCH /api/contacts/:id/status` — staff only. `:id` must be a positive integer. Status is `New`, `Contacted`, or `Converted`.
+- `POST /api/openrouter/conversations` — returns `{ id, title, createdAt, accessToken }`
+- `GET /api/openrouter/conversations` — staff only
+- `GET /api/openrouter/conversations/:id` — requires header `X-Conversation-Token`
+- `DELETE /api/openrouter/conversations/:id` — requires the same token
+- `POST /api/openrouter/conversations/:id/messages` (SSE) — requires the same token
+
+Coach sessions are signed with `CONVERSATION_SECRET`, or with `ADMIN_PASSWORD` when the dedicated secret is unset. Production refuses to create or read sessions when neither is set. The coach model is `meta-llama/llama-4-scout`.
+
+## Tests
+
+```bash
+pnpm test
+pnpm test:e2e
+pnpm run lint
+```
 
 ---
 
@@ -194,10 +206,13 @@ GitHub Actions runs on push and pull request:
 
 1. Install dependencies
 2. Typecheck all packages
-3. Security audit
-4. Build frontend (`BASE_PATH=/Dotfit-Fitness/`)
-5. Build API server
-6. GitHub client check
+3. Lint
+4. Unit and integration tests
+5. Playwright end-to-end tests
+6. Security audit (`pnpm audit --audit-level=high`)
+7. Build frontend (`BASE_PATH=/Dotfit-Fitness/`)
+8. Build API server
+9. GitHub client check
 
 On push to `main`, a separate **Deploy GitHub Pages** workflow builds the Vite app and publishes it to GitHub Pages.
 

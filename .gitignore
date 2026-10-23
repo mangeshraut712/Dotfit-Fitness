@@ -53,3 +53,8 @@ attached_assets/Pasted-*.txt
 # Local agent tooling
 .agents/
 skills-lock.json
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
