@@ -7,6 +7,9 @@ import {
   CheckCircle2, PhoneCall, Loader2, Lock,
 } from "lucide-react";
 import { type Contact } from "@workspace/api-client-react";
+import { compareLeads } from "@/lib/contact-sort";
+import { leadsToCsv } from "@/lib/csv";
+import { applyPageMeta, ADMIN_PAGE_META } from "@/lib/page-meta";
 
 type SortKey = keyof Contact;
 
@@ -85,18 +88,13 @@ function isToday(iso: string) {
 }
 
 function exportCSV(contacts: Contact[], overrides: Record<number, Status>) {
-  const headers = ["ID", "Name", "Phone", "Email", "Plan", "Status", "Message", "Submitted At"];
-  const rows = contacts.map((c) => [
-    c.id,
-    `"${c.name}"`,
-    c.phone,
-    c.email,
-    `"${c.plan}"`,
-    resolveStatus(c, overrides),
-    `"${(c.message ?? "").replace(/"/g, '""')}"`,
-    formatDate(c.createdAt),
-  ]);
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+  const csv = leadsToCsv(
+    contacts.map((contact) => ({
+      ...contact,
+      status: resolveStatus(contact, overrides),
+    })),
+    formatDate,
+  );
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -172,23 +170,25 @@ function PasswordGate({ onUnlock }: { onUnlock: (key: string) => void }) {
           </div>
           <div>
             <div className="font-black uppercase tracking-widest text-sm text-gray-900">Dotfit Fitness</div>
-            <div className="text-gray-400 text-xs font-medium">Lead Dashboard</div>
+            <div className="text-gray-600 text-xs font-medium">Lead Dashboard</div>
           </div>
         </div>
-        <div className="flex items-center gap-2 mb-4">
-          <Lock className="w-4 h-4 text-gray-400" />
-          <span className="text-sm font-bold text-gray-700">Admin Access Required</span>
-        </div>
+        <label htmlFor="admin-password" className="flex items-center gap-2 mb-4 text-sm font-bold text-gray-700">
+          <Lock className="w-4 h-4 text-gray-600" aria-hidden="true" />
+          Admin password
+        </label>
         <input
+          id="admin-password"
           type="password"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") void tryUnlock(); }}
           placeholder="Enter admin password"
+          autoComplete="current-password"
           autoFocus
           className="w-full h-11 border border-gray-200 px-3 text-sm font-medium focus:outline-none focus:border-primary transition-colors mb-3"
         />
-        {error && <p className="text-red-500 text-xs font-medium mb-3">{error}</p>}
+        {error && <p role="alert" className="text-red-700 text-xs font-medium mb-3">{error}</p>}
         <button
           onClick={() => void tryUnlock()}
           disabled={loading}
@@ -293,11 +293,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
             c.email.toLowerCase().includes(q) ||
             c.plan.toLowerCase().includes(q))
       )
-      .sort((a, b) => {
-        const av = String(a[sortKey] ?? "");
-        const bv = String(b[sortKey] ?? "");
-        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-      });
+      .sort((a, b) => compareLeads(a, b, sortKey, sortAsc));
   }, [contacts, search, planFilter, statusFilter, sortKey, sortAsc, statusOverrides]);
 
   const todayCount = useMemo(
@@ -327,16 +323,16 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
           </div>
           <div>
             <div className="font-black uppercase tracking-widest text-sm">Dotfit Fitness</div>
-            <div className="text-white/40 text-xs font-medium tracking-wide">Lead Dashboard</div>
+            <div className="text-white/80 text-xs font-medium tracking-wide">Lead Dashboard</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <a href={import.meta.env.BASE_URL} className="text-xs font-medium text-white/30 hover:text-white/60 transition-colors hidden sm:block">
+          <a href={import.meta.env.BASE_URL} className="text-xs font-medium text-white/80 hover:text-white transition-colors hidden sm:block">
             ← Back to Website
           </a>
           <button
             onClick={() => void refetch()}
-            className={`flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white transition-colors px-3 py-1.5 border border-white/10 hover:border-white/30 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+            className={`flex items-center gap-1.5 text-xs font-bold text-white/80 hover:text-white transition-colors px-3 py-1.5 border border-white/10 hover:border-white/30 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             Refresh
@@ -351,8 +347,8 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
           </button>
           <button
             onClick={onLogout}
-            title="Sign out"
-            className="flex items-center gap-1.5 text-xs font-bold text-white/30 hover:text-white/60 transition-colors px-2 py-1.5 border border-white/10 hover:border-white/20"
+            aria-label="Sign out"
+            className="flex items-center gap-1.5 text-xs font-bold text-white/80 hover:text-white transition-colors px-2 py-1.5 border border-white/10 hover:border-white/20"
           >
             <Lock className="w-3.5 h-3.5" />
           </button>
@@ -377,7 +373,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
               className="bg-white border border-gray-100 p-5 shadow-sm"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black uppercase tracking-widest text-gray-400">{s.label}</span>
+                <span className="text-xs font-black uppercase tracking-widest text-gray-600">{s.label}</span>
                 <span className={s.color}>{s.icon}</span>
               </div>
               <div className="text-2xl font-black text-gray-900 truncate">{s.value}</div>
@@ -388,15 +384,17 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
         {/* Search */}
         <div className="bg-white border border-gray-100 p-4 mb-2 shadow-sm flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" aria-hidden="true" />
+            <label htmlFor="lead-search" className="sr-only">Search leads</label>
             <input
+              id="lead-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, phone, email, or plan…"
               className="w-full h-10 pl-9 pr-8 border border-gray-200 text-sm font-medium focus:outline-none focus:border-primary transition-colors"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -405,10 +403,12 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
 
         {/* Status + Plan filter */}
         <div className="bg-white border border-gray-100 border-t-0 px-4 pb-4 shadow-sm mb-2 flex gap-2 flex-wrap">
-          <span className="text-xs font-black uppercase tracking-widest text-gray-400 self-center mr-1">Status:</span>
+          <span className="text-xs font-black uppercase tracking-widest text-gray-600 self-center mr-1">Status:</span>
           {(["All", ...STATUSES] as string[]).map((s) => (
             <button
               key={s}
+              type="button"
+              aria-pressed={statusFilter === s}
               onClick={() => setStatusFilter(s)}
               className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${
                 statusFilter === s
@@ -419,10 +419,12 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
               {s}
             </button>
           ))}
-          <span className="text-xs font-black uppercase tracking-widest text-gray-400 self-center mr-1 ml-4">Plan:</span>
+          <span className="text-xs font-black uppercase tracking-widest text-gray-600 self-center mr-1 ml-4">Plan:</span>
           {plans.map((p) => (
             <button
               key={p}
+              type="button"
+              aria-pressed={planFilter === p}
               onClick={() => setPlanFilter(p)}
               className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 transition-colors border ${
                 planFilter === p
@@ -438,19 +440,19 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
         {/* Legend */}
         <div className="flex gap-4 mb-4 px-1">
           {STATUSES.map((s) => (
-            <div key={s} className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+            <div key={s} className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
               <div className={`w-2 h-2 rounded-full ${STATUS_DOTS[s]}`} />
               {s}
             </div>
           ))}
-          <span className="text-gray-300 text-xs ml-1">· Click status badge to cycle</span>
+          <span className="text-gray-600 text-xs ml-1">· Click status badge to cycle</span>
         </div>
 
         {/* Table / cards / empty states */}
         {isLoading ? (
           <div className="bg-white border border-gray-100 p-16 text-center shadow-sm">
             <RefreshCw className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
-            <p className="text-gray-400 font-medium text-sm">Loading leads…</p>
+            <p className="text-gray-600 font-medium text-sm">Loading leads…</p>
           </div>
         ) : isError ? (
           <div className="bg-white border border-red-100 p-16 text-center shadow-sm">
@@ -460,7 +462,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
         ) : filtered.length === 0 ? (
           <div className="bg-white border border-gray-100 p-16 text-center shadow-sm">
             <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium text-sm">
+            <p className="text-gray-600 font-medium text-sm">
               {contacts.length === 0 ? "No leads yet" : "No results match your filters"}
             </p>
           </div>
@@ -474,20 +476,26 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     {(["id", "name", "phone", "email", "plan"] as SortKey[]).map((col) => (
                       <th
                         key={col}
-                        onClick={() => handleSort(col)}
-                        className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none"
+                        className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest"
                       >
-                        <span className="flex items-center gap-1 whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => handleSort(col)}
+                          className="flex items-center gap-1 whitespace-nowrap uppercase tracking-widest hover:text-primary"
+                        >
                           {col} <SortIcon col={col} />
-                        </span>
+                        </button>
                       </th>
                     ))}
                     <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Status</th>
-                    <th
-                      onClick={() => handleSort("createdAt")}
-                      className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest cursor-pointer hover:bg-white/5 transition-colors select-none"
-                    >
-                      <span className="flex items-center gap-1">Submitted <SortIcon col="createdAt" /></span>
+                    <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">
+                      <button
+                        type="button"
+                        onClick={() => handleSort("createdAt")}
+                        className="flex items-center gap-1 uppercase tracking-widest hover:text-primary"
+                      >
+                        Submitted <SortIcon col="createdAt" />
+                      </button>
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest">Actions</th>
                   </tr>
@@ -498,7 +506,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     const isUpdating = updatingIds.has(c.id);
                     return (
                       <tr key={c.id} className={`border-t border-gray-50 hover:bg-[#f8fbf3] transition-colors ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
-                        <td className="px-4 py-3 text-gray-400 font-mono text-xs">#{c.id}</td>
+                        <td className="px-4 py-3 text-gray-600 font-mono text-xs">#{c.id}</td>
                         <td className="px-4 py-3 font-bold text-gray-900 whitespace-nowrap">{c.name}</td>
                         <td className="px-4 py-3">
                           <a href={`tel:${c.phone}`} className="flex items-center gap-1.5 text-gray-600 hover:text-primary transition-colors font-medium whitespace-nowrap">
@@ -517,7 +525,7 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                           <button
                             onClick={() => void cycleStatus(c)}
                             disabled={isUpdating}
-                            title="Click to cycle: New → Contacted → Converted"
+                            aria-label={`Lead status is ${status}. Activate to change it.`}
                             className={`flex items-center gap-1.5 text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-sm transition-all hover:opacity-80 ${STATUS_STYLES[status]} ${isUpdating ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
                           >
                             {isUpdating
@@ -527,17 +535,17 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                             {status}
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-gray-400 text-xs font-medium whitespace-nowrap" title={formatDate(c.createdAt)}>
+                        <td className="px-4 py-3 text-gray-600 text-xs font-medium whitespace-nowrap" title={formatDate(c.createdAt)}>
                           <div>{timeAgo(c.createdAt)}</div>
-                          <div className="text-gray-300">{formatDate(c.createdAt)}</div>
+                          <div className="text-gray-600">{formatDate(c.createdAt)}</div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <a href={waLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer" title="WhatsApp this lead"
+                            <a href={waLink(c.phone, c.name)} target="_blank" rel="noopener noreferrer" aria-label={`WhatsApp ${c.name}`}
                               className="w-8 h-8 bg-[#25D366] hover:bg-[#22c55e] flex items-center justify-center text-white transition-colors">
                               <MessageCircle className="w-3.5 h-3.5" />
                             </a>
-                            <a href={`tel:${c.phone}`} title="Call this lead"
+                            <a href={`tel:${c.phone}`} aria-label={`Call ${c.name}`}
                               className="w-8 h-8 bg-gray-100 hover:bg-primary flex items-center justify-center text-gray-500 hover:text-white transition-colors">
                               <PhoneCall className="w-3.5 h-3.5" />
                             </a>
@@ -560,12 +568,14 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                     <div className="flex items-start justify-between mb-2 gap-2">
                       <div>
                         <span className="font-bold text-gray-900">{c.name}</span>
-                        <span className="text-gray-300 text-xs font-mono ml-2">#{c.id}</span>
+                        <span className="text-gray-600 text-xs font-mono ml-2">#{c.id}</span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button
+                          type="button"
                           onClick={() => void cycleStatus(c)}
                           disabled={isUpdating}
+                          aria-label={`Lead status is ${status}. Activate to change it.`}
                           className={`flex items-center gap-1 text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-sm ${STATUS_STYLES[status]}`}>
                           {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />}
                           {status}
@@ -590,10 +600,10 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
                           <PhoneCall className="w-3 h-3" /> Call
                         </a>
                       </div>
-                      <div className="text-gray-400 text-xs mt-1">{formatDate(c.createdAt)}</div>
+                      <div className="text-gray-600 text-xs mt-1">{formatDate(c.createdAt)}</div>
                       {c.message && (
                         <button onClick={() => setExpandedId(expandedId === c.id ? null : c.id)} className="text-left">
-                          <p className={`text-gray-400 text-xs mt-1 ${expandedId === c.id ? "" : "line-clamp-1"}`}>{c.message}</p>
+                          <p className={`text-gray-600 text-xs mt-1 ${expandedId === c.id ? "" : "line-clamp-1"}`}>{c.message}</p>
                         </button>
                       )}
                     </div>
@@ -602,9 +612,9 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
               })}
             </div>
 
-            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-400 font-medium flex items-center justify-between">
+            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-600 font-medium flex items-center justify-between">
               <span>Showing {filtered.length} of {contacts.length} leads</span>
-              <span className="text-gray-300">{convertedCount} converted</span>
+              <span className="text-gray-600">{convertedCount} converted</span>
             </div>
           </div>
         )}
@@ -615,6 +625,10 @@ function Dashboard({ adminKey, onLogout }: { adminKey: string; onLogout: () => v
 
 /* ── Root: handles auth gate ──────────────────────────────────────────── */
 export default function AdminPage() {
+  useEffect(() => {
+    applyPageMeta(ADMIN_PAGE_META);
+  }, []);
+
   const [adminKey, setAdminKey] = useState<string | null>(() => {
     const stored = getStoredKey();
     return stored || null;

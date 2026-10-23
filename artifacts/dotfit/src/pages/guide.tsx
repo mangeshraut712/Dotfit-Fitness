@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { applyPageMeta, GUIDE_PAGE_META } from "@/lib/page-meta";
 import {
   ArrowLeft,
   ArrowRight,
@@ -430,24 +431,24 @@ function ExerciseCard({ exercise, index }: { exercise: Exercise; index: number }
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-100 px-2 py-0.5">{exercise.sets} × {exercise.reps}</span>
             </div>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-180" />
+          <ChevronDown className="w-4 h-4 text-gray-600 shrink-0 transition-transform group-open:rotate-180" />
         </summary>
         <div className="border-t border-gray-100 p-4 grid md:grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Target</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">Target</p>
             <p className="text-sm text-gray-700"><span className="font-black text-gray-900">Primary:</span> {exercise.muscles}</p>
             <p className="text-sm text-gray-700 mt-1"><span className="font-black text-gray-900">Secondary:</span> {exercise.secondary}</p>
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Equipment</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">Equipment</p>
             <p className="text-sm text-gray-700">{exercise.equipment}</p>
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Execution</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">Execution</p>
             <p className="text-sm text-gray-700">{exercise.how}</p>
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Common Mistakes</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">Common Mistakes</p>
             <p className="text-sm text-red-500">{exercise.mistakes}</p>
           </div>
           <div className="md:col-span-2 bg-[#f8fbf3] border border-primary/15 p-4 flex items-start gap-3">
@@ -462,17 +463,20 @@ function ExerciseCard({ exercise, index }: { exercise: Exercise; index: number }
 
 export default function GuidePage() {
   const [active, setActive] = useState(1);
+  useEffect(() => {
+    applyPageMeta(GUIDE_PAGE_META);
+  }, []);
   const level = useMemo(() => LEVELS.find((item) => item.level === active) ?? LEVELS[0], [active]);
   const visibleLevels = [1, 2, 3, 4, 5];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <main id="main-content" className="min-h-screen bg-white text-gray-900">
       <div className="bg-gray-950 text-white px-4 py-3 flex items-center justify-between gap-4">
         <a href={import.meta.env.BASE_URL} className="flex items-center gap-2 text-sm font-bold text-white/60 hover:text-white">
           <ArrowLeft className="w-4 h-4" /> Back to Dotfit Fitness
         </a>
         <div className="flex items-center gap-3 text-xs font-black">
-          <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[#25D366]">
+          <a href="https://wa.me/919527237213?text=Hi%20Dotfit%20Fitness!%20I%27d%20like%20to%20book%20a%20free%20trial%20session." target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[#25D366]">
             <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
           </a>
           <a href="tel:+919527237213" className="flex items-center gap-1.5 text-white/60 hover:text-white">
@@ -522,8 +526,10 @@ export default function GuidePage() {
           {visibleLevels.map((n) => (
             <button
               key={n}
+              type="button"
+              aria-pressed={active === n}
               onClick={() => setActive(n)}
-              className={`shrink-0 px-4 py-2 text-xs font-black uppercase tracking-widest border transition-all ${active === n ? "bg-primary text-white border-primary" : "bg-white text-gray-500 border-gray-200 hover:border-primary hover:text-primary"}`}
+              className={`shrink-0 px-4 py-2 text-xs font-black uppercase tracking-widest border transition-all ${active === n ? "bg-primary text-white border-primary" : "bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary"}`}
             >
               Level {n}
             </button>
@@ -567,6 +573,6 @@ export default function GuidePage() {
           </a>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

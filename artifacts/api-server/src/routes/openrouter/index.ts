@@ -1,12 +1,25 @@
-import { Router } from "express";
+import { Router, type NextFunction, type Request, type Response } from "express";
 import { eq } from "drizzle-orm";
+import rateLimit from "express-rate-limit";
 import { db } from "@workspace/db";
 import { conversations, messages } from "@workspace/db/schema";
-import { openrouter } from "@workspace/integrations-openrouter-ai";
+import { getOpenRouter } from "@workspace/integrations-openrouter-ai";
+import { requireAdminAuth } from "../../lib/auth";
 import {
-  CreateOpenrouterConversationBody,
-  SendOpenrouterMessageBody,
-} from "@workspace/api-zod";
+  asChatRole,
+  COACH_HISTORY_LIMIT,
+  COACH_MAX_TOKENS,
+  COACH_MODEL,
+  createConversationSchema,
+  sendMessageSchema,
+} from "../../lib/chat-input";
+import {
+  conversationTokenMatches,
+  getConversationSecret,
+  signConversationId,
+} from "../../lib/conversation-access";
+import { parsePositiveIntParam } from "../../lib/ids";
+import { shouldSkipRateLimit } from "../../lib/rate-limit";
 
 const router = Router();
 
@@ -29,7 +42,45 @@ Communication style:
 
 Start every new conversation by briefly introducing yourself and asking the user's primary fitness goal.`;
 
-router.get("/conversations", async (req, res) => {
+const createLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many conversations. Please try again later." },
+  skip: shouldSkipRateLimit,
+});
+
+const messageLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many messages. Please try again later." },
+  skip: shouldSkipRateLimit,
+});
+
+function requireConversationAccess(req: Request, res: Response, next: NextFunction): void {
+  const secret = getConversationSecret();
+  if (!secret) {
+    res.status(503).json({ error: "Coach access is not configured" });
+    return;
+  }
+  const id = parsePositiveIntParam(req.params["id"]);
+  if (id == null) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const token = req.header("x-conversation-token");
+  if (!conversationTokenMatches(id, token, secret)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  res.locals.conversationId = id;
+  next();
+}
+
+router.get("/conversations", requireAdminAuth, async (req, res) => {
   try {
     const all = await db.select().from(conversations).orderBy(conversations.createdAt);
     res.json(all);
@@ -39,8 +90,13 @@ router.get("/conversations", async (req, res) => {
   }
 });
 
-router.post("/conversations", async (req, res) => {
-  const parsed = CreateOpenrouterConversationBody.safeParse(req.body);
+router.post("/conversations", createLimiter, async (req, res) => {
+  const secret = getConversationSecret();
+  if (!secret) {
+    res.status(503).json({ error: "Coach access is not configured" });
+    return;
+  }
+  const parsed = createConversationSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid request body" });
     return;
@@ -50,19 +106,22 @@ router.post("/conversations", async (req, res) => {
       .insert(conversations)
       .values({ title: parsed.data.title })
       .returning();
-    res.status(201).json(conv);
+    if (!conv) {
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+    res.status(201).json({
+      ...conv,
+      accessToken: signConversationId(conv.id, secret),
+    });
   } catch (err) {
     req.log.error({ err }, "Failed to create conversation");
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-router.get("/conversations/:id", async (req, res) => {
-  const id = Number(req.params["id"]);
-  if (!Number.isFinite(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
+router.get("/conversations/:id", requireConversationAccess, async (req, res) => {
+  const id = res.locals.conversationId as number;
   try {
     const [conv] = await db
       .select()
@@ -84,12 +143,8 @@ router.get("/conversations/:id", async (req, res) => {
   }
 });
 
-router.delete("/conversations/:id", async (req, res) => {
-  const id = Number(req.params["id"]);
-  if (!Number.isFinite(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
+router.delete("/conversations/:id", requireConversationAccess, async (req, res) => {
+  const id = res.locals.conversationId as number;
   try {
     const [deleted] = await db
       .delete(conversations)
@@ -106,12 +161,8 @@ router.delete("/conversations/:id", async (req, res) => {
   }
 });
 
-router.get("/conversations/:id/messages", async (req, res) => {
-  const id = Number(req.params["id"]);
-  if (!Number.isFinite(id)) {
-    res.status(400).json({ error: "Invalid id" });
-    return;
-  }
+router.get("/conversations/:id/messages", requireConversationAccess, async (req, res) => {
+  const id = res.locals.conversationId as number;
   try {
     const msgs = await db
       .select()
@@ -125,16 +176,18 @@ router.get("/conversations/:id/messages", async (req, res) => {
   }
 });
 
-router.post("/conversations/:id/messages", async (req, res) => {
-  const id = Number(req.params["id"]);
-  if (!Number.isFinite(id)) {
-    res.status(400).json({ error: "Invalid id" });
+router.post("/conversations/:id/messages", requireConversationAccess, messageLimiter, async (req, res) => {
+  const id = res.locals.conversationId as number;
+
+  const parsed = sendMessageSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request body" });
     return;
   }
 
-  const parsed = SendOpenrouterMessageBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: "Invalid request body" });
+  const openrouter = getOpenRouter();
+  if (!openrouter) {
+    res.status(503).json({ error: "AI coach is not configured" });
     return;
   }
 
@@ -160,11 +213,12 @@ router.post("/conversations/:id/messages", async (req, res) => {
       .where(eq(messages.conversationId, id))
       .orderBy(messages.createdAt);
 
+    const recentHistory = history.slice(-COACH_HISTORY_LIMIT);
     const chatMessages = [
       { role: "system" as const, content: SYSTEM_PROMPT },
-      ...history.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
+      ...recentHistory.map((message) => ({
+        role: asChatRole(message.role),
+        content: message.content,
       })),
     ];
 
@@ -178,8 +232,8 @@ router.post("/conversations/:id/messages", async (req, res) => {
 
     try {
       const stream = await openrouter.chat.completions.create({
-        model: "meta-llama/llama-4-scout",
-        max_tokens: 8192,
+        model: COACH_MODEL,
+        max_tokens: COACH_MAX_TOKENS,
         messages: chatMessages,
         stream: true,
       });

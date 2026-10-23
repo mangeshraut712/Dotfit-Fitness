@@ -74,20 +74,21 @@ Official website for Dotfit Fitness gym in Baner, Pune, India. Built as a pnpm m
 
 - `GET /api/healthz` — health check → `{ status: "ok" }`
 - `POST /api/contacts` — submit contact/trial form (Zod validated, persisted to DB)
-- `GET /api/contacts` — list all submissions (used by admin page)
-- `PATCH /api/contacts/:id/status` — update lead status (New / Contacted / Converted)
+- `GET /api/contacts` — list submissions. Requires `Authorization: Bearer $ADMIN_PASSWORD`. Returns 503 if `ADMIN_PASSWORD` is unset.
+- `PATCH /api/contacts/:id/status` — update lead status (New / Contacted / Converted). Same admin auth. The id must be a whole positive integer.
 
 ### AI Chatbot (OpenRouter)
 
-- `POST /api/openrouter/conversations` — create a new chat session → `{ id, title, createdAt }`
-- `GET /api/openrouter/conversations/:id` — fetch conversation + message history
-- `POST /api/openrouter/conversations/:id/messages` — send user message; returns SSE stream (`text/event-stream`) of `{ content }` chunks ending with `{ done: true }`
-- `GET /api/openrouter/conversations/:id/messages` — list messages in a conversation
-- `DELETE /api/openrouter/conversations/:id` — delete a conversation
+- `POST /api/openrouter/conversations` — create a chat session → `{ id, title, createdAt, accessToken }`
+- `GET /api/openrouter/conversations` — staff only (`ADMIN_PASSWORD`)
+- `GET /api/openrouter/conversations/:id` — fetch conversation + messages. Requires `X-Conversation-Token`
+- `POST /api/openrouter/conversations/:id/messages` — send a user message; returns an SSE stream. Requires the same token
+- `GET /api/openrouter/conversations/:id/messages` — list messages. Requires the same token
+- `DELETE /api/openrouter/conversations/:id` — delete a conversation. Requires the same token
 
 **SSE format**: `data: {"content":"..."}` chunks, final `data: {"done":true}`. Errors: `data: {"error":"..."}`.
 
-**AI Integration**: Uses Replit-managed OpenRouter proxy (`AI_INTEGRATIONS_OPENROUTER_BASE_URL` + `AI_INTEGRATIONS_OPENROUTER_API_KEY`). Model: `meta-llama/llama-3.3-70b-instruct:free`. Conversations + messages persisted to PostgreSQL (`conversations`, `messages` tables).
+**AI Integration**: Uses the OpenRouter proxy (`AI_INTEGRATIONS_OPENROUTER_BASE_URL` + `AI_INTEGRATIONS_OPENROUTER_API_KEY`). The API still boots when those variables are missing; coach routes then return 503. Model: `meta-llama/llama-4-scout`. Conversations and messages are stored in PostgreSQL (`conversations`, `messages`). Access tokens are HMAC signatures, not a database column.
 
 ## Pages
 

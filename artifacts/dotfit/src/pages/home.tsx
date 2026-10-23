@@ -5,9 +5,8 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
   MapPin,
   Phone,
@@ -66,7 +65,11 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import ChatWidget from "@/components/ChatWidget";
-import { BASE_URL, assetUrl } from "@/lib/paths";
+import { computeBmi, type BmiResult } from "@/lib/bmi";
+import { getDailyBanner, getGymStatus } from "@/lib/gym-hours";
+import { applyPageMeta, HOME_PAGE_META } from "@/lib/page-meta";
+import { BASE_URL, assetUrl, pageUrl } from "@/lib/paths";
+import { contactSubmissionSchema } from "@workspace/api-zod";
 
 /* ─── Animated count-up hook ────────────────────────────────────────────── */
 function useCountUp(target: number, duration = 1800) {
@@ -76,17 +79,18 @@ function useCountUp(target: number, duration = 1800) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !started.current) {
           started.current = true;
           const step = target / (duration / 16);
           let cur = 0;
-          const t = setInterval(() => {
+          intervalId = setInterval(() => {
             cur += step;
             if (cur >= target) {
               setCount(target);
-              clearInterval(t);
+              if (intervalId) clearInterval(intervalId);
             } else setCount(Math.floor(cur));
           }, 16);
         }
@@ -94,7 +98,10 @@ function useCountUp(target: number, duration = 1800) {
       { threshold: 0.5 },
     );
     obs.observe(el);
-    return () => obs.disconnect();
+    return () => {
+      obs.disconnect();
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [target, duration]);
   return { count, ref };
 }
@@ -114,7 +121,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         <span>{question}</span>
         <ChevronDown
           aria-hidden="true"
-          className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-gray-400"}`}
+          className={`w-5 h-5 shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-primary" : "text-gray-600"}`}
         />
       </button>
       <div
@@ -174,7 +181,7 @@ function StaffCard({
           <span className="text-white font-black text-sm uppercase tracking-wider">
             {name}
           </span>
-          <span className="text-primary/80 text-[10px] uppercase tracking-widest font-bold">
+          <span className="text-primary text-[10px] uppercase tracking-widest font-bold">
             {role}
           </span>
         </div>
@@ -218,7 +225,7 @@ function StatBox({
         {count}
         {suffix}
       </div>
-      <div className="relative text-xs text-gray-400 uppercase tracking-widest font-bold">
+      <div className="relative text-xs text-gray-600 uppercase tracking-widest font-bold">
         {label}
       </div>
     </motion.div>
@@ -231,80 +238,23 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
   const [heightCm, setHeightCm] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState<"male" | "female">("male");
-  const [result, setResult] = useState<{
-    bmi: number;
-    category: string;
-    color: string;
-    plan: string;
-    tip: string;
-    idealMin: number;
-    idealMax: number;
-    bmr: number;
-    tdee: number;
-    bodyFat: number;
-  } | null>(null);
+  const [result, setResult] = useState<BmiResult | null>(null);
+  const [error, setError] = useState("");
 
   const calculate = () => {
-    const w = parseFloat(weight);
-    const h = parseFloat(heightCm) / 100;
-    const a = parseInt(age) || 25;
-    if (w <= 0 || h <= 0) return;
-    const bmi = parseFloat((w / (h * h)).toFixed(1));
-    const hCm = parseFloat(heightCm);
-    const idealMin =
-      gender === "male"
-        ? parseFloat((48.0 + 2.7 * ((hCm - 152.4) / 2.54)).toFixed(1))
-        : parseFloat((45.5 + 2.2 * ((hCm - 152.4) / 2.54)).toFixed(1));
-    const idealMax = parseFloat((idealMin + 5).toFixed(1));
-    const bmr =
-      gender === "male"
-        ? parseFloat((10 * w + 6.25 * hCm - 5 * a + 5).toFixed(0))
-        : parseFloat((10 * w + 6.25 * hCm - 5 * a - 161).toFixed(0));
-    const tdee = parseFloat((bmr * 1.375).toFixed(0));
-    const bodyFat =
-      gender === "male"
-        ? parseFloat((1.2 * bmi + 0.23 * a - 16.2).toFixed(1))
-        : parseFloat((1.2 * bmi + 0.23 * a - 5.4).toFixed(1));
-    const { category, color, plan, tip } =
-      bmi < 18.5
-        ? {
-            category: "Underweight",
-            color: "text-blue-500",
-            plan: "3 Months",
-            tip: "Focus on progressive strength training + calorie surplus to build lean muscle.",
-          }
-        : bmi < 25
-          ? {
-              category: "Normal Weight",
-              color: "text-primary",
-              plan: "1 Year",
-              tip: "Maintain your fitness with group classes, toning sessions, and active recovery.",
-            }
-          : bmi < 30
-            ? {
-                category: "Overweight",
-                color: "text-amber-500",
-                plan: "6 Months",
-                tip: "Combine daily cardio, HIIT circuits, and a calorie-managed nutrition plan.",
-              }
-            : {
-                category: "Obese",
-                color: "text-red-500",
-                plan: "1 Year",
-                tip: "Structured fat-loss program with dedicated personal trainer and nutritionist support.",
-              };
-    setResult({
-      bmi,
-      category,
-      color,
-      plan,
-      tip,
-      idealMin,
-      idealMax,
-      bmr,
-      tdee,
-      bodyFat,
+    const outcome = computeBmi({
+      weightKg: weight,
+      heightCm,
+      ageYears: age,
+      gender,
     });
+    if (!outcome.ok) {
+      setResult(null);
+      setError(outcome.error);
+      return;
+    }
+    setError("");
+    setResult(outcome.result);
   };
 
   const bmiPercent = result
@@ -326,6 +276,13 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
             personalised Dotfit program — instantly.
           </p>
 
+          <form
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault();
+              calculate();
+            }}
+          >
           <div
             className="flex gap-3 mb-4"
             role="group"
@@ -334,6 +291,7 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
             {(["male", "female"] as const).map((g) => (
               <button
                 key={g}
+                type="button"
                 onClick={() => setGender(g)}
                 aria-pressed={gender === g}
                 aria-label={g === "male" ? "Male" : "Female"}
@@ -402,17 +360,24 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
           </div>
 
           <button
-            onClick={calculate}
+            type="submit"
             className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-sm transition-colors"
           >
             Calculate My BMI
           </button>
+          {error ? (
+            <p role="alert" className="mt-3 text-sm font-medium text-red-700">
+              {error}
+            </p>
+          ) : null}
+          </form>
 
           <div className="mt-6 border-t border-gray-100 pt-5">
-            <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
+            <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-3">
               BMI Scale Reference
             </div>
             <div
+              aria-hidden="true"
               className="relative h-3 rounded-full overflow-hidden mb-2"
               style={{
                 background:
@@ -426,7 +391,7 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
                 />
               )}
             </div>
-            <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-400">
+            <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-600">
               <span>Underweight</span>
               <span>Normal</span>
               <span>Overweight</span>
@@ -439,10 +404,10 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
           {!result ? (
             <div className="border-2 border-dashed border-gray-200 p-10 text-center h-full flex flex-col items-center justify-center min-h-[300px]">
               <BarChart2 className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-              <p className="text-gray-400 font-medium text-sm mb-2">
+              <p className="text-gray-600 font-medium text-sm mb-2">
                 Your full health analysis appears here
               </p>
-              <p className="text-gray-300 text-xs font-medium">
+              <p className="text-gray-600 text-xs font-medium">
                 BMI · Ideal Weight · Calories · Body Fat %
               </p>
             </div>
@@ -470,53 +435,53 @@ function BmiCalculator({ onBook }: { onBook: (plan: string) => void }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white border-2 border-gray-100 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
                     Ideal Weight Range
                   </div>
                   <div className="text-lg font-display font-black text-gray-900">
                     {result.idealMin}–{result.idealMax} kg
                   </div>
-                  <div className="text-xs text-gray-400 font-medium mt-0.5">
+                  <div className="text-xs text-gray-600 font-medium mt-0.5">
                     Hamwi Formula
                   </div>
                 </div>
                 <div className="bg-white border-2 border-gray-100 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
                     Est. Body Fat
                   </div>
                   <div className="text-lg font-display font-black text-gray-900">
                     {result.bodyFat}%
                   </div>
-                  <div className="text-xs text-gray-400 font-medium mt-0.5">
+                  <div className="text-xs text-gray-600 font-medium mt-0.5">
                     BMI-based estimate
                   </div>
                 </div>
                 <div className="bg-white border-2 border-gray-100 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
                     Basal Metabolic Rate
                   </div>
                   <div className="text-lg font-display font-black text-gray-900">
                     {result.bmr} kcal
                   </div>
-                  <div className="text-xs text-gray-400 font-medium mt-0.5">
+                  <div className="text-xs text-gray-600 font-medium mt-0.5">
                     Calories at rest/day
                   </div>
                 </div>
                 <div className="bg-white border-2 border-gray-100 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
                     Daily Calorie Need
                   </div>
                   <div className="text-lg font-display font-black text-gray-900">
                     {result.tdee} kcal
                   </div>
-                  <div className="text-xs text-gray-400 font-medium mt-0.5">
+                  <div className="text-xs text-gray-600 font-medium mt-0.5">
                     Light activity TDEE
                   </div>
                 </div>
               </div>
 
               <div className="bg-white border-2 border-primary/20 p-4">
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-1">
+                <div className="text-xs text-gray-600 uppercase tracking-widest font-bold mb-1">
                   Recommended Dotfit Plan
                 </div>
                 <div className="text-xl font-display font-black text-gray-900 mb-3">
@@ -545,13 +510,27 @@ function OfferPopup({
   onClose: () => void;
   onBook: () => void;
 }) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="offer-title"
       className="fixed inset-0 z-[200] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={onClose}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") onClose();
+      }}
     >
       <motion.div
         initial={{ scale: 0.92, y: 24 }}
@@ -565,7 +544,7 @@ function OfferPopup({
           type="button"
           onClick={onClose}
           aria-label="Close special offer"
-          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center text-gray-600 hover:text-gray-700 hover:bg-gray-100 transition-colors"
         >
           <X className="w-4 h-4" aria-hidden="true" />
         </button>
@@ -573,7 +552,7 @@ function OfferPopup({
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 text-white text-[10px] font-black uppercase tracking-widest mb-3">
             <Sparkles className="w-3 h-3" /> Special Offer
           </div>
-          <h3 className="text-3xl font-display font-black uppercase tracking-tighter text-white leading-tight">
+          <h3 id="offer-title" className="text-3xl font-display font-black uppercase tracking-tighter text-white leading-tight">
             Your First
             <br />
             Session Is Free
@@ -594,7 +573,7 @@ function OfferPopup({
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest line-through mb-0.5">
+              <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest line-through mb-0.5">
                 ₹12,000
               </div>
               <div className="text-xs font-black text-green-600 uppercase tracking-widest">
@@ -610,7 +589,7 @@ function OfferPopup({
           </button>
           <button
             onClick={onClose}
-            className="w-full text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors py-1"
+            className="w-full text-xs text-gray-600 hover:text-gray-900 font-medium transition-colors py-1"
           >
             No thanks
           </button>
@@ -622,76 +601,22 @@ function OfferPopup({
 
 /* ─── Gym open/closed status (IST) ──────────────────────────────────────── */
 function useGymStatus() {
-  const compute = () => {
-    const ist = new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Kolkata",
-    });
-    const d = new Date(ist);
-    const day = d.getDay(); // 0 = Sunday
-    const totalMin = d.getHours() * 60 + d.getMinutes();
-    const o6 = 6 * 60,
-      c12 = 12 * 60,
-      o16 = 16 * 60,
-      c22 = 22 * 60;
-    if (day === 0) {
-      if (totalMin >= o6 && totalMin < c12)
-        return { open: true, sub: "Closes 12 PM" };
-      return { open: false, sub: "Mon–Sat 6AM–10PM" };
-    }
-    if (totalMin >= o6 && totalMin < c12)
-      return { open: true, sub: "Morning Batch" };
-    if (totalMin >= o16 && totalMin < c22)
-      return { open: true, sub: "Evening Batch" };
-    if (totalMin >= c12 && totalMin < o16)
-      return { open: false, sub: "Opens at 4:00 PM" };
-    if (totalMin >= c22) return { open: false, sub: "Opens 6:00 AM" };
-    return { open: false, sub: "Opens at 6:00 AM" };
-  };
-  const [status, setStatus] = useState(compute);
+  const [status, setStatus] = useState(() => getGymStatus(new Date()));
   useEffect(() => {
-    const id = setInterval(() => setStatus(compute()), 30000);
+    const id = setInterval(() => setStatus(getGymStatus(new Date())), 30000);
     return () => clearInterval(id);
   }, []);
   return status;
 }
 
-/* ─── Daily status label ─────────────────────────────────────────────────── */
-function getIST() {
-  const ist = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-  return new Date(ist);
-}
-
 function useDailyLabel() {
-  const compute = () => {
-    const d = getIST();
-    const day = d.getDay();
-    const h = d.getHours();
-    const m = d.getMinutes();
-    const s = d.getSeconds();
-    const openNow = (day !== 0 && h >= 6 && h < 22) || (day === 0 && h >= 6 && h < 12);
-    if (openNow) return "Open daily 6 AM – 10 PM | Book Free Trial →";
-    if (day === 0) return "Open Sunday 6 AM – 12 PM | Book Free Trial →";
-    if (h < 6) return "Open daily 6 AM – 10 PM | Opens today at 6 AM";
-    if (h >= 22) return "Open daily 6 AM – 10 PM | Opens tomorrow at 6 AM";
-    if (h >= 12 && h < 16) return "Open daily 6 AM – 10 PM | Break 12 PM – 4 PM";
-    return "Open daily 6 AM – 10 PM | Book Free Trial →";
-  };
-  const [label, setLabel] = useState(compute);
+  const [label, setLabel] = useState(() => getDailyBanner(new Date()));
   useEffect(() => {
-    const id = setInterval(() => setLabel(compute()), 1000);
+    const id = setInterval(() => setLabel(getDailyBanner(new Date())), 30000);
     return () => clearInterval(id);
   }, []);
   return label;
 }
-
-/* ─── Schema ─────────────────────────────────────────────────────────────── */
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().min(10, "Please enter a valid phone number"),
-  email: z.string().email("Please enter a valid email address"),
-  plan: z.string().min(1, "Please select a plan"),
-  message: z.string().optional(),
-});
 
 /* ─── SCHEDULE data ──────────────────────────────────────────────────────── */
 const schedule = [
@@ -781,16 +706,46 @@ export default function Home() {
       const docH = document.documentElement.scrollHeight - window.innerHeight;
       setScrollPct(docH > 0 ? (window.scrollY / docH) * 100 : 0);
     };
-    window.addEventListener("scroll", fn);
+    window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  useEffect(() => {
+    applyPageMeta(HOME_PAGE_META);
+    const id = window.location.hash.replace(/^#/, "");
+    if (!id) return;
+    document.getElementById(id)?.scrollIntoView();
+  }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileMenuOpen]);
+
+  type ContactFormValues = {
+    name: string;
+    phone: string;
+    email: string;
+    plan: string;
+    message?: string | null;
+  };
+
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSubmissionSchema) as Resolver<ContactFormValues>,
     defaultValues: { name: "", phone: "", email: "", plan: "", message: "" },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: {
+    name: string;
+    phone: string;
+    email: string;
+    plan: string;
+    message?: string | null;
+  }) {
     try {
       const res = await fetch(`${BASE_URL}api/contacts`, {
         method: "POST",
@@ -802,11 +757,23 @@ export default function Home() {
         setSubmittedPlan(values.plan);
         setFormDone(true);
         form.reset();
-      } else throw new Error();
-    } catch {
+        return;
+      }
+      const body = (await res.json().catch(() => null)) as {
+        error?: string;
+        details?: Record<string, string[] | undefined>;
+      } | null;
+      const detail = body?.details
+        ? Object.values(body.details).flat().find((item) => item)
+        : body?.error;
+      throw new Error(detail || "Submission failed");
+    } catch (err) {
       toast({
         title: "Submission failed",
-        description: "Please call +91 95272 37213 directly.",
+        description:
+          err instanceof Error && err.message
+            ? err.message
+            : "Please call +91 95272 37213 directly.",
         variant: "destructive",
       });
     }
@@ -985,6 +952,7 @@ export default function Home() {
             ].map((item) => (
               <button
                 key={item}
+                type="button"
                 onClick={() =>
                   scrollTo(sectionIds[item as keyof typeof sectionIds])
                 }
@@ -994,6 +962,12 @@ export default function Home() {
                 {item}
               </button>
             ))}
+            <a
+              href={pageUrl("/guide")}
+              className="text-2xl font-display font-black text-gray-900 hover:text-primary transition-colors uppercase tracking-widest"
+            >
+              Guide
+            </a>
             <div className="flex gap-4 mt-4">
               {[
                 {
@@ -1025,7 +999,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="text-gray-400 hover:text-primary"
+                  className="text-gray-600 hover:text-primary"
                 >
                   {s.icon}
                 </a>
@@ -1214,10 +1188,10 @@ export default function Home() {
           transition={{ repeat: Infinity, duration: 2 }}
           onClick={() => scrollTo("trust")}
         >
-          <span className="text-white/30 text-xs uppercase tracking-widest font-bold">
+          <span className="text-white/80 text-xs uppercase tracking-widest font-bold">
             Scroll
           </span>
-          <ChevronDown className="w-5 h-5 text-white/30" />
+          <ChevronDown className="w-5 h-5 text-white/80" />
         </motion.div>
       </section>
 
@@ -1332,7 +1306,7 @@ export default function Home() {
                 <div className="text-sm font-black text-gray-900 leading-none">
                   {t.label}
                 </div>
-                <div className="text-xs text-gray-400 font-medium mt-0.5">
+                <div className="text-xs text-gray-600 font-medium mt-0.5">
                   {t.sub}
                 </div>
               </div>
@@ -1715,7 +1689,7 @@ export default function Home() {
       {/* ════════════════════ EQUIPMENT ZONES ══════════════════════════ */}
       <div className="bg-gray-950 py-10 border-y border-white/5">
         <div className="container mx-auto px-4 md:px-6">
-          <p className="text-center text-white/30 text-xs uppercase tracking-widest font-black mb-8">
+          <p className="text-center text-white/80 text-xs uppercase tracking-widest font-black mb-8">
             Equipment & Training Zones
           </p>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
@@ -1737,10 +1711,10 @@ export default function Home() {
                 key={i}
                 className="flex flex-col items-center gap-2 p-5 border border-white/10 hover:border-primary/40 transition-colors group"
               >
-                <div className="text-white/40 group-hover:text-primary transition-colors">
+                <div className="text-white/80 group-hover:text-primary transition-colors">
                   {z.icon}
                 </div>
-                <span className="text-white/40 group-hover:text-white/70 text-xs uppercase tracking-widest font-bold text-center transition-colors">
+                <span className="text-white/80 group-hover:text-white/70 text-xs uppercase tracking-widest font-bold text-center transition-colors">
                   {z.label}
                 </span>
               </div>
@@ -1819,7 +1793,7 @@ export default function Home() {
                 ].map((t) => (
                   <span
                     key={t}
-                    className="px-3 py-1.5 border border-white/15 text-white/50 uppercase tracking-wider text-xs font-bold"
+                    className="px-3 py-1.5 border border-white/15 text-white/80 uppercase tracking-wider text-xs font-bold"
                   >
                     {t}
                   </span>
@@ -1872,7 +1846,7 @@ export default function Home() {
                       <h3 className="text-sm font-display font-black uppercase tracking-widest mb-1">
                         {cls.title}
                       </h3>
-                      <p className="text-white/40 text-xs font-medium">
+                      <p className="text-white/80 text-xs font-medium">
                         {cls.inst}
                       </p>
                     </div>
@@ -1884,7 +1858,7 @@ export default function Home() {
                   <h3 className="text-sm font-display font-black uppercase tracking-widest text-primary">
                     Weekly Schedule
                   </h3>
-                  <span className="text-white/30 text-xs font-medium">
+                  <span className="text-white/80 text-xs font-medium">
                     Sunday: 6 AM – 12 PM · Closed rest of day
                   </span>
                 </div>
@@ -1910,7 +1884,7 @@ export default function Home() {
                         key={i}
                         className={i % 2 === 0 ? "bg-white/[0.03]" : ""}
                       >
-                        <td className="px-3 py-2.5 text-white/50 font-bold whitespace-nowrap border-b border-white/5">
+                        <td className="px-3 py-2.5 text-white/80 font-bold whitespace-nowrap border-b border-white/5">
                           {row.time}
                         </td>
                         {[
@@ -1932,7 +1906,7 @@ export default function Home() {
                     ))}
                   </tbody>
                 </table>
-                <p className="text-white/25 text-xs mt-2">
+                <p className="text-white/75 text-xs mt-2">
                   * Schedule may vary. Confirm on WhatsApp +91 95272 37213
                 </p>
               </div>
@@ -2000,7 +1974,7 @@ export default function Home() {
                 </h3>
                 <div className="space-y-4 mb-8 flex-grow">
                   <div className="text-center pb-4 border-b border-gray-100">
-                    <div className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-1">
+                    <div className="text-xs text-gray-600 uppercase tracking-widest font-bold mb-1">
                       Regular Hours
                     </div>
                     <div className="text-4xl font-display font-black text-gray-900">
@@ -2102,7 +2076,7 @@ export default function Home() {
                         {v === true ? (
                           <Check className="w-4 h-4 text-primary mx-auto" />
                         ) : v === false ? (
-                          <X className="w-4 h-4 text-gray-300 mx-auto" />
+                          <X className="w-4 h-4 text-gray-600 mx-auto" />
                         ) : (
                           <span className="text-xs font-black text-primary uppercase tracking-widest">
                             {v}
@@ -2115,7 +2089,7 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-          <div className="mt-8 flex flex-wrap justify-center gap-6 text-gray-400 font-black uppercase tracking-widest text-xs">
+          <div className="mt-8 flex flex-wrap justify-center gap-6 text-gray-600 font-black uppercase tracking-widest text-xs">
             <span>Single Session: ₹500</span>
             <span className="text-gray-200">|</span>
             <span>7-Day Trial Pass: ₹1,500</span>
@@ -2194,7 +2168,7 @@ export default function Home() {
                 <div className="text-3xl font-display font-black text-primary">
                   15kg
                 </div>
-                <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                <div className="text-xs text-gray-600 font-bold uppercase tracking-widest">
                   Lost in 6 Months
                 </div>
               </div>
@@ -2202,7 +2176,7 @@ export default function Home() {
                 <div className="text-3xl font-display font-black text-primary">
                   8kg
                 </div>
-                <div className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                <div className="text-xs text-gray-600 font-bold uppercase tracking-widest">
                   Muscle in 90 Days
                 </div>
               </div>
@@ -2628,7 +2602,7 @@ export default function Home() {
                 ))}
               </div>
               <span className="font-black text-xl text-gray-900">4.2 / 5</span>
-              <span className="text-gray-400 text-sm font-medium">
+              <span className="text-gray-600 text-sm font-medium">
                 · 726+ Reviews on Google & JustDial
               </span>
             </div>
@@ -2820,14 +2794,14 @@ export default function Home() {
                 <h3 className="text-xl font-display font-black uppercase tracking-wider text-white mb-3">
                   {g.title}
                 </h3>
-                <p className="text-white/55 font-medium text-sm leading-relaxed mb-5">
+                <p className="text-white/80 font-medium text-sm leading-relaxed mb-5">
                   {g.desc}
                 </p>
                 <div className="space-y-2 mb-6 flex-grow">
                   {g.tips.map((tip, j) => (
                     <div key={j} className="flex items-start gap-2">
                       <div className="w-1 h-1 rounded-full bg-primary mt-2 shrink-0" />
-                      <p className="text-white/45 text-xs font-medium leading-relaxed">
+                      <p className="text-white/80 text-xs font-medium leading-relaxed">
                         {tip}
                       </p>
                     </div>
@@ -2858,7 +2832,7 @@ export default function Home() {
                 Trainer <span className="text-primary">Tips</span>
               </h2>
             </div>
-            <p className="text-white/40 font-medium text-sm max-w-xs">
+            <p className="text-white/80 font-medium text-sm max-w-xs">
               Curated insights from Dotfit's K11-certified trainers and
               nutritionists.
             </p>
@@ -2909,11 +2883,11 @@ export default function Home() {
                 <h3 className="font-display font-black uppercase tracking-wider text-white mb-3 text-sm leading-tight group-hover:text-primary transition-colors flex-grow">
                   {tip.title}
                 </h3>
-                <p className="text-white/40 font-medium text-xs leading-relaxed mb-5">
+                <p className="text-white/80 font-medium text-xs leading-relaxed mb-5">
                   {tip.excerpt}
                 </p>
                 <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest flex items-center gap-1">
+                  <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest flex items-center gap-1">
                     <BookOpen className="w-3 h-3" />
                     {tip.read}
                   </span>
@@ -2949,7 +2923,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-primary mx-auto mb-4 flex items-center justify-center text-white font-black text-lg">
               1
             </div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+            <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
               Beginner · 2× / week
             </div>
             <h3 className="text-2xl font-display font-black uppercase tracking-tight mb-3 text-gray-900">
@@ -2973,7 +2947,7 @@ export default function Home() {
                 Book Free Trial
               </Button>
             </div>
-            <p className="text-xs text-gray-400 font-medium mt-4 uppercase tracking-widest">
+            <p className="text-xs text-gray-600 font-medium mt-4 uppercase tracking-widest">
               5 levels · 40+ exercises · Form cues · Visual references
             </p>
           </div>
@@ -3185,7 +3159,7 @@ export default function Home() {
                   <div className="text-2xl font-display font-black text-white">
                     {s.val}
                   </div>
-                  <div className="text-white/50 text-xs font-bold uppercase tracking-widest mt-0.5">
+                  <div className="text-white/80 text-xs font-bold uppercase tracking-widest mt-0.5">
                     {s.label}
                   </div>
                 </div>
@@ -3340,7 +3314,7 @@ export default function Home() {
                 </div>
                 <button
                   onClick={() => setFormDone(false)}
-                  className="mt-4 text-xs text-gray-400 hover:text-gray-600 font-medium underline underline-offset-2 w-full text-center"
+                  className="mt-4 text-xs text-gray-600 hover:text-gray-900 font-medium underline underline-offset-2 w-full text-center"
                 >
                   Submit another request
                 </button>
@@ -3348,6 +3322,7 @@ export default function Home() {
             ) : (
               <Form {...form}>
                 <form
+                  noValidate
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-5"
                 >
@@ -3360,8 +3335,9 @@ export default function Home() {
                           Full Name
                         </FormLabel>
                         <FormControl>
-                          <Input
+                            <Input
                             placeholder="Your Full Name"
+                            autoComplete="name"
                             className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900"
                             {...field}
                           />
@@ -3381,6 +3357,9 @@ export default function Home() {
                           </FormLabel>
                           <FormControl>
                             <Input
+                              type="tel"
+                              inputMode="tel"
+                              autoComplete="tel"
                               placeholder="+91 98765 43210"
                               className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900"
                               {...field}
@@ -3400,6 +3379,8 @@ export default function Home() {
                           </FormLabel>
                           <FormControl>
                             <Input
+                              type="email"
+                              autoComplete="email"
                               placeholder="you@example.com"
                               className="rounded-none border-gray-200 focus-visible:ring-primary h-12 bg-white text-gray-900"
                               {...field}
@@ -3462,7 +3443,11 @@ export default function Home() {
                           <Textarea
                             placeholder="Goals, preferred batch timing, any health conditions..."
                             className="rounded-none border-gray-200 focus-visible:ring-primary min-h-[90px] resize-none bg-white text-gray-900"
-                            {...field}
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            onChange={field.onChange}
+                            value={field.value ?? ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -3558,7 +3543,7 @@ export default function Home() {
                       <br />
                       12:00–2:00 PM Rest · 2:00–4:00 PM Trainer Workout
                       <br />
-                      <span className="text-white/40">
+                      <span className="text-white/80">
                         Sunday: 6:00 AM – 12:00 PM only
                       </span>
                     </>
@@ -3614,7 +3599,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all"
+                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/80 hover:text-primary hover:border-primary/40 transition-all"
                 >
                   <Instagram className="w-4 h-4" />
                 </a>
@@ -3623,7 +3608,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all"
+                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/80 hover:text-primary hover:border-primary/40 transition-all"
                 >
                   <Facebook className="w-4 h-4" />
                 </a>
@@ -3632,7 +3617,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"
-                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all"
+                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/80 hover:text-primary hover:border-primary/40 transition-all"
                 >
                   <MessageCircle className="w-4 h-4" />
                 </a>
@@ -3641,7 +3626,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all"
+                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/80 hover:text-primary hover:border-primary/40 transition-all"
                 >
                   <Linkedin className="w-4 h-4" />
                 </a>
@@ -3650,7 +3635,7 @@ export default function Home() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Google Maps"
-                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all"
+                  className="w-9 h-9 border border-white/10 flex items-center justify-center text-white/80 hover:text-primary hover:border-primary/40 transition-all"
                 >
                   <MapPin className="w-4 h-4" />
                 </a>
@@ -3664,7 +3649,7 @@ export default function Home() {
       <footer className="bg-gray-950 text-white border-t border-white/5 pb-28 md:pb-0">
         <div className="container mx-auto px-4 md:px-6 py-10">
           <div className="flex justify-center">
-            <p className="text-white/20 text-xs font-bold uppercase tracking-widest">
+            <p className="text-white/75 text-xs font-bold uppercase tracking-widest">
               © 2026 Dotfit Fitness. All Rights Reserved.
             </p>
           </div>

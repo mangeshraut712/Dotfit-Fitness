@@ -9,6 +9,9 @@ import {
   Trash2,
   ChevronDown,
 } from "lucide-react";
+import { parseStoredChat, serializeStoredChat } from "@/lib/chat-session";
+import { getOfflineReply } from "@/lib/coach-offline";
+import { applyCoachEvent, finishCoachDraft, takeSseEvents, type AssistantDraft } from "@/lib/sse";
 
 const BASE_URL = import.meta.env.BASE_URL as string;
 
@@ -18,104 +21,37 @@ interface Message {
   streaming?: boolean;
 }
 
-const OFFLINE_KNOWLEDGE = {
-  identity:
-    "I'm Dotfit AI Coach — your gym-side fitness assistant for training, nutrition, equipment selection, and safe progress.",
-  gym:
-    "Dotfit Fitness is the Baner, Pune gym shown on this site. Use the website for gym timing, location, trial, and contact details.",
-  amenities:
-    "Dotfit has 2 cleaners for the male and female locker rooms, plus a water machine with cold, normal, and hot drinking water.",
-  policies:
-    "Membership transfer fee is ₹1,500–₹2,000. If an existing member refers a new client who joins a 6–12 month membership, the existing member gets a 1 month extension.",
-  classes:
-    "All classes are free to join and work on a first-come, first-served basis when space is available.",
-  staff:
-    "The front desk is helpful for gym inquiries, holiday or closure updates, and general information. Trainers are also approachable and ready to help with what to do next.",
-  training:
-    "For muscle gain: prioritize progressive overload, 10-20 hard sets per muscle per week, 1-3 RIR on key lifts, and track performance weekly.",
-    nutrition:
-    "For fat loss: keep protein high, build meals around lean protein + fiber + produce, and create a modest calorie deficit you can sustain.",
-  equipment:
-    "Free weights build stability and strength; selectorized machines isolate safely; cables are great for constant tension and angle changes; functional tools help conditioning and core work.",
-  safety:
-    "If a movement causes sharp pain, reduce range of motion, lower load, switch variation, or stop and seek a qualified trainer or clinician.",
-  examples: [
-    {
-      q: "Build muscle",
-      a: "Use a 4-5 day split, base each session on compound lifts, add 1-2 reps or a little weight when all sets hit the top of your target range, and eat enough protein daily.",
-    },
-    {
-      q: "Lose fat",
-      a: "Keep lifting heavy enough to preserve strength, walk more, eat mostly whole foods, and aim for a small calorie deficit instead of crashing calories.",
-    },
-    {
-      q: "Fix my squat",
-      a: "Start with foot pressure and bracing, then check ankle mobility, knee tracking, depth control, and bar path. Goblet squats and heel-elevated squats can help build the pattern.",
-    },
-    {
-      q: "Meal plan",
-      a: "Anchor each meal around protein, include fruit or vegetables, use carbs around workouts, and keep fats moderate so calories stay controlled.",
-    },
-  ],
-} as const;
-
-function getOfflineReply(userText: string): string {
-  const text = userText.toLowerCase();
-  if (text.includes("dotfit") || text.includes("gym timing") || text.includes("timings")) {
-    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.gym}\n${OFFLINE_KNOWLEDGE.amenities}\n${OFFLINE_KNOWLEDGE.policies}\n${OFFLINE_KNOWLEDGE.classes}\n${OFFLINE_KNOWLEDGE.staff}\n\nFor exact membership, timing, or location details, the website contact section is the safest source.`;
-  }
-  if (
-    text.includes("squat") ||
-    text.includes("deadlift") ||
-    text.includes("bench") ||
-    text.includes("workout") ||
-    text.includes("program") ||
-    text.includes("split")
-  ) {
-    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.training}\n\n${OFFLINE_KNOWLEDGE.safety}`;
-  }
-  if (
-    text.includes("meal") ||
-    text.includes("protein") ||
-    text.includes("diet") ||
-    text.includes("nutrition") ||
-    text.includes("calorie")
-  ) {
-    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.nutrition}\n\n${OFFLINE_KNOWLEDGE.safety}`;
-  }
-  if (
-    text.includes("machine") ||
-    text.includes("cable") ||
-    text.includes("dumbbell") ||
-    text.includes("barbell") ||
-    text.includes("equipment")
-  ) {
-    return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.equipment}\n\nAt Dotfit, a smart approach is to match the tool to the goal: free weights for skill + strength, machines for stable overload, cables for angles and tension.`;
-  }
-  return `${OFFLINE_KNOWLEDGE.identity}\n\n${OFFLINE_KNOWLEDGE.training}\n${OFFLINE_KNOWLEDGE.nutrition}\n${OFFLINE_KNOWLEDGE.equipment}\n\n${OFFLINE_KNOWLEDGE.safety}`;
-}
-
 function getApiBase(): string {
   const base = BASE_URL.endsWith("/") ? BASE_URL.slice(0, -1) : BASE_URL;
   return `${base}/api/openrouter`;
 }
 
-async function createConversation(title: string): Promise<number> {
+function conversationHeaders(token: string): HeadersInit {
+  return { "X-Conversation-Token": token };
+}
+
+async function createConversation(title: string): Promise<{ id: number; token: string }> {
   const res = await fetch(`${getApiBase()}/conversations`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title }),
   });
   if (!res.ok) throw new Error("Failed to create conversation");
-  const data = (await res.json()) as { id: number };
-  return data.id;
+  const data = (await res.json()) as { id: number; accessToken?: string };
+  if (typeof data.id !== "number" || !data.accessToken) {
+    throw new Error("Conversation was created without an access token");
+  }
+  return { id: data.id, token: data.accessToken };
 }
 
 async function loadConversation(
-  id: number
-): Promise<{ role: string; content: string }[]> {
-  const res = await fetch(`${getApiBase()}/conversations/${id}`);
-  if (!res.ok) return [];
+  id: number,
+  token: string,
+): Promise<{ role: string; content: string }[] | null> {
+  const res = await fetch(`${getApiBase()}/conversations/${id}`, {
+    headers: conversationHeaders(token),
+  });
+  if (!res.ok) return null;
   const data = (await res.json()) as {
     messages: { role: string; content: string }[];
   };
@@ -194,6 +130,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [convId, setConvId] = useState<number | null>(null);
+  const [convToken, setConvToken] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
@@ -227,43 +164,70 @@ export default function ChatWidget() {
   }, []);
 
   useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  useEffect(() => {
     if (!open || initialized) return;
     setInitialized(true);
 
-    const storedId = sessionStorage.getItem(STORAGE_KEY);
-    if (storedId) {
-      const id = Number(storedId);
-      loadConversation(id)
-        .then((msgs) => {
-          if (msgs.length > 0) {
-            setConvId(id);
-            setMessages(
-              msgs
-                .filter((m) => m.role === "user" || m.role === "assistant")
-                .map((m) => ({
-                  role: m.role as "user" | "assistant",
-                  content: m.content,
-                }))
-            );
-            return;
-          }
-          return startNewConversation();
-        })
-        .catch(() => startNewConversation());
-    } else {
-      startNewConversation();
+    const stored = parseStoredChat(sessionStorage.getItem(STORAGE_KEY));
+    if (!stored) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      void startNewConversation();
+      return;
     }
+    loadConversation(stored.id, stored.token)
+      .then((msgs) => {
+        if (msgs == null) {
+          sessionStorage.removeItem(STORAGE_KEY);
+          return startNewConversation();
+        }
+        setConvId(stored.id);
+        setConvToken(stored.token);
+        setMessages(
+          msgs
+            .filter((m) => m.role === "user" || m.role === "assistant")
+            .map((m) => ({
+              role: m.role as "user" | "assistant",
+              content: m.content,
+            })),
+        );
+        return undefined;
+      })
+      .catch(() => startNewConversation());
   }, [open, initialized]);
+
+  function rememberChat(id: number, token: string) {
+    sessionStorage.setItem(STORAGE_KEY, serializeStoredChat({ id, token }));
+    setConvId(id);
+    setConvToken(token);
+  }
 
   async function startNewConversation() {
     try {
-      const id = await createConversation("Dotfit Coaching Session");
-      sessionStorage.setItem(STORAGE_KEY, String(id));
-      setConvId(id);
+      const created = await createConversation("Dotfit Coaching Session");
+      rememberChat(created.id, created.token);
       setMessages([]);
     } catch {
-      // silently fail — user can still try sending
+      // The next send retries conversation creation.
     }
+  }
+
+  function writeAssistant(next: AssistantDraft) {
+    setMessages((prev) => {
+      const copy = [...prev];
+      const last = copy[copy.length - 1];
+      if (last?.role === "assistant") {
+        copy[copy.length - 1] = next;
+      }
+      return copy;
+    });
   }
 
   async function sendMessage() {
@@ -271,11 +235,13 @@ export default function ChatWidget() {
     if (!text || streaming) return;
 
     let activeConvId = convId;
-    if (!activeConvId) {
+    let activeToken = convToken;
+    if (!activeConvId || !activeToken) {
       try {
-        activeConvId = await createConversation("Dotfit Coaching Session");
-        sessionStorage.setItem(STORAGE_KEY, String(activeConvId));
-        setConvId(activeConvId);
+        const created = await createConversation("Dotfit Coaching Session");
+        rememberChat(created.id, created.token);
+        activeConvId = created.id;
+        activeToken = created.token;
       } catch {
         setMessages((prev) => [
           ...prev,
@@ -305,7 +271,10 @@ export default function ChatWidget() {
         `${getApiBase()}/conversations/${activeConvId}/messages`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...conversationHeaders(activeToken),
+          },
           body: JSON.stringify({ content: text }),
           signal: ctrl.signal,
         }
@@ -318,70 +287,42 @@ export default function ChatWidget() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let draft: AssistantDraft = { role: "assistant", content: "", streaming: true };
+      let stopped = false;
 
-      while (true) {
+      while (!stopped) {
         const { value, done } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const raw = line.slice(6).trim();
-          if (!raw) continue;
-          try {
-            const parsed = JSON.parse(raw) as {
-              content?: string;
-              done?: boolean;
-              error?: string;
-            };
-            if (parsed.error) {
-              setMessages((prev) => {
-                const copy = [...prev];
-                const last = copy[copy.length - 1];
-                if (last?.streaming) {
-                  copy[copy.length - 1] = {
-                    role: "assistant",
-                    content: parsed.error!,
-                    streaming: false,
-                  };
-                }
-                return copy;
-              });
-              setStreaming(false);
-              return;
-            }
-            if (parsed.content) {
-              setMessages((prev) => {
-                const copy = [...prev];
-                const last = copy[copy.length - 1];
-                if (last?.streaming) {
-                  copy[copy.length - 1] = {
-                    ...last,
-                    content: last.content + parsed.content,
-                  };
-                }
-                return copy;
-              });
-            }
-            if (parsed.done) {
-              setMessages((prev) => {
-                const copy = [...prev];
-                const last = copy[copy.length - 1];
-                if (last?.streaming) {
-                  copy[copy.length - 1] = { ...last, streaming: false };
-                }
-                return copy;
-              });
-              setStreaming(false);
-            }
-          } catch {
-            // skip malformed chunks
+        const parsed = takeSseEvents(buffer);
+        buffer = parsed.rest;
+        for (const event of parsed.events) {
+          const applied = applyCoachEvent(draft, event);
+          draft = applied.draft;
+          writeAssistant(draft);
+          setStreaming(applied.streaming);
+          if (applied.stop) {
+            stopped = true;
+            break;
           }
         }
       }
+
+      if (buffer.trim()) {
+        const flushed = takeSseEvents(`${buffer}\n`);
+        for (const event of flushed.events) {
+          const applied = applyCoachEvent(draft, event);
+          draft = applied.draft;
+          writeAssistant(draft);
+          if (applied.stop) stopped = true;
+        }
+      }
+
+      if (!stopped) {
+        draft = finishCoachDraft(draft);
+        writeAssistant(draft);
+      }
+      setStreaming(false);
     } catch (err) {
       if ((err as Error)?.name !== "AbortError") {
         setOfflineMode(true);
@@ -406,12 +347,11 @@ export default function ChatWidget() {
     abortRef.current?.abort();
     sessionStorage.removeItem(STORAGE_KEY);
     setConvId(null);
+    setConvToken(null);
     setMessages([]);
     setStreaming(false);
-    setInitialized(false);
-    // reinitialize
-    setTimeout(() => setInitialized(false), 50);
-    startNewConversation();
+    setInitialized(true);
+    void startNewConversation();
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -427,10 +367,12 @@ export default function ChatWidget() {
       <motion.button
         type="button"
         aria-label={open ? "Close AI Coach" : "Open AI Fitness Coach"}
+        aria-expanded={open}
+        aria-controls="dotfit-coach-panel"
         onClick={() => setOpen((o) => !o)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-gray-950 text-white rounded-full hidden md:flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.45)] border border-white/10"
+        className="fixed bottom-20 right-5 z-50 w-14 h-14 bg-gray-950 text-white rounded-full flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.45)] border border-white/10"
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
@@ -466,7 +408,10 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
-            className="fixed bottom-36 right-5 z-50 hidden md:flex flex-col w-[370px] h-[540px] bg-gray-950 rounded-2xl shadow-[0_8px_48px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden"
+            id="dotfit-coach-panel"
+            role="dialog"
+            aria-label="Dotfit AI Coach"
+            className="fixed z-50 flex flex-col inset-x-3 bottom-24 h-[min(70dvh,540px)] md:inset-x-auto md:right-5 md:bottom-36 md:w-[370px] md:h-[540px] bg-gray-950 rounded-2xl shadow-[0_8px_48px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 bg-gray-900 border-b border-white/10 shrink-0">
@@ -477,7 +422,7 @@ export default function ChatWidget() {
                 <p className="text-white font-semibold text-sm leading-tight">
                   Dotfit AI Coach
                 </p>
-                <p className="text-gray-400 text-xs">
+                <p className="text-gray-200 text-xs">
                   Fitness &amp; Nutrition Expert
                 </p>
               </div>
@@ -490,8 +435,8 @@ export default function ChatWidget() {
               <button
                 type="button"
                 onClick={clearChat}
-                title="Clear conversation"
-                className="ml-2 p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                aria-label="Clear conversation"
+                className="ml-2 p-1.5 text-gray-200 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -515,7 +460,7 @@ export default function ChatWidget() {
                     <p className="text-white font-semibold text-sm">
                       Your AI Fitness Coach
                     </p>
-                    <p className="text-gray-400 text-xs mt-1 max-w-[260px]">
+                    <p className="text-gray-200 text-xs mt-1 max-w-[260px]">
                       Ask me anything about training, nutrition, equipment, or
                       injury prevention.
                     </p>
@@ -534,7 +479,7 @@ export default function ChatWidget() {
                           setInput(s);
                           inputRef.current?.focus();
                         }}
-                        className="px-3 py-1.5 rounded-full bg-gray-800 text-gray-300 text-xs border border-white/10 hover:border-primary/50 hover:text-primary transition-colors"
+                        className="px-3 py-1.5 rounded-full bg-gray-800 text-gray-100 text-xs border border-white/10 hover:border-primary/50 hover:text-primary transition-colors"
                       >
                         {s}
                       </button>
@@ -596,8 +541,9 @@ export default function ChatWidget() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   type="button"
+                  aria-label="Scroll to latest messages"
                   onClick={() => scrollToBottom()}
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2 p-1.5 bg-gray-800 border border-white/10 rounded-full text-gray-400 hover:text-white shadow-lg z-10"
+                  className="absolute bottom-20 left-1/2 -translate-x-1/2 p-1.5 bg-gray-800 border border-white/10 rounded-full text-gray-200 hover:text-white shadow-lg z-10"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </motion.button>
@@ -607,7 +553,11 @@ export default function ChatWidget() {
             {/* Input */}
             <div className="px-3 py-3 border-t border-white/10 bg-gray-900 shrink-0">
               <div className="flex items-end gap-2">
+                <label htmlFor="coach-input" className="sr-only">
+                  Message the AI coach
+                </label>
                 <textarea
+                  id="coach-input"
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -615,7 +565,7 @@ export default function ChatWidget() {
                   placeholder="Ask about training, nutrition…"
                   rows={1}
                   disabled={streaming}
-                  className="flex-1 bg-gray-800 text-white placeholder:text-gray-500 text-sm rounded-xl px-3 py-2.5 border border-white/10 focus:border-primary/60 focus:outline-none resize-none leading-relaxed disabled:opacity-50 max-h-28 overflow-y-auto"
+                  className="flex-1 bg-gray-800 text-white placeholder:text-gray-300 text-sm rounded-xl px-3 py-2.5 border border-white/10 focus:border-primary/60 focus:outline-none resize-none leading-relaxed disabled:opacity-50 max-h-28 overflow-y-auto"
                   style={{ height: "auto", minHeight: "40px" }}
                   onInput={(e) => {
                     const el = e.currentTarget;
@@ -625,6 +575,7 @@ export default function ChatWidget() {
                 />
                 <motion.button
                   type="button"
+                  aria-label="Send message"
                   onClick={() => void sendMessage()}
                   disabled={!input.trim() || streaming}
                   whileTap={{ scale: 0.9 }}
@@ -637,7 +588,7 @@ export default function ChatWidget() {
                   )}
                 </motion.button>
               </div>
-              <p className="text-gray-600 text-[10px] mt-1.5 text-center">
+              <p className="text-gray-200 text-[10px] mt-1.5 text-center">
                 {offlineMode
                   ? "Offline coach mode · Local knowledge only · Not a substitute for medical advice"
                   : "Powered by Dotfit AI · Not a substitute for medical advice"}
