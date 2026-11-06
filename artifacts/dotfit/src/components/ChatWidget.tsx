@@ -58,6 +58,16 @@ async function loadConversation(
   return data.messages ?? [];
 }
 
+async function deleteConversation(id: number, token: string): Promise<void> {
+  const res = await fetch(`${getApiBase()}/conversations/${id}`, {
+    method: "DELETE",
+    headers: conversationHeaders(token),
+  });
+  if (!res.ok && res.status !== 404) {
+    throw new Error("Failed to delete conversation");
+  }
+}
+
 function MarkdownText({ text }: { text: string }) {
   const lines = text.split("\n");
   const elements: React.ReactNode[] = [];
@@ -134,10 +144,12 @@ export default function ChatWidget() {
   const [initialized, setInitialized] = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [clearNotice, setClearNotice] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const clearEpochRef = useRef(0);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -177,6 +189,7 @@ export default function ChatWidget() {
     setInitialized(true);
 
     const stored = parseStoredChat(sessionStorage.getItem(STORAGE_KEY));
+    const clearEpoch = clearEpochRef.current;
     if (!stored) {
       sessionStorage.removeItem(STORAGE_KEY);
       void startNewConversation();
@@ -184,6 +197,10 @@ export default function ChatWidget() {
     }
     loadConversation(stored.id, stored.token)
       .then((msgs) => {
+        if (clearEpoch !== clearEpochRef.current) {
+          void discardConversation(stored.id, stored.token);
+          return undefined;
+        }
         if (msgs == null) {
           sessionStorage.removeItem(STORAGE_KEY);
           return startNewConversation();
@@ -200,7 +217,13 @@ export default function ChatWidget() {
         );
         return undefined;
       })
-      .catch(() => startNewConversation());
+      .catch(() => {
+        if (clearEpoch !== clearEpochRef.current) {
+          void discardConversation(stored.id, stored.token);
+          return undefined;
+        }
+        return startNewConversation();
+      });
   }, [open, initialized]);
 
   function rememberChat(id: number, token: string) {
@@ -209,14 +232,57 @@ export default function ChatWidget() {
     setConvToken(token);
   }
 
+  function reportClearFailure() {
+    setOfflineMode(true);
+    setClearNotice(
+      "This browser session was cleared, but the server copy could not be removed. Please try again when the coach service is available.",
+    );
+  }
+
+  async function discardConversation(id: number, token: string) {
+    try {
+      await deleteConversation(id, token);
+    } catch {
+      reportClearFailure();
+    }
+  }
+
   async function startNewConversation() {
+    const clearEpoch = clearEpochRef.current;
     try {
       const created = await createConversation("Dotfit Coaching Session");
+      if (clearEpoch !== clearEpochRef.current) {
+        void discardConversation(created.id, created.token);
+        return;
+      }
       rememberChat(created.id, created.token);
       setMessages([]);
+      setOfflineMode(false);
     } catch {
-      // The next send retries conversation creation.
+      if (clearEpoch === clearEpochRef.current) setOfflineMode(true);
     }
+  }
+
+  function showOfflineReply(text: string, includeUserMessage = false) {
+    setOfflineMode(true);
+    setMessages((prev) => {
+      const copy = [...prev];
+      const reply: Message = {
+        role: "assistant",
+        content: getOfflineReply(text),
+        streaming: false,
+      };
+      const last = copy[copy.length - 1];
+      if (last?.role === "assistant" && last.streaming) {
+        copy[copy.length - 1] = reply;
+        return copy;
+      }
+      if (includeUserMessage) {
+        copy.push({ role: "user", content: text });
+      }
+      copy.push(reply);
+      return copy;
+    });
   }
 
   function writeAssistant(next: AssistantDraft) {
@@ -237,20 +303,20 @@ export default function ChatWidget() {
     let activeConvId = convId;
     let activeToken = convToken;
     if (!activeConvId || !activeToken) {
+      const clearEpoch = clearEpochRef.current;
       try {
         const created = await createConversation("Dotfit Coaching Session");
+        if (clearEpoch !== clearEpochRef.current) {
+          void discardConversation(created.id, created.token);
+          return;
+        }
         rememberChat(created.id, created.token);
         activeConvId = created.id;
         activeToken = created.token;
       } catch {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content:
-              "Sorry, I couldn't connect to the coaching service. Please try again.",
-          },
-        ]);
+        if (clearEpoch !== clearEpochRef.current) return;
+        setInput("");
+        showOfflineReply(text, true);
         return;
       }
     }
@@ -289,6 +355,7 @@ export default function ChatWidget() {
       let buffer = "";
       let draft: AssistantDraft = { role: "assistant", content: "", streaming: true };
       let stopped = false;
+      let useOfflineReply = false;
 
       while (!stopped) {
         const { value, done } = await reader.read();
@@ -297,6 +364,11 @@ export default function ChatWidget() {
         const parsed = takeSseEvents(buffer);
         buffer = parsed.rest;
         for (const event of parsed.events) {
+          if (event.error) {
+            useOfflineReply = true;
+            stopped = true;
+            break;
+          }
           const applied = applyCoachEvent(draft, event);
           draft = applied.draft;
           writeAssistant(draft);
@@ -311,6 +383,11 @@ export default function ChatWidget() {
       if (buffer.trim()) {
         const flushed = takeSseEvents(`${buffer}\n`);
         for (const event of flushed.events) {
+          if (event.error) {
+            useOfflineReply = true;
+            stopped = true;
+            break;
+          }
           const applied = applyCoachEvent(draft, event);
           draft = applied.draft;
           writeAssistant(draft);
@@ -318,40 +395,37 @@ export default function ChatWidget() {
         }
       }
 
-      if (!stopped) {
+      if (useOfflineReply) {
+        showOfflineReply(text);
+      } else if (!stopped) {
         draft = finishCoachDraft(draft);
         writeAssistant(draft);
       }
       setStreaming(false);
     } catch (err) {
       if ((err as Error)?.name !== "AbortError") {
-        setOfflineMode(true);
-        setMessages((prev) => {
-          const copy = [...prev];
-          const last = copy[copy.length - 1];
-          if (last?.streaming) {
-            copy[copy.length - 1] = {
-              role: "assistant",
-              content: getOfflineReply(text),
-              streaming: false,
-            };
-          }
-          return copy;
-        });
+        showOfflineReply(text);
       }
       setStreaming(false);
     }
   }
 
   function clearChat() {
+    const activeConvId = convId;
+    const activeToken = convToken;
+    clearEpochRef.current += 1;
     abortRef.current?.abort();
     sessionStorage.removeItem(STORAGE_KEY);
     setConvId(null);
     setConvToken(null);
     setMessages([]);
+    setInput("");
     setStreaming(false);
     setInitialized(true);
-    void startNewConversation();
+    setClearNotice(null);
+    if (activeConvId && activeToken) {
+      void discardConversation(activeConvId, activeToken);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -426,7 +500,7 @@ export default function ChatWidget() {
                   Fitness &amp; Nutrition Expert
                 </p>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" role="status" aria-live="polite">
                 <div className={`w-2 h-2 rounded-full ${offlineMode ? "bg-amber-400" : "bg-green-400"} animate-pulse`} />
                 <span className={`text-xs ${offlineMode ? "text-amber-400" : "text-green-400"}`}>
                   {offlineMode ? "Offline" : "Online"}
@@ -588,6 +662,11 @@ export default function ChatWidget() {
                   )}
                 </motion.button>
               </div>
+              {clearNotice && (
+                <p role="alert" className="mt-1.5 text-center text-[10px] text-amber-300">
+                  {clearNotice}
+                </p>
+              )}
               <p className="text-gray-200 text-[10px] mt-1.5 text-center">
                 {offlineMode
                   ? "Offline coach mode · Local knowledge only · Not a substitute for medical advice"
