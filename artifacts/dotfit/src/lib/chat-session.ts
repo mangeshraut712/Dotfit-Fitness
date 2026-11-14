@@ -58,6 +58,12 @@ export function serializePendingDeletions(deletions: StoredChat[]): string {
   return JSON.stringify(deletions);
 }
 
+export type FlushResult = {
+  allSucceeded: boolean;
+  succeeded: number[];
+  failed: number[];
+};
+
 export class PendingDeletionQueue {
   private items = new Map<number, string>();
 
@@ -89,19 +95,24 @@ export class PendingDeletionQueue {
 
   async flush(
     deleter: (id: number, token: string) => Promise<void>,
-  ): Promise<boolean> {
+  ): Promise<FlushResult> {
     const entries = Array.from(this.items.entries());
-    if (entries.length === 0) return true;
-    let allSucceeded = true;
+    const succeeded: number[] = [];
+    const failed: number[] = [];
     for (const [id, token] of entries) {
       try {
         await deleter(id, token);
         this.items.delete(id);
+        succeeded.push(id);
       } catch {
-        allSucceeded = false;
+        failed.push(id);
       }
     }
-    return allSucceeded;
+    return {
+      allSucceeded: failed.length === 0,
+      succeeded,
+      failed,
+    };
   }
 }
 

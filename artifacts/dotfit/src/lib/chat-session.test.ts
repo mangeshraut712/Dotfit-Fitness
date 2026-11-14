@@ -49,14 +49,18 @@ describe("pending coach session deletions", () => {
 
     // First attempt fails: credentials remain in queue
     const firstResult = await queue.flush(mockDeleter);
-    expect(firstResult).toBe(false);
+    expect(firstResult.allSucceeded).toBe(false);
+    expect(firstResult.failed).toEqual([23]);
+    expect(firstResult.succeeded).toEqual([]);
     expect(queue.size).toBe(1);
     expect(calls).toEqual([{ id: 23, token: "cred-23" }]);
 
     // Service recovers; second clear attempt retries with original credentials
     serviceDown = false;
     const secondResult = await queue.flush(mockDeleter);
-    expect(secondResult).toBe(true);
+    expect(secondResult.allSucceeded).toBe(true);
+    expect(secondResult.failed).toEqual([]);
+    expect(secondResult.succeeded).toEqual([23]);
     expect(queue.size).toBe(0);
     expect(calls).toEqual([
       { id: 23, token: "cred-23" },

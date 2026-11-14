@@ -15,6 +15,7 @@ import {
   parsePendingDeletions,
   serializePendingDeletions,
   PendingDeletionQueue,
+  type FlushResult,
 } from "@/lib/chat-session";
 import { getOfflineReply } from "@/lib/coach-offline";
 import { applyCoachEvent, finishCoachDraft, takeSseEvents, type AssistantDraft } from "@/lib/sse";
@@ -69,7 +70,12 @@ async function deleteConversation(id: number, token: string): Promise<void> {
     method: "DELETE",
     headers: conversationHeaders(token),
   });
-  if (!res.ok && res.status !== 404) {
+  if (
+    !res.ok &&
+    res.status !== 404 &&
+    res.status !== 401 &&
+    res.status !== 403
+  ) {
     throw new Error("Failed to delete conversation");
   }
 }
@@ -164,26 +170,30 @@ export default function ChatWidget() {
         : [],
     ),
   );
-  const flushPromiseRef = useRef<Promise<boolean> | null>(null);
+  const flushPromiseRef = useRef<Promise<FlushResult> | null>(null);
 
   const persistPendingQueue = useCallback(() => {
     if (typeof sessionStorage === "undefined") return;
-    const items = pendingQueueRef.current.toArray();
-    if (items.length === 0) {
-      sessionStorage.removeItem(PENDING_DELETIONS_KEY);
-    } else {
-      sessionStorage.setItem(
-        PENDING_DELETIONS_KEY,
-        serializePendingDeletions(items),
-      );
+    try {
+      const items = pendingQueueRef.current.toArray();
+      if (items.length === 0) {
+        sessionStorage.removeItem(PENDING_DELETIONS_KEY);
+      } else {
+        sessionStorage.setItem(
+          PENDING_DELETIONS_KEY,
+          serializePendingDeletions(items),
+        );
+      }
+    } catch {
+      // Ignore storage errors in restricted contexts
     }
   }, []);
 
-  const flushQueue = useCallback((): Promise<boolean> => {
+  const flushQueue = useCallback((): Promise<FlushResult> => {
     const run = async () => {
-      const ok = await pendingQueueRef.current.flush(deleteConversation);
+      const result = await pendingQueueRef.current.flush(deleteConversation);
       persistPendingQueue();
-      return ok;
+      return result;
     };
     if (flushPromiseRef.current) {
       flushPromiseRef.current = flushPromiseRef.current.then(run, run);
@@ -236,8 +246,8 @@ export default function ChatWidget() {
     setInitialized(true);
 
     if (pendingQueueRef.current.size > 0) {
-      void flushQueue().then((ok) => {
-        if (!ok) reportClearFailure();
+      void flushQueue().then((res) => {
+        if (!res.allSucceeded) reportClearFailure();
       });
     }
 
@@ -286,7 +296,6 @@ export default function ChatWidget() {
   }
 
   function reportClearFailure() {
-    setOfflineMode(true);
     setClearNotice(
       "This browser session was cleared, but the server copy could not be removed. Please try again when the coach service is available.",
     );
@@ -295,8 +304,8 @@ export default function ChatWidget() {
   async function discardConversation(id: number, token: string) {
     pendingQueueRef.current.enqueue(id, token);
     persistPendingQueue();
-    const ok = await flushQueue();
-    if (!ok) {
+    const res = await flushQueue();
+    if (!res.allSucceeded) {
       reportClearFailure();
     } else {
       setClearNotice(null);
@@ -483,8 +492,8 @@ export default function ChatWidget() {
       pendingQueueRef.current.enqueue(activeConvId, activeToken);
       persistPendingQueue();
     }
-    void flushQueue().then((ok) => {
-      if (!ok) {
+    void flushQueue().then((res) => {
+      if (!res.allSucceeded) {
         reportClearFailure();
       } else {
         setClearNotice(null);
