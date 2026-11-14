@@ -16,6 +16,7 @@ import {
   serializePendingDeletions,
   PendingDeletionQueue,
   type FlushResult,
+  type StoredChat,
 } from "@/lib/chat-session";
 import { getOfflineReply } from "@/lib/coach-offline";
 import { applyCoachEvent, finishCoachDraft, takeSseEvents, type AssistantDraft } from "@/lib/sse";
@@ -478,9 +479,13 @@ export default function ChatWidget() {
   function clearChat() {
     const activeConvId = convId;
     const activeToken = convToken;
+    let storedSession: StoredChat | null = null;
+    if (typeof sessionStorage !== "undefined") {
+      storedSession = parseStoredChat(sessionStorage.getItem(STORAGE_KEY));
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
     clearEpochRef.current += 1;
     abortRef.current?.abort();
-    sessionStorage.removeItem(STORAGE_KEY);
     setConvId(null);
     setConvToken(null);
     setMessages([]);
@@ -490,8 +495,11 @@ export default function ChatWidget() {
     setClearNotice(null);
     if (activeConvId && activeToken) {
       pendingQueueRef.current.enqueue(activeConvId, activeToken);
-      persistPendingQueue();
     }
+    if (storedSession) {
+      pendingQueueRef.current.enqueue(storedSession.id, storedSession.token);
+    }
+    persistPendingQueue();
     void flushQueue().then((res) => {
       if (!res.allSucceeded) {
         reportClearFailure();
