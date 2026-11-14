@@ -9,7 +9,13 @@ import {
   Trash2,
   ChevronDown,
 } from "lucide-react";
-import { parseStoredChat, serializeStoredChat } from "@/lib/chat-session";
+import {
+  parseStoredChat,
+  serializeStoredChat,
+  parsePendingDeletions,
+  serializePendingDeletions,
+  PendingDeletionQueue,
+} from "@/lib/chat-session";
 import { getOfflineReply } from "@/lib/coach-offline";
 import { applyCoachEvent, finishCoachDraft, takeSseEvents, type AssistantDraft } from "@/lib/sse";
 
@@ -133,6 +139,7 @@ function TypingDots() {
 }
 
 const STORAGE_KEY = "dotfit_chat_conv_id";
+const PENDING_DELETIONS_KEY = "dotfit_chat_pending_deletions";
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -150,6 +157,46 @@ export default function ChatWidget() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const clearEpochRef = useRef(0);
+  const pendingQueueRef = useRef<PendingDeletionQueue>(
+    new PendingDeletionQueue(
+      typeof sessionStorage !== "undefined"
+        ? parsePendingDeletions(sessionStorage.getItem(PENDING_DELETIONS_KEY))
+        : [],
+    ),
+  );
+  const flushPromiseRef = useRef<Promise<boolean> | null>(null);
+
+  const persistPendingQueue = useCallback(() => {
+    if (typeof sessionStorage === "undefined") return;
+    const items = pendingQueueRef.current.toArray();
+    if (items.length === 0) {
+      sessionStorage.removeItem(PENDING_DELETIONS_KEY);
+    } else {
+      sessionStorage.setItem(
+        PENDING_DELETIONS_KEY,
+        serializePendingDeletions(items),
+      );
+    }
+  }, []);
+
+  const flushQueue = useCallback((): Promise<boolean> => {
+    const run = async () => {
+      const ok = await pendingQueueRef.current.flush(deleteConversation);
+      persistPendingQueue();
+      return ok;
+    };
+    if (flushPromiseRef.current) {
+      flushPromiseRef.current = flushPromiseRef.current.then(run, run);
+      return flushPromiseRef.current;
+    }
+    const p = run().finally(() => {
+      if (flushPromiseRef.current === p) {
+        flushPromiseRef.current = null;
+      }
+    });
+    flushPromiseRef.current = p;
+    return p;
+  }, [persistPendingQueue]);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -188,6 +235,12 @@ export default function ChatWidget() {
     if (!open || initialized) return;
     setInitialized(true);
 
+    if (pendingQueueRef.current.size > 0) {
+      void flushQueue().then((ok) => {
+        if (!ok) reportClearFailure();
+      });
+    }
+
     const stored = parseStoredChat(sessionStorage.getItem(STORAGE_KEY));
     const clearEpoch = clearEpochRef.current;
     if (!stored) {
@@ -224,7 +277,7 @@ export default function ChatWidget() {
         }
         return startNewConversation();
       });
-  }, [open, initialized]);
+  }, [open, initialized, flushQueue]);
 
   function rememberChat(id: number, token: string) {
     sessionStorage.setItem(STORAGE_KEY, serializeStoredChat({ id, token }));
@@ -240,10 +293,13 @@ export default function ChatWidget() {
   }
 
   async function discardConversation(id: number, token: string) {
-    try {
-      await deleteConversation(id, token);
-    } catch {
+    pendingQueueRef.current.enqueue(id, token);
+    persistPendingQueue();
+    const ok = await flushQueue();
+    if (!ok) {
       reportClearFailure();
+    } else {
+      setClearNotice(null);
     }
   }
 
@@ -424,8 +480,16 @@ export default function ChatWidget() {
     setInitialized(true);
     setClearNotice(null);
     if (activeConvId && activeToken) {
-      void discardConversation(activeConvId, activeToken);
+      pendingQueueRef.current.enqueue(activeConvId, activeToken);
+      persistPendingQueue();
     }
+    void flushQueue().then((ok) => {
+      if (!ok) {
+        reportClearFailure();
+      } else {
+        setClearNotice(null);
+      }
+    });
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
