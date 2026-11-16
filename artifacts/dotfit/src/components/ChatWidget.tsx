@@ -491,7 +491,7 @@ export default function ChatWidget() {
     setMessages([]);
     setInput("");
     setStreaming(false);
-    setInitialized(false);
+    setInitialized(true);
     setClearNotice(null);
     if (activeConvId && activeToken) {
       pendingQueueRef.current.enqueue(activeConvId, activeToken);
