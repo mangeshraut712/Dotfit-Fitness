@@ -10,6 +10,7 @@ import { type Contact } from "@workspace/api-client-react";
 import { compareLeads } from "@/lib/contact-sort";
 import { leadsToCsv } from "@/lib/csv";
 import { applyPageMeta, ADMIN_PAGE_META } from "@/lib/page-meta";
+import { whatsappNumber } from "@/lib/whatsapp";
 
 type SortKey = keyof Contact;
 
@@ -125,9 +126,7 @@ function planColor(plan: string) {
 
 function waLink(phone: string, name: string) {
   const msg = encodeURIComponent(`Hi ${name}! This is Dotfit Fitness. We received your enquiry and would love to help you get started. When would be a good time to visit?`);
-  const clean = phone.replace(/\D/g, "");
-  const num = clean.startsWith("91") ? clean : `91${clean}`;
-  return `https://wa.me/${num}?text=${msg}`;
+  return `https://wa.me/${whatsappNumber(phone)}?text=${msg}`;
 }
 
 /* ── Password gate ────────────────────────────────────────────────────── */
