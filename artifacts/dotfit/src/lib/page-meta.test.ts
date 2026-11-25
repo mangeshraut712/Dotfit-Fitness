@@ -10,5 +10,8 @@ describe("applyPageMeta", () => {
       GUIDE_PAGE_META.description,
     );
     expect(document.querySelector('meta[name="robots"]')?.getAttribute("content")).toBe("index, follow");
+    expect(document.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe(
+      GUIDE_PAGE_META.canonical,
+    );
   });
 });
