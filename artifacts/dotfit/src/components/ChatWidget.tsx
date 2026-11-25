@@ -224,14 +224,16 @@ export default function ChatWidget() {
   }, [messages, streaming, scrollToBottom]);
 
   useEffect(() => {
+    if (!open) return;
     const el = containerRef.current;
     if (!el) return;
     const handleScroll = () => {
       setShowScrollBtn(el.scrollHeight - el.scrollTop - el.clientHeight > 80);
     };
-    el.addEventListener("scroll", handleScroll);
+    handleScroll();
+    el.addEventListener("scroll", handleScroll, { passive: true });
     return () => el.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [open, messages.length]);
 
   useEffect(() => {
     if (!open) return;
