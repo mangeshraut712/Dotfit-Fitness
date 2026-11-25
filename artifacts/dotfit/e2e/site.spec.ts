@@ -208,3 +208,31 @@ test("clearing while a stored conversation loads deletes the stored server sessi
     .poll(() => page.evaluate(() => sessionStorage.getItem("dotfit_chat_conv_id")))
     .toBeNull();
 });
+
+test("trial form hands the lead to WhatsApp when the site cannot save it", async ({ page }) => {
+  await page.route("**/api/contacts", (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    return route.fulfill({
+      status: 405,
+      contentType: "text/html",
+      body: "<html><title>405 Not Allowed</title></html>",
+    });
+  });
+
+  await page.goto("/");
+  await page.locator("#contact").scrollIntoViewIfNeeded();
+  await page.getByLabel("Full Name").fill("Asha Patil");
+  await page.getByLabel("Phone / WhatsApp").fill("9527237213");
+  await page.getByLabel("Email").fill("asha@example.com");
+  await page.getByRole("combobox").click();
+  await page.getByRole("option", { name: "Free Trial (No payment required)" }).click();
+  await page.getByRole("button", { name: /Submit/i }).click();
+
+  const handoff = page.getByRole("link", { name: "Send on WhatsApp" });
+  await expect(handoff).toBeVisible();
+  const href = await handoff.getAttribute("href");
+  expect(href).toContain("https://wa.me/919527237213?text=");
+  expect(decodeURIComponent(href ?? "")).toContain("Name: Asha Patil");
+  expect(decodeURIComponent(href ?? "")).toContain("Plan: Free Trial");
+  await expect(page.getByText("You're In")).toHaveCount(0);
+});
