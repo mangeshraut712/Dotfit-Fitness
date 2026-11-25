@@ -44,7 +44,8 @@ export function applyCoachEvent(
   return {
     draft: { role: "assistant", content, streaming },
     streaming,
-    stop: false,
+    // Stop before the next read so the composer cannot start a second turn.
+    stop: event.done === true,
   };
 }
 
