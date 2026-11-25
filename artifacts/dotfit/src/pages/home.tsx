@@ -822,7 +822,7 @@ export default function Home() {
 
       {/* ── Scroll progress bar ────────────────────────────────────────── */}
       <div
-        className="fixed top-0 left-0 z-[70] h-[3px] bg-primary transition-all duration-75 shadow-[0_0_8px_rgba(125,181,32,0.8)]"
+        className="fixed top-0 left-0 z-[70] h-[3px] bg-primary transition-all duration-75 shadow-[0_0_8px_rgba(92,126,32,0.8)]"
         style={{ width: `${scrollPct}%` }}
       />
 
@@ -1014,7 +1014,7 @@ export default function Home() {
         <a
           href="tel:+919527237213"
           aria-label="Call Dotfit Fitness"
-          className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(125,181,32,0.4)] hover:scale-110 transition-transform"
+          className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(92,126,32,0.4)] hover:scale-110 transition-transform"
         >
           <Phone className="w-6 h-6" aria-hidden="true" />
         </a>
@@ -1376,7 +1376,7 @@ export default function Home() {
                     transition={{ delay: idx * 0.08, duration: 0.45 }}
                     whileHover={{
                       y: -3,
-                      boxShadow: "0 8px 24px rgba(125,181,32,0.10)",
+                      boxShadow: "0 8px 24px rgba(92,126,32,0.10)",
                     }}
                     className="flex gap-3 p-4 bg-[#f8fbf3] border border-gray-100 hover:border-primary/30 transition-all cursor-default"
                   >
@@ -1955,7 +1955,7 @@ export default function Home() {
                 transition={{ delay: i * 0.1, duration: 0.55 }}
                 whileHover={
                   plan.popular
-                    ? { y: -8, boxShadow: "0 24px 48px rgba(125,181,32,0.25)" }
+                    ? { y: -8, boxShadow: "0 24px 48px rgba(92,126,32,0.25)" }
                     : { y: -6, boxShadow: "0 16px 40px rgba(0,0,0,0.10)" }
                 }
                 className={`relative p-8 bg-white flex flex-col cursor-default ${plan.popular ? "border-2 border-primary shadow-xl shadow-primary/10 scale-[1.02] z-10" : "border-2 border-gray-100"}`}
@@ -2654,7 +2654,7 @@ export default function Home() {
                 transition={{ delay: i * 0.09, duration: 0.5 }}
                 whileHover={{
                   y: -5,
-                  boxShadow: "0 16px 36px rgba(125,181,32,0.10)",
+                  boxShadow: "0 16px 36px rgba(92,126,32,0.10)",
                 }}
                 className="p-7 bg-[#f8fbf3] border-2 border-gray-100 hover:border-primary/30 transition-all flex flex-col cursor-default relative overflow-hidden group"
               >
