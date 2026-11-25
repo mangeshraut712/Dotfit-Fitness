@@ -235,4 +235,13 @@ test("trial form hands the lead to WhatsApp when the site cannot save it", async
   expect(decodeURIComponent(href ?? "")).toContain("Name: Asha Patil");
   expect(decodeURIComponent(href ?? "")).toContain("Plan: Free Trial");
   await expect(page.getByText("You're In")).toHaveCount(0);
+
+  await page
+    .getByRole("heading", { name: "3 Months", exact: true })
+    .locator("..")
+    .getByRole("button", { name: "Select Plan" })
+    .click();
+  await expect(page.getByRole("link", { name: "Send on WhatsApp" })).toHaveCount(0);
+  await expect(page.getByRole("combobox")).toContainText("3 Months");
+  await expect(page.getByLabel("Full Name")).toHaveValue("Asha Patil");
 });

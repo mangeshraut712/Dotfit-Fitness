@@ -803,6 +803,7 @@ export default function Home() {
 
   const bookPlan = (plan: string) => {
     form.setValue("plan", plan);
+    setHandoffUrl(null);
     scrollTo("contact");
   };
 
