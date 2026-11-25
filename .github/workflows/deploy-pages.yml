@@ -39,8 +39,7 @@ jobs:
         run: |
           mkdir -p _site
           cp -a artifacts/dotfit/dist/public/. _site/
-          cp _site/index.html _site/404.html
-          touch _site/.nojekyll
+          pnpm --filter @workspace/scripts exec tsx "$PWD/artifacts/dotfit/scripts/prepare-pages-site.ts" "$PWD/_site"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
