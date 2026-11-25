@@ -94,7 +94,7 @@ Official website for Dotfit Fitness gym in Baner, Pune, India. Built as a pnpm m
 
 | Route | File | Description |
 |-------|------|-------------|
-| `/` | `src/pages/home.tsx` | Main landing page (~1700 lines) |
+| `/` | `src/pages/home.tsx` | Main landing page |
 | `/guide` | `src/pages/guide.tsx` | 5-level progressive fitness guide |
 | `/admin` | `src/pages/admin.tsx` | Lead management: list, status cycle, CSV export |
 
@@ -119,8 +119,8 @@ pnpm --filter @workspace/db run push            # Push DB schema (dev only)
 ## Live URLs
 
 - GitHub Pages: https://mangeshraut712.github.io/Dotfit-Fitness/
-- Replit: https://dotfit-fitness--mbr63.replit.app/
-- Custom domain: https://dotfitfitness.in
+
+`dotfitfitness.in` is not delegated in public DNS. `https://dotfit-fitness--mbr63.replit.app/` returns 404. Neither is a live site.
 
 ## GitHub
 
@@ -131,13 +131,13 @@ pnpm --filter @workspace/db run push            # Push DB schema (dev only)
 
 ### API / Backend
 
-- CORS: restricted to `*.replit.app` and `dotfitfitness.in` in production; wildcard in development. Methods: GET, POST, PATCH, OPTIONS. Credentials: true.
+- CORS: production allows only `https://dotfitfitness.in` and `https://www.dotfitfitness.in`. Development allows only `http://localhost:3000` and `http://127.0.0.1:3000`. Methods: GET, POST, PATCH, DELETE, OPTIONS. Credentials: true.
 - Request body limit: 10 KB
 - Global 404 and error handler middleware in `app.ts`
 - All DB operations in routes have try/catch; errors logged via `req.log.error()`, user-friendly 500 messages returned
-- **Rate limiting**: POST /contacts limited to 5 submissions per 15 min per IP (production only)
-- **Admin auth**: Set `ADMIN_PASSWORD` env var to protect GET /contacts and PATCH /contacts/:id/status with Bearer token auth. If unset, endpoints are open (dev mode)
-- **Status validation**: PATCH /contacts/:id/status uses runtime type guard instead of `as` cast
+- **Rate limiting**: POST /contacts is limited to 5 submissions per 15 min per IP. The limit is skipped only when `NODE_ENV` is `development` or `test`. An unset `NODE_ENV` still enforces it.
+- **Admin auth**: `GET /api/contacts` and `PATCH /api/contacts/:id/status` require `Authorization: Bearer $ADMIN_PASSWORD`. They return 503 when `ADMIN_PASSWORD` is unset and 401 when the token does not match. They are never open.
+- **Status validation**: PATCH /contacts/:id/status uses a runtime type guard instead of an `as` cast. The id must be a whole positive integer.
 
 ### Admin Dashboard (`/admin`)
 
@@ -152,13 +152,13 @@ pnpm --filter @workspace/db run push            # Push DB schema (dev only)
 - JSON-LD includes: geo, foundingDate, aggregateRating, openingHoursSpecification, amenityFeature, sameAs
 - Hero image: `fetchPriority="high"` + `decoding="async"` for LCP
 - Below-fold images: `loading="lazy" decoding="async"`
-- Favicon: `%BASE_URLfavicon.svg` (Vite base-URL substitution format)
+- Favicon: `%BASE_URL%favicon.svg` (Vite base-URL substitution format)
 - Preload links: `%BASE_URLhero.webp` and `%BASE_URLlogo-text.webp`
 - `vite.config.ts`: `base: process.env.BASE_PATH ?? "/"`, `strictPort: false`
 
 ### Color / Design
 
-- Primary: `hsl(82, 60%, 45%)` — lime green (`#6aaa14` theme-color)
+- Primary: `hsl(82 60% 31%)` — `#5c7e20`, darkened so white text meets WCAG AA
 - Light bg: `#f8fbf3`
 - Dark sections: `bg-gray-950`
 - Display font: Oswald (`--app-font-display`)
