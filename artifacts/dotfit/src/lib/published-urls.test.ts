@@ -7,6 +7,15 @@ import { preparePagesSite } from "./prepare-pages-site";
 
 const LIVE = SITE_ORIGIN;
 
+/** Plain substring count. Deliberately regex-free so a URL never becomes a pattern. */
+function countOccurrences(haystack: string, needle: string): number {
+  let count = 0;
+  for (let at = haystack.indexOf(needle); at !== -1; at = haystack.indexOf(needle, at + needle.length)) {
+    count += 1;
+  }
+  return count;
+}
+
 describe("published URLs", () => {
   it("points metadata and the sitemap at the live GitHub Pages site", () => {
     const html = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
@@ -51,8 +60,7 @@ describe("published URLs", () => {
     expect(guide).not.toContain(`href="${HOME_CANONICAL}"`);
     // Exactly two guide URLs: the canonical link and og:url. A third means a blanket
     // string replace leaked into structured data.
-    expect(guide.match(new RegExp(`${GUIDE_CANONICAL.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}`, "g")))
-      .toHaveLength(2);
+    expect(countOccurrences(guide, GUIDE_CANONICAL)).toBe(2);
 
     const admin = readFileSync(path.join(siteDir, "admin", "index.html"), "utf8");
     expect(admin).toContain(`href="${HOME_CANONICAL}"`);
