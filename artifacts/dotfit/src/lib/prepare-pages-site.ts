@@ -9,7 +9,12 @@ const ROUTE_CANONICAL: Partial<Record<(typeof PAGES_ROUTES)[number], string>> = 
   guide: GUIDE_CANONICAL,
 };
 
-/** The guide is its own search result. A copied homepage canonical would fold it into `/`. */
+/**
+ * The guide is its own search result. A copied homepage canonical would fold it into `/`.
+ *
+ * Only the page-level signals move. The HealthClub JSON-LD `url` is the gym's official
+ * site, not the URL of the page it is embedded in, so it deliberately keeps `HOME_CANONICAL`.
+ */
 function shellForRoute(html: string, route: (typeof PAGES_ROUTES)[number]): string {
   const canonical = ROUTE_CANONICAL[route];
   if (!canonical) return html;
@@ -21,8 +26,7 @@ function shellForRoute(html: string, route: (typeof PAGES_ROUTES)[number]): stri
     .replaceAll(
       `<meta property="og:url" content="${HOME_CANONICAL}" />`,
       `<meta property="og:url" content="${canonical}" />`,
-    )
-    .replaceAll(`"url": "${HOME_CANONICAL}"`, `"url": "${canonical}"`);
+    );
 }
 
 /**

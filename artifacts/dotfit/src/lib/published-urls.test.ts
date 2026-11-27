@@ -44,8 +44,15 @@ describe("published URLs", () => {
     const guide = readFileSync(path.join(siteDir, "guide", "index.html"), "utf8");
     expect(guide).toContain(`<link rel="canonical" href="${GUIDE_CANONICAL}" />`);
     expect(guide).toContain(`<meta property="og:url" content="${GUIDE_CANONICAL}" />`);
-    expect(guide).toContain(`"url": "${GUIDE_CANONICAL}"`);
+    // Only the page-level signals move to the guide. The HealthClub JSON-LD "url" is the
+    // gym's official site, so it must keep pointing at the homepage.
+    expect(guide).toContain(`"url": "${HOME_CANONICAL}"`);
+    expect(guide).not.toContain(`"url": "${GUIDE_CANONICAL}"`);
     expect(guide).not.toContain(`href="${HOME_CANONICAL}"`);
+    // Exactly two guide URLs: the canonical link and og:url. A third means a blanket
+    // string replace leaked into structured data.
+    expect(guide.match(new RegExp(`${GUIDE_CANONICAL.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}`, "g")))
+      .toHaveLength(2);
 
     const admin = readFileSync(path.join(siteDir, "admin", "index.html"), "utf8");
     expect(admin).toContain(`href="${HOME_CANONICAL}"`);
