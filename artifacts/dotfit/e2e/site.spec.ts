@@ -245,3 +245,41 @@ test("trial form hands the lead to WhatsApp when the site cannot save it", async
   await expect(page.getByRole("combobox")).toContainText("3 Months");
   await expect(page.getByLabel("Full Name")).toHaveValue("Asha Patil");
 });
+
+test("coach offers jump-to-latest after the transcript is scrolled up", async ({ page }) => {
+  const paragraph = "Keep the rep controlled and stop if the joint hurts. ".repeat(30);
+  await page.addInitScript(() => {
+    sessionStorage.setItem(
+      "dotfit_chat_conv_id",
+      JSON.stringify({ id: 41, token: "scroll-token" }),
+    );
+  });
+  await page.route("**/api/openrouter/conversations/41", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: 41,
+        messages: Array.from({ length: 8 }, (_, index) => ({
+          role: index % 2 === 0 ? "user" : "assistant",
+          content: paragraph,
+        })),
+      }),
+    }),
+  );
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open AI Fitness Coach" }).click();
+  const dialog = page.getByRole("dialog", { name: "Dotfit AI Coach" });
+  await expect(dialog.getByText(/Keep the rep controlled/).first()).toBeVisible();
+  const scroller = dialog.locator(".scroll-smooth");
+  await expect
+    .poll(() => scroller.evaluate((el) => el.scrollHeight - el.clientHeight))
+    .toBeGreaterThan(80);
+  await scroller.evaluate((el) => {
+    el.scrollTop = 0;
+    // Element scroll events are UIEvents that do not bubble; mirror that faithfully.
+    el.dispatchEvent(new UIEvent("scroll"));
+  });
+  await expect(dialog.getByRole("button", { name: "Scroll to latest messages" })).toBeVisible();
+});
