@@ -278,7 +278,8 @@ test("coach offers jump-to-latest after the transcript is scrolled up", async ({
     .toBeGreaterThan(80);
   await scroller.evaluate((el) => {
     el.scrollTop = 0;
-    el.dispatchEvent(new Event("scroll"));
+    // Element scroll events are UIEvents that do not bubble; mirror that faithfully.
+    el.dispatchEvent(new UIEvent("scroll"));
   });
   await expect(dialog.getByRole("button", { name: "Scroll to latest messages" })).toBeVisible();
 });
