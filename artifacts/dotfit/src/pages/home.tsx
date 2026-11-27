@@ -66,6 +66,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ChatWidget from "@/components/ChatWidget";
 import { computeBmi, type BmiResult } from "@/lib/bmi";
+import { contactApiErrorMessage, whatsappHandoffUrl } from "@/lib/contact-handoff";
 import { getDailyBanner, getGymStatus } from "@/lib/gym-hours";
 import { applyPageMeta, HOME_PAGE_META } from "@/lib/page-meta";
 import { BASE_URL, assetUrl, pageUrl } from "@/lib/paths";
@@ -683,6 +684,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
   const [formDone, setFormDone] = useState(false);
+  const [handoffUrl, setHandoffUrl] = useState<string | null>(null);
   const [submittedName, setSubmittedName] = useState("");
   const [submittedPlan, setSubmittedPlan] = useState("");
   const [showPopup, setShowPopup] = useState(false);
@@ -753,21 +755,24 @@ export default function Home() {
         body: JSON.stringify(values),
       });
       if (res.ok) {
+        setHandoffUrl(null);
         setSubmittedName(values.name.split(" ")[0]);
         setSubmittedPlan(values.plan);
         setFormDone(true);
         form.reset();
         return;
       }
-      const body = (await res.json().catch(() => null)) as {
-        error?: string;
-        details?: Record<string, string[] | undefined>;
-      } | null;
-      const detail = body?.details
-        ? Object.values(body.details).flat().find((item) => item)
-        : body?.error;
-      throw new Error(detail || "Submission failed");
+      const message = contactApiErrorMessage(await res.json().catch(() => null));
+      if (!message) {
+        setHandoffUrl(whatsappHandoffUrl(values));
+        return;
+      }
+      throw new Error(message);
     } catch (err) {
+      if (err instanceof TypeError) {
+        setHandoffUrl(whatsappHandoffUrl(values));
+        return;
+      }
       toast({
         title: "Submission failed",
         description:
@@ -798,6 +803,7 @@ export default function Home() {
 
   const bookPlan = (plan: string) => {
     form.setValue("plan", plan);
+    setHandoffUrl(null);
     scrollTo("contact");
   };
 
@@ -3319,6 +3325,30 @@ export default function Home() {
                   Submit another request
                 </button>
               </motion.div>
+            ) : handoffUrl ? (
+              <div className="bg-[#f8fbf3] border-2 border-primary/20 p-8" role="status">
+                <h3 className="text-2xl font-display font-black uppercase tracking-tight text-gray-900 mb-2">
+                  Send this on WhatsApp
+                </h3>
+                <p className="text-gray-600 text-sm font-medium mb-6">
+                  This website could not save the request. WhatsApp still delivers the same details to the gym.
+                </p>
+                <a
+                  href={handoffUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-12 bg-[#25D366] text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" /> Send on WhatsApp
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setHandoffUrl(null)}
+                  className="mt-4 text-xs text-gray-600 hover:text-gray-900 font-medium underline underline-offset-2 w-full text-center"
+                >
+                  Back to the form
+                </button>
+              </div>
             ) : (
               <Form {...form}>
                 <form
