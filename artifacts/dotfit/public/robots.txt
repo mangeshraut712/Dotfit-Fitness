@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://dotfitfitness.in/sitemap.xml
+Sitemap: https://mangeshraut712.github.io/Dotfit-Fitness/sitemap.xml

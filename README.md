@@ -20,8 +20,6 @@
 
 <p align="center">
   <a href="https://mangeshraut712.github.io/Dotfit-Fitness/"><strong>Live site</strong></a>
-  ·
-  <a href="https://dotfitfitness.in">dotfitfitness.in</a>
 </p>
 
 ## Screenshots
@@ -220,10 +218,10 @@ On push to `main`, a separate **Deploy GitHub Pages** workflow builds the Vite a
 
 ## Live links
 
-- Website (GitHub Pages): https://mangeshraut712.github.io/Dotfit-Fitness/
-- Custom domain: https://dotfitfitness.in
-- Replit: https://dotfit-fitness--mbr63.replit.app/
+- Website: https://mangeshraut712.github.io/Dotfit-Fitness/
 - GitHub: https://github.com/mangeshraut712/Dotfit-Fitness
+
+`dotfitfitness.in` is not delegated in public DNS, and `https://dotfit-fitness--mbr63.replit.app/` returns 404. Neither is a live site.
 
 ---
 
