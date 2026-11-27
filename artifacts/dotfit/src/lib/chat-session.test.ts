@@ -87,6 +87,30 @@ describe("coach stream reducer", () => {
     expect(applied.streaming).toBe(false);
     expect(applied.draft.content).toBe("busy");
   });
+
+  it("stops the reader when the coach marks the turn done", () => {
+    const applied = applyCoachEvent(
+      { role: "assistant", content: "Hello", streaming: true },
+      { done: true },
+    );
+    expect(applied.stop).toBe(true);
+    expect(applied.streaming).toBe(false);
+    expect(applied.draft).toEqual({
+      role: "assistant",
+      content: "Hello",
+      streaming: false,
+    });
+  });
+
+  it("keeps the reader open for a content chunk that is not done", () => {
+    const applied = applyCoachEvent(
+      { role: "assistant", content: "", streaming: true },
+      { content: "Hello" },
+    );
+    expect(applied.stop).toBe(false);
+    expect(applied.streaming).toBe(true);
+    expect(applied.draft.content).toBe("Hello");
+  });
 });
 
 describe("offline coach", () => {
